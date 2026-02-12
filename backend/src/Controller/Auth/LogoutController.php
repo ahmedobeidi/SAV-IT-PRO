@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Controller\Auth;
+
+use App\Service\AuthService;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Attribute\Route;
+
+class LogoutController extends AbstractController
+{
+    #[Route('/api/auth/logout', name: 'api_auth_logout', methods: ['POST'])]
+    public function logout(Request $request, AuthService $authService): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+        $refreshToken = $data['refresh_token'] ?? null;
+
+        if (!$refreshToken) {
+            return new JsonResponse(['message' => 'refresh_token is required'], 400);
+        }
+
+        $refresh = $authService->findValidRefreshToken($refreshToken);
+        if ($refresh) {
+            $authService->revokeRefreshToken($refresh);
+        }
+
+        // Always return OK (avoid token enumeration)
+        return new JsonResponse(['message' => 'Logged out']);
+    }
+}

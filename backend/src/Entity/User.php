@@ -9,10 +9,12 @@ use Doctrine\Common\Collections\Collection;
 use App\Entity\RepairOrder;
 use App\Entity\Ticket;
 use App\Entity\RepairOrderLog;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -272,5 +274,41 @@ class User
         }
 
         return $this;
+    }
+
+    /**
+     * Symfony 5.3+ uses getUserIdentifier()
+     */
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
+    }
+
+    /**
+     * Needed by UserInterface (old method kept for compatibility in some places)
+     */
+    public function getUsername(): string
+    {
+        return $this->email;
+    }
+
+    /**
+     * Symfony expects an array of strings like ROLE_USER, ROLE_ADMIN...
+     */
+    public function getRoles(): array
+    {
+        // You store ONE role as enum => convert it to string role name
+        // This assumes your enum values are like 'ROLE_ADMIN', 'ROLE_TECH', etc.
+        $roles = [$this->role->value];
+
+        // Always guarantee at least ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_values(array_unique($roles));
+    }
+
+    public function eraseCredentials(): void
+    {
+        // If you had a plainPassword property, you would clear it here.
     }
 }

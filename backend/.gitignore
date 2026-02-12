@@ -12,3 +12,17 @@
 ###> lexik/jwt-authentication-bundle ###
 /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
+
+###< IDE ###
+/.idea/
+/.vscode/
+###> IDE ###
+
+###< OS ###
+.DS_Store
+Thumbs.db
+###> OS ###
+
+###< Logs / Cache ###
+*.log
+###> Logs / Cache ###
