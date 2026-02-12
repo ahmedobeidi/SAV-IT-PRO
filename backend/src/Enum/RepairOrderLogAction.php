@@ -2,11 +2,11 @@
 
 namespace App\Enum;
 
-enum RepairOrderLogAction: string
-{
+enum RepairOrderLogAction: string {
     case CREATED = 'CREATED';
     case UPDATED = 'UPDATED';
-    case ASSIGNED = 'ASSIGNED';
     case STATUS_CHANGED = 'STATUS_CHANGED';
-    case ANONYMIZED = 'ANONYMIZED';
+    case ASSIGNED = 'ASSIGNED';
+    case PDF_GENERATED = 'PDF_GENERATED';
+    case PDF_SENT = 'PDF_SENT';
 }
