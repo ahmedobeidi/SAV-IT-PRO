@@ -21,7 +21,7 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
     {
         $user = $token->getUser();
         if (!$user instanceof User) {
-            return new JsonResponse(['message' => 'Invalid user'], 400);
+            return new JsonResponse(['message' => 'Utilisateur invalide'], 400);
         }
 
         $jwt = $this->jwtManager->create($user);

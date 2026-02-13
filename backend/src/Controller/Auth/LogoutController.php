@@ -17,7 +17,7 @@ class LogoutController extends AbstractController
         $refreshToken = $data['refresh_token'] ?? null;
 
         if (!$refreshToken) {
-            return new JsonResponse(['message' => 'refresh_token is required'], 400);
+            return new JsonResponse(['message' => 'Le refresh_token est obligatoire'], 400);
         }
 
         $refresh = $authService->findValidRefreshToken($refreshToken);
@@ -26,6 +26,6 @@ class LogoutController extends AbstractController
         }
 
         // Always return OK (avoid token enumeration)
-        return new JsonResponse(['message' => 'Logged out']);
+        return new JsonResponse(['message' => 'Déconnexion réussie']);
     }
 }
