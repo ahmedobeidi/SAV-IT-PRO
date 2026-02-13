@@ -26,14 +26,14 @@ class ResetPasswordController extends AbstractController
         $newPassword = $data['newPassword'] ?? null;
 
         if (!$token || !$newPassword) {
-            return new JsonResponse(['message' => 'token and newPassword are required'], 400);
+            return new JsonResponse(['message' => 'token et newPassword sont requis'], 400);
         }
 
         try {
             // ✅ Validates token (selector + verifier) and fetches the user
             $user = $resetPasswordHelper->validateTokenAndFetchUser($token);
         } catch (ResetPasswordExceptionInterface $e) {
-            return new JsonResponse(['message' => 'Invalid or expired token'], 400);
+            return new JsonResponse(['message' => 'Token invalide ou expiré'], 400);
         }
 
         // ✅ Update password
@@ -43,6 +43,6 @@ class ResetPasswordController extends AbstractController
         // ✅ Invalidate request so token cannot be reused
         $resetPasswordHelper->removeResetRequest($token);
 
-        return new JsonResponse(['message' => 'Password updated successfully'], 200);
+        return new JsonResponse(['message' => 'Mot de passe mis à jour avec succès'], 200);
     }
 }

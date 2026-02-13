@@ -22,17 +22,17 @@ class RefreshController extends AbstractController
         $refreshToken = $data['refresh_token'] ?? null;
 
         if (!$refreshToken) {
-            return new JsonResponse(['message' => 'refresh_token is required'], 400);
+            return new JsonResponse(['message' => 'refresh_token est requis'], 400);
         }
 
         $refresh = $authService->findValidRefreshToken($refreshToken);
         if (!$refresh) {
-            return new JsonResponse(['message' => 'Invalid refresh token'], 401);
+            return new JsonResponse(['message' => 'Refresh token invalide'], 401);
         }
 
         $user = $refresh->getUser();
         if (!$user instanceof User) {
-            return new JsonResponse(['message' => 'Invalid user'], 401);
+            return new JsonResponse(['message' => 'Utilisateur invalide'], 401);
         }
 
         // Optional security: rotate refresh token (recommended)

@@ -26,14 +26,14 @@ class ForgotPasswordController extends AbstractController
         $email = $data['email'] ?? null;
 
         if (!$email) {
-            return new JsonResponse(['message' => 'email is required'], 400);
+            return new JsonResponse(['message' => 'L’email est requis'], 400);
         }
 
         $user = $em->getRepository(User::class)->findOneBy(['email' => $email]);
 
         // ✅ Always respond same (prevent email enumeration)
         if (!$user) {
-            return new JsonResponse(['message' => 'If the email exists, a reset link has been sent.'], 200);
+            return new JsonResponse(['message' => 'Si l’email existe, un lien de réinitialisation a été envoyé.'], 200);
         }
 
         // ✅ Generate token (may throw TooManyPasswordRequestsException)
@@ -41,7 +41,7 @@ class ForgotPasswordController extends AbstractController
             $resetToken = $resetPasswordHelper->generateResetToken($user);
         } catch (TooManyPasswordRequestsException $e) {
             // ✅ Do NOT reveal throttling info (security)
-            return new JsonResponse(['message' => 'If the email exists, a reset link has been sent.'], 200);
+            return new JsonResponse(['message' => 'Si l’email existe, un lien de réinitialisation a été envoyé.'], 200);
         }
 
         $token = $resetToken->getToken();
@@ -55,13 +55,13 @@ class ForgotPasswordController extends AbstractController
         $message = (new Email())
             ->from('no-reply@sav-it-pro.com')
             ->to($user->getEmail())
-            ->subject('Reset your password')
+            ->subject('Réinitialisez votre mot de passe')
             ->text(
-                "Hello,\n\n".
-                "To reset your password, click the link below:\n\n".
+                "Bonjour,\n\n".
+                "Pour réinitialiser votre mot de passe, cliquez sur le lien ci-dessous :\n\n".
                 $frontendResetUrl . "\n\n".
-                "This link will expire soon.\n\n".
-                "If you didn’t request this, ignore this email."
+                "Ce lien expirera bientôt.\n\n".
+                "Si vous n’avez pas fait cette demande, ignorez cet e-mail."
             );
 
         // ✅ If mail fails, show error only in dev (so you can debug)
@@ -70,15 +70,15 @@ class ForgotPasswordController extends AbstractController
         } catch (\Throwable $e) {
             if ($this->getParameter('kernel.environment') === 'dev') {
                 return new JsonResponse([
-                    'message' => 'Mailer error (dev only)',
+                    'message' => 'Erreur d’envoi de mail (dev uniquement)',
                     'error' => $e->getMessage(),
                 ], 500);
             }
 
             // In prod: still hide errors
-            return new JsonResponse(['message' => 'If the email exists, a reset link has been sent.'], 200);
+            return new JsonResponse(['message' => 'Si l’email existe, un lien de réinitialisation a été envoyé.'], 200);
         }
 
-        return new JsonResponse(['message' => 'If the email exists, a reset link has been sent.'], 200);
+        return new JsonResponse(['message' => 'Si l’email existe, un lien de réinitialisation a été envoyé.'], 200);
     }
 }
