@@ -28,3 +28,10 @@ export const ALL_ROLES: UserRole[] = [
   "ROLE_TECHNICIAN",
   "ROLE_RECEPTION",
 ];
+
+export const ROLE_LABEL: Record<UserRole, string> = {
+  ROLE_SUPER_ADMIN: "Super",
+  ROLE_ADMIN: "Admin",
+  ROLE_TECHNICIAN: "Technicien",
+  ROLE_RECEPTION: "Réception",
+};
