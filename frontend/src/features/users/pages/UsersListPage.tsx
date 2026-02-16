@@ -35,7 +35,6 @@ export default function UsersListPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 12 }}>
         <div>
           <h2 style={{ margin: 0 }}>Utilisateurs</h2>
-          <div className="small">Liste + recherche + actions (bloquer / anonymiser)</div>
         </div>
 
         <Link to="/admin/users/new" className="btn btn-primary">
