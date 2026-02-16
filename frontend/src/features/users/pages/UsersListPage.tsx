@@ -24,7 +24,9 @@ export default function UsersListPage() {
   }
 
   async function onAnonymize(u: UserRead) {
-    const ok = confirm("Confirmer l’anonymisation RGPD ? (action irréversible)");
+    const ok = confirm(
+      "Confirmer l’anonymisation RGPD ? (action irréversible)",
+    );
     if (!ok) return;
     await usersApi.anonymize(u.id);
     window.location.reload();
@@ -32,7 +34,14 @@ export default function UsersListPage() {
 
   return (
     <div style={{ display: "grid", gap: 12 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "end",
+          gap: 12,
+        }}
+      >
         <div>
           <h2 style={{ margin: 0 }}>Utilisateurs</h2>
         </div>
@@ -42,30 +51,76 @@ export default function UsersListPage() {
         </Link>
       </div>
 
-      <div className="card" style={{ padding: 12, display: "flex", gap: 10, alignItems: "center" }}>
-        <input
-          className="input"
-          placeholder="Rechercher par nom..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
+      <div
+        className="card"
+        style={{
+          padding: 12,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 10,
+        }}
+      >
+        {/* LEFT */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexWrap: "wrap",
           }}
-        />
-        <div className="small">Page {page} / {totalPages}</div>
-        <button className="btn" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>
-          Précédent
-        </button>
-        <button className="btn" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>
-          Suivant
-        </button>
+        >
+          <input
+            className="input"
+            style={{
+              width: 260,
+              flexShrink: 0,
+            }}
+            placeholder="Rechercher par nom..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+          />
+
+          <div className="small">
+            Page {page} / {totalPages}
+          </div>
+        </div>
+
+        {/* RIGHT */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <button
+            className="btn"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+          >
+            Précédent
+          </button>
+
+          <button
+            className="btn"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages}
+          >
+            Suivant
+          </button>
+        </div>
       </div>
 
       {loading && <div className="small">Chargement...</div>}
-      {error && <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>}
+      {error && (
+        <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>
+      )}
 
       {data && (
-        <UsersTable items={data.items} onToggleActive={onToggleActive} onAnonymize={onAnonymize} />
+        <UsersTable
+          items={data.items}
+          onToggleActive={onToggleActive}
+          onAnonymize={onAnonymize}
+        />
       )}
     </div>
   );

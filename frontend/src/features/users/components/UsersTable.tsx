@@ -18,16 +18,16 @@ export default function UsersTable({
         style={{
           width: "100%",
           borderCollapse: "collapse",
-          tableLayout: "fixed", // ✅ important for equal/controlled widths
+          tableLayout: "fixed",
         }}
       >
         {/* ✅ fixed widths + “same width feel” */}
         <colgroup>
           <col style={{ width: "24%" }} />
           <col style={{ width: "38%" }} />
-          <col style={{ width: "16%" }} />
-          <col style={{ width: "12%" }} />
           <col style={{ width: "18%" }} />
+          <col style={{ width: "12%" }} />
+          <col style={{ width: "16%" }} />
         </colgroup>
 
         <thead>
