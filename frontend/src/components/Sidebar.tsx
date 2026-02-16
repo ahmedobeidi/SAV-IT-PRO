@@ -27,14 +27,13 @@ export default function Sidebar() {
         <NavLink to="/admin" style={linkStyle} end>
           Tableau de bord
         </NavLink>
+        <NavLink to="/admin/users" style={linkStyle}>
+          Utilisateurs
+        </NavLink>
         <NavLink to="/admin/profile" style={linkStyle}>
           Profil
         </NavLink>
       </nav>
-
-      <div style={{ marginTop: 18 }} className="small">
-        Interface style EasyAdmin
-      </div>
     </aside>
   );
 }
