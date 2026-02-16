@@ -11,40 +11,50 @@ use App\Entity\Ticket;
 use App\Entity\RepairOrderLog;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    #[Groups(['user:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Groups(['user:read'])]
     #[ORM\Column(length: 100)]
     private string $firstName;
 
+    #[Groups(['user:read'])]
     #[ORM\Column(length: 100)]
     private string $lastName;
 
+    #[Groups(['user:read'])]
     #[ORM\Column(length: 180, unique: true)]
     private string $email;
 
     #[ORM\Column]
     private string $password;
 
+    #[Groups(['user:read'])]
     #[ORM\Column(enumType: UserRole::class)]
     private UserRole $role;
 
+    #[Groups(['user:read'])]
     #[ORM\Column(options: ['default' => true])]
     private bool $isActive = true;
 
+    #[Groups(['user:read'])]
     #[ORM\Column(options: ['default' => false])]
     private bool $isAnonymized = false;
 
+    #[Groups(['user:read'])]
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    #[Groups(['user:read'])]
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
