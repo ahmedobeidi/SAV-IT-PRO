@@ -4,6 +4,7 @@ import UsersTable from "../components/UsersTable";
 import { useUsersList } from "../hooks/useUsersList";
 import { usersApi } from "../users.api";
 import type { UserRead } from "../users.types";
+import { UserPlus } from "lucide-react";
 
 export default function UsersListPage() {
   const [search, setSearch] = useState("");
@@ -46,8 +47,13 @@ export default function UsersListPage() {
           <h2 style={{ margin: 0 }}>Utilisateurs</h2>
         </div>
 
-        <Link to="/admin/users/new" className="btn btn-primary">
-          + Créer un utilisateur
+        <Link
+          to="/admin/users/new"
+          className="btn btn-primary"
+          title="Créer un utilisateur"
+          aria-label="Créer un utilisateur"
+        >
+          <UserPlus size={18} />
         </Link>
       </div>
 
