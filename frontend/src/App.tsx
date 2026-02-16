@@ -8,9 +8,12 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import DashboardPage from "./pages/DashboardPage";
 import ProfilePage from "./pages/ProfilePage";
+import { GlobalLoadingOverlay } from "./ui/GlobalLoadingOverlay";
 
 export default function App() {
   return (
+    <>
+    <GlobalLoadingOverlay />
     <Routes>
       {/* Public/auth pages */}
       <Route element={<AuthLayout />}>
@@ -36,5 +39,6 @@ export default function App() {
       <Route path="/" element={<Navigate to="/admin" replace />} />
       <Route path="*" element={<Navigate to="/admin" replace />} />
     </Routes>
+    </>
   );
 }

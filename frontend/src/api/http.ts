@@ -2,22 +2,48 @@ import axios from "axios";
 import type { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { authStore } from "../auth/auth.store";
 import { authService } from "../auth/auth.service.ts";
+import { loadingStore } from "../ui/loading.store";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+type AnyConfig = InternalAxiosRequestConfig & {
+  meta?: { skipLoading?: boolean };
+  __loadingTracked?: boolean; // our flag (prevents double inc on retry)
+  _retry?: boolean; // your flag
+};
+
+function shouldTrack(config: AnyConfig) {
+  return config?.meta?.skipLoading !== true;
+}
 
 export const http = axios.create({
   baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },
 });
 
-// Attach JWT on every request
-http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const { accessToken } = authStore.getTokens();
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
+// Attach JWT + START loading
+http.interceptors.request.use(
+  (config: AnyConfig) => {
+    // loading: only inc once per "logical request" (even if retried)
+    if (shouldTrack(config) && !config.__loadingTracked) {
+      loadingStore.inc();
+      config.__loadingTracked = true;
+    }
+
+    // auth header
+    const { accessToken } = authStore.getTokens();
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    // if request never got config tracked properly, just try to dec safely
+    loadingStore.dec();
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
 // Handle 401 -> try refresh once -> retry original request
 let isRefreshing = false;
@@ -33,20 +59,47 @@ function resolveQueue(token: string | null) {
 }
 
 http.interceptors.response.use(
-  (res) => res,
-  async (err: AxiosError) => {
-    const original = err.config as any;
+  (res) => {
+    const cfg = res.config as AnyConfig;
 
-    // If not 401 or already retried, fail
-    if (err.response?.status !== 401 || original?._retry) {
+    // FINISH loading
+    if (shouldTrack(cfg) && cfg.__loadingTracked) {
+      loadingStore.dec();
+      cfg.__loadingTracked = false;
+    }
+
+    return res;
+  },
+  async (err: AxiosError) => {
+    const original = err.config as AnyConfig;
+
+    const status = err.response?.status;
+
+    // If this error should end the request (not a refresh retry path)
+    const willTryRefresh = status === 401 && !original?._retry;
+
+    // If not going through refresh, END loading now
+    if (!willTryRefresh) {
+      if (original && shouldTrack(original) && original.__loadingTracked) {
+        loadingStore.dec();
+        original.__loadingTracked = false;
+      }
       throw err;
     }
 
+    // mark retry
     original._retry = true;
 
     const { refreshToken } = authStore.getTokens();
     if (!refreshToken) {
       authStore.clear();
+
+      // END loading (because we won’t retry)
+      if (shouldTrack(original) && original.__loadingTracked) {
+        loadingStore.dec();
+        original.__loadingTracked = false;
+      }
+
       throw err;
     }
 
@@ -54,9 +107,17 @@ http.interceptors.response.use(
       // Wait until refresh finished, then retry
       return new Promise((resolve, reject) => {
         queueRefresh((newToken) => {
-          if (!newToken) return reject(err);
+          if (!newToken) {
+            // END loading (because request will fail)
+            if (shouldTrack(original) && original.__loadingTracked) {
+              loadingStore.dec();
+              original.__loadingTracked = false;
+            }
+            return reject(err);
+          }
+
           original.headers.Authorization = `Bearer ${newToken}`;
-          resolve(http(original));
+          resolve(http(original)); // request interceptor won’t inc again due to __loadingTracked
         });
       });
     }
@@ -65,15 +126,22 @@ http.interceptors.response.use(
 
     try {
       const refreshed = await authService.refresh(refreshToken);
-      authStore.setTokens(refreshed.token, refreshed.refresh_token);
+      authStore.setTokens(refreshed.token, refreshed.refresh_token, refreshed.role);
 
       resolveQueue(refreshed.token);
 
       original.headers.Authorization = `Bearer ${refreshed.token}`;
-      return http(original);
+      return http(original); // retry (no double inc)
     } catch (e) {
       resolveQueue(null);
       authStore.clear();
+
+      // END loading (because retry chain ends here)
+      if (shouldTrack(original) && original.__loadingTracked) {
+        loadingStore.dec();
+        original.__loadingTracked = false;
+      }
+
       throw err;
     } finally {
       isRefreshing = false;
