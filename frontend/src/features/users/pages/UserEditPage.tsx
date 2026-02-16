@@ -19,23 +19,40 @@ export default function UserEditPage() {
       .catch(() => setError("Accès refusé ou utilisateur introuvable."));
   }, [userId]);
 
-  if (error) return <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>;
+  if (error)
+    return <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>;
   if (!user) return <div className="small">Chargement...</div>;
 
   return (
-    <div style={{ display: "grid", gap: 12 }}>
-      <div>
-        <h2 style={{ margin: 0 }}>Modifier l’utilisateur</h2>
-      </div>
+    <div
+      style={{
+        minHeight: "70vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <div style={{ width: "100%", maxWidth: 720 }}>
+        <div style={{ marginBottom: 12 }}>
+          <h2 style={{ margin: 0, textAlign: "center" }}>
+            Modifier l’utilisateur
+          </h2>
+          <div className="small" style={{ textAlign: "center" }}>
+          </div>
+        </div>
 
-      <UserForm
-        mode="edit"
-        initial={user}
-        onSubmit={async (payload) => {
-          const updated = await usersApi.update(userId, payload as UpdateUserPayload);
-          navigate(`/admin/users/${updated.id}`);
-        }}
-      />
+        <UserForm
+          mode="edit"
+          initial={user}
+          onSubmit={async (payload) => {
+            const updated = await usersApi.update(
+              userId,
+              payload as UpdateUserPayload,
+            );
+            navigate(`/admin/users/${updated.id}`);
+          }}
+        />
+      </div>
     </div>
   );
 }
