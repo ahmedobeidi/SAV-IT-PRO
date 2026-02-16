@@ -48,7 +48,7 @@ class ForgotPasswordController extends AbstractController
 
         // ✅ Send a frontend URL (adapt domain)
         $frontendResetUrl = sprintf(
-            'http://localhost:3000/reset-password?token=%s',
+            'http://localhost:5173/reset-password?token=%s',
             urlencode($token)
         );
 
