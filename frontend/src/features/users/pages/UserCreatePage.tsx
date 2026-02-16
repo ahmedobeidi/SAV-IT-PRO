@@ -1,4 +1,6 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+
 import UserForm from "../components/UserForm";
 import { usersApi } from "../users.api";
 import type { CreateUserPayload } from "../users.types";
@@ -13,15 +15,34 @@ export default function UserCreatePage() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        padding: 12,
       }}
     >
       <div style={{ width: "100%", maxWidth: 720 }}>
-        <div style={{ marginBottom: 12 }}>
-          <h2 style={{ margin: 0, textAlign: "center" }}>
-            Créer un utilisateur
-          </h2>
-          <div className="small" style={{ textAlign: "center" }}>
+        {/* Header with Retour */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 12,
+          }}
+        >
+          <Link
+            to="/admin/users"
+            className="btn"
+            style={{ display: "flex", alignItems: "center", gap: 6 }}
+          >
+            <ArrowLeft size={16} />
+            Retour
+          </Link>
+
+          <div style={{ textAlign: "center", flex: 1 }}>
+            <h2 style={{ margin: 0 }}>Créer un utilisateur</h2>
           </div>
+
+          {/* spacer to keep title centered */}
+          <div style={{ width: 80 }} />
         </div>
 
         <UserForm
