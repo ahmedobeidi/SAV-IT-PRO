@@ -8,4 +8,14 @@ enum UserRole: string
     case ADMIN = 'ROLE_ADMIN';
     case TECHNICIAN = 'ROLE_TECHNICIAN';
     case RECEPTION = 'ROLE_RECEPTION';
+
+    public function label(): string
+    {
+        return match($this) {
+            self::SUPER_ADMIN => 'Super Administrateur',
+            self::ADMIN => 'Administrateur',
+            self::TECHNICIAN => 'Technicien',
+            self::RECEPTION => 'Réception',
+        };
+    }
 }

@@ -4,9 +4,9 @@ import { authService } from "../auth/auth.service";
 
 export default function Topbar() {
   const navigate = useNavigate();
+  const { role, refreshToken } = authStore.getTokens();
 
   async function handleLogout() {
-    const { refreshToken } = authStore.getTokens();
     try {
       if (refreshToken) {
         await authService.logout(refreshToken);
@@ -30,7 +30,7 @@ export default function Topbar() {
         backdropFilter: "blur(6px)",
       }}
     >
-      <div style={{ fontWeight: 600 }}>Administration</div>
+      <div style={{ fontWeight: 600 }}>{role ?? "Administration"}</div>
 
       <button className="btn btn-danger" onClick={handleLogout}>
         Déconnexion

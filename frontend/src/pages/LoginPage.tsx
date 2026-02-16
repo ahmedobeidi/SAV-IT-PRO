@@ -20,7 +20,7 @@ export default function LoginPage() {
 
     try {
       const res = await authService.login(email, password);
-      authStore.setTokens(res.token, res.refresh_token);
+      authStore.setTokens(res.token, res.refresh_token, res.role);
       navigate("/admin");
     } catch (err: any) {
       setError(

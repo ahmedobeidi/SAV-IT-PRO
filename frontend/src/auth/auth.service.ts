@@ -4,6 +4,7 @@ type LoginResponse = {
   token: string;
   refresh_token: string;
   expires_in: number;
+  role: string;
 };
 
 export const authService = {
