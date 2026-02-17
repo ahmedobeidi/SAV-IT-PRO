@@ -38,10 +38,6 @@ export default function Sidebar() {
             Utilisateurs
           </NavLink>
         )}
-
-        <NavLink to="/admin/profile" style={linkStyle}>
-          Profil
-        </NavLink>
       </nav>
     </aside>
   );

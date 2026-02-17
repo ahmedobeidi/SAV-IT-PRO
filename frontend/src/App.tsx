@@ -7,7 +7,6 @@ import LoginPage from "./pages/LoginPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import DashboardPage from "./pages/DashboardPage";
-import ProfilePage from "./pages/ProfilePage";
 import { GlobalLoadingOverlay } from "./ui/GlobalLoadingOverlay";
 import UsersListPage from "./features/users/pages/UsersListPage";
 import UserCreatePage from "./features/users/pages/UserCreatePage";
@@ -36,7 +35,6 @@ export default function App() {
           }
         >
           <Route index element={<DashboardPage />} />
-          <Route path="profile" element={<ProfilePage />} />
           <Route path="users" element={<UsersListPage />} />
           <Route path="users/new" element={<UserCreatePage />} />
           <Route path="users/:id" element={<UserShowPage />} />
