@@ -24,6 +24,10 @@ class UserRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('u');
 
+        // 🔥 EXCLUDE anonymized users
+        $qb->andWhere('u.isAnonymized = :anon')
+            ->setParameter('anon', false);
+
         if ($excludeSuperAdmins) {
             $qb->andWhere('u.role != :super')
                 ->setParameter('super', UserRole::SUPER_ADMIN);
@@ -36,11 +40,9 @@ class UserRepository extends ServiceEntityRepository
 
         $qb->orderBy('u.createdAt', 'DESC');
 
-        // total
         $countQb = clone $qb;
         $total = (int) $countQb->select('COUNT(u.id)')->getQuery()->getSingleScalarResult();
 
-        // pagination
         $items = $qb->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery()
@@ -48,6 +50,7 @@ class UserRepository extends ServiceEntityRepository
 
         return ['items' => $items, 'total' => $total];
     }
+
 
     //    /**
     //     * @return User[] Returns an array of User objects
