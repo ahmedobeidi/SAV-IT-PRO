@@ -15,7 +15,7 @@ export function useUsersList(search: string, page: number, limit: number) {
     setError(null);
 
     usersApi
-      .list({ search: search || undefined, page, limit })
+      .listSilent({ search: search || undefined, page, limit })
       .then((res) => {
         if (!alive) return;
         setData(res);

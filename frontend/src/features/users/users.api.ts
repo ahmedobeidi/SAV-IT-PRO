@@ -12,6 +12,14 @@ export const usersApi = {
     return res.data;
   },
 
+  async listSilent(params: { search?: string; page?: number; limit?: number }): Promise<UsersListResponse> {
+    const res = await http.get("/api/users", {
+      params,
+      meta: { skipLoading: true }, // ✅ no GlobalLoadingOverlay
+    } as any);
+    return res.data;
+  },
+
   async show(id: number): Promise<UserRead> {
     const res = await http.get(`/api/users/${id}`);
     return res.data;
