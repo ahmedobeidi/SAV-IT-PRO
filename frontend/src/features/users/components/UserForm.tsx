@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type {
   CreateUserPayload,
   UpdateUserPayload,
@@ -35,7 +35,7 @@ export default function UserForm({
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const roles = useMemo(() => ALL_ROLES, []);
+  // const roles = useMemo(() => ALL_ROLES, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
