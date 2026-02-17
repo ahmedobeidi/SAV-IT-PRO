@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { authStore } from "../auth/auth.store.ts";
 
 const linkStyle = ({ isActive }: { isActive: boolean }) => ({
   padding: "10px 12px",
@@ -9,6 +10,10 @@ const linkStyle = ({ isActive }: { isActive: boolean }) => ({
 });
 
 export default function Sidebar() {
+  const { role } = authStore.getTokens();
+
+  const canManageUsers = role === "Super Administrateur" || role === "Administrateur";
+
   return (
     <aside
       style={{
@@ -27,9 +32,13 @@ export default function Sidebar() {
         <NavLink to="/admin" style={linkStyle} end>
           Tableau de bord
         </NavLink>
-        <NavLink to="/admin/users" style={linkStyle}>
-          Utilisateurs
-        </NavLink>
+
+        {canManageUsers && (
+          <NavLink to="/admin/users" style={linkStyle}>
+            Utilisateurs
+          </NavLink>
+        )}
+
         <NavLink to="/admin/profile" style={linkStyle}>
           Profil
         </NavLink>
