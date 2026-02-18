@@ -6,11 +6,13 @@ use App\Repository\RepairOrderRepository;
 use App\Enum\RepairOrderStatus;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RepairOrderRepository::class)]
 class RepairOrder
 {
+    #[Groups(['repair:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -41,21 +43,27 @@ class RepairOrder
     #[ORM\JoinColumn(nullable: true)]
     private ?User $assignedTo = null;
 
+    #[Groups(['repair:read'])]
     #[ORM\Column]
     private float $price = 0.0;
 
+    #[Groups(['repair:read'])]
     #[ORM\Column(nullable: true)]
     private ?float $deposit = null;
 
+    #[Groups(['repair:read'])]
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
 
+    #[Groups(['repair:read'])]
     #[ORM\Column(enumType: RepairOrderStatus::class)]
     private RepairOrderStatus $status;
 
+    #[Groups(['repair:read'])]
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    #[Groups(['repair:read'])]
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
@@ -70,7 +78,7 @@ class RepairOrder
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
-        $this->status = RepairOrderStatus::NEW;
+        $this->status = RepairOrderStatus::CREATED;
         $this->tickets = new ArrayCollection();
         $this->logs = new ArrayCollection();
     }

@@ -33,9 +33,18 @@ security:
       user_checker: App\Security\UserChecker
 
   access_control:
+    # PUBLIC (specific)
     - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
     - { path: ^/api/auth/forgot-password, roles: PUBLIC_ACCESS }
     - { path: ^/api/auth/reset-password, roles: PUBLIC_ACCESS }
     - { path: ^/api/auth/refresh, roles: PUBLIC_ACCESS }
+
+    # RESTRICTED business routes (specific)
+    - { path: ^/api/users, roles: [ROLE_ADMIN, ROLE_SUPER_ADMIN] }
+    - { path: ^/api/clients, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+
+    # Authenticated-only endpoints (specific)
     - { path: ^/api/auth/logout, roles: IS_AUTHENTICATED_FULLY }
+
+    # GENERAL fallback (last)
     - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

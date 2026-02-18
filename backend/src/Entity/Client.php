@@ -5,46 +5,59 @@ namespace App\Entity;
 use App\Repository\ClientRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
 class Client
 {
+    #[Groups(['client:read_light', 'client:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Groups(['client:read_light', 'client:read'])]
     #[ORM\Column(length: 100)]
     private string $firstName;
 
+    #[Groups(['client:read_light', 'client:read'])]
     #[ORM\Column(length: 100)]
     private string $lastName;
 
+    #[Groups(['client:read_light', 'client:read'])]
     #[ORM\Column(length: 30)]
     private string $phone;
 
+    #[Groups(['client:read'])]
     #[ORM\Column(length: 180, nullable: true)]
     private ?string $email = null;
 
+    #[Groups(['client:read'])]
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $address = null;
 
+    #[Groups(['client:read'])]
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $postalCode = null;
 
+    #[Groups(['client:read'])]
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $city = null;
 
+    #[Groups(['client:read'])]
     #[ORM\Column(length: 30, nullable: true)]
     private ?string $landlinePhone = null;
 
+    #[Groups(['client:read'])]
     #[ORM\Column(options: ['default' => false])]
     private bool $isAnonymized = false;
 
+    #[Groups(['client:read'])]
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    #[Groups(['client:read'])]
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
