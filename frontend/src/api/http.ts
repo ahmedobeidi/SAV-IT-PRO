@@ -26,36 +26,65 @@ function isAuthEndpoint(config?: AnyConfig) {
   );
 }
 
+/** ---------- ✅ Proactive refresh helpers (ADD HERE) ---------- **/
+function getJwtExp(token: string): number | null {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return typeof payload.exp === "number" ? payload.exp : null;
+  } catch {
+    return null;
+  }
+}
+
+function isTokenNearExpiry(token: string, seconds = 5) {
+  const exp = getJwtExp(token);
+  if (!exp) return true;
+  const now = Math.floor(Date.now() / 1000);
+  return exp - now <= seconds;
+}
+
+// Single-flight refresh (so only one refresh runs)
+let refreshPromise: Promise<string | null> | null = null;
+
+async function ensureFreshAccessToken(): Promise<string | null> {
+  const { accessToken, refreshToken } = authStore.getTokens();
+  if (!accessToken || !refreshToken) return null;
+
+  // if token still ok, use it
+  if (!isTokenNearExpiry(accessToken, 5)) return accessToken;
+
+  // token is near expiry => refresh once
+  if (!refreshPromise) {
+    refreshPromise = authService
+      .refresh(refreshToken)
+      .then((refreshed) => {
+        const { role } = authStore.getTokens();
+        authStore.setTokens(
+          refreshed.token,
+          refreshed.refresh_token,
+          refreshed.role ?? role
+        );
+        return refreshed.token;
+      })
+      .catch(() => {
+        authStore.clear();
+        return null;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+
+  return refreshPromise;
+}
+/** ---------- end proactive helpers ---------- **/
+
 export const http = axios.create({
   baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },
 });
 
-// Attach JWT + START loading
-http.interceptors.request.use(
-  (config: AnyConfig) => {
-    // loading: only inc once per "logical request" (even if retried)
-    if (shouldTrack(config) && !config.__loadingTracked) {
-      loadingStore.inc();
-      config.__loadingTracked = true;
-    }
-
-    // auth header
-    const { accessToken } = authStore.getTokens();
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-
-    return config;
-  },
-  (error) => {
-    // if request never got config tracked properly, just try to dec safely
-    loadingStore.dec();
-    return Promise.reject(error);
-  }
-);
-
-// Handle 401 -> try refresh once -> retry original request
+// Handle 401 -> try refresh once -> retry original request (your existing queue)
 let isRefreshing = false;
 let refreshQueue: Array<(token: string | null) => void> = [];
 
@@ -67,6 +96,36 @@ function resolveQueue(token: string | null) {
   refreshQueue.forEach((cb) => cb(token));
   refreshQueue = [];
 }
+
+// Attach JWT + START loading  ✅ (MODIFY THIS INTERCEPTOR)
+http.interceptors.request.use(
+  async (config: AnyConfig) => {
+    // loading: only inc once per "logical request" (even if retried)
+    if (shouldTrack(config) && !config.__loadingTracked) {
+      loadingStore.inc();
+      config.__loadingTracked = true;
+    }
+
+    // ✅ For auth endpoints, don’t refresh pre-emptively, just send if exists
+    if (isAuthEndpoint(config)) {
+      const { accessToken } = authStore.getTokens();
+      if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
+      return config;
+    }
+
+    // ✅ Proactive refresh if needed (before sending request)
+    const token = await ensureFreshAccessToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    loadingStore.dec();
+    return Promise.reject(error);
+  }
+);
 
 http.interceptors.response.use(
   (res) => {
@@ -88,7 +147,6 @@ http.interceptors.response.use(
     const willTryRefresh =
       status === 401 && !original?._retry && !isAuthEndpoint(original);
 
-    // If not going through refresh, END loading now
     if (!willTryRefresh) {
       if (original && shouldTrack(original) && original.__loadingTracked) {
         loadingStore.dec();
@@ -97,14 +155,12 @@ http.interceptors.response.use(
       throw err;
     }
 
-    // mark retry
     original._retry = true;
 
     const { refreshToken } = authStore.getTokens();
     if (!refreshToken) {
       authStore.clear();
 
-      // END loading (because we won’t retry)
       if (shouldTrack(original) && original.__loadingTracked) {
         loadingStore.dec();
         original.__loadingTracked = false;
@@ -113,12 +169,10 @@ http.interceptors.response.use(
       throw err;
     }
 
-    // If a refresh is already running, wait for it
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         queueRefresh((newToken) => {
           if (!newToken) {
-            // END loading (because request will fail)
             if (shouldTrack(original) && original.__loadingTracked) {
               loadingStore.dec();
               original.__loadingTracked = false;
@@ -127,7 +181,7 @@ http.interceptors.response.use(
           }
 
           original.headers.Authorization = `Bearer ${newToken}`;
-          resolve(http(original)); // request interceptor won’t inc again due to __loadingTracked
+          resolve(http(original));
         });
       });
     }
@@ -135,9 +189,14 @@ http.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      // IMPORTANT: authService.refresh should use rawHttp (no interceptors)
       const refreshed = await authService.refresh(refreshToken);
-      authStore.setTokens(refreshed.token, refreshed.refresh_token, refreshed.role);
+
+      const { role } = authStore.getTokens();
+      authStore.setTokens(
+        refreshed.token,
+        refreshed.refresh_token,
+        refreshed.role ?? role
+      );
 
       resolveQueue(refreshed.token);
 
@@ -147,13 +206,12 @@ http.interceptors.response.use(
       resolveQueue(null);
       authStore.clear();
 
-      // END loading (because retry chain ends here)
       if (shouldTrack(original) && original.__loadingTracked) {
         loadingStore.dec();
         original.__loadingTracked = false;
       }
 
-      throw e; // ✅ throw the refresh error (real reason)
+      throw e;
     } finally {
       isRefreshing = false;
     }
