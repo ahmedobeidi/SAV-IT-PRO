@@ -1,19 +1,29 @@
 import axios from "axios";
 import type { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { authStore } from "../auth/auth.store";
-import { authService } from "../auth/auth.service.ts";
+import { authService } from "../auth/auth.service";
 import { loadingStore } from "../ui/loading.store";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 type AnyConfig = InternalAxiosRequestConfig & {
   meta?: { skipLoading?: boolean };
-  __loadingTracked?: boolean; // our flag (prevents double inc on retry)
-  _retry?: boolean; // your flag
+  __loadingTracked?: boolean; // prevents double inc on retry
+  _retry?: boolean; // prevents infinite refresh retry
 };
 
 function shouldTrack(config: AnyConfig) {
   return config?.meta?.skipLoading !== true;
+}
+
+// Extra safety: never run refresh logic for auth endpoints
+function isAuthEndpoint(config?: AnyConfig) {
+  const url = config?.url || "";
+  return (
+    url.includes("/api/auth/login") ||
+    url.includes("/api/auth/refresh") ||
+    url.includes("/api/auth/logout")
+  );
 }
 
 export const http = axios.create({
@@ -72,11 +82,11 @@ http.interceptors.response.use(
   },
   async (err: AxiosError) => {
     const original = err.config as AnyConfig;
-
     const status = err.response?.status;
 
-    // If this error should end the request (not a refresh retry path)
-    const willTryRefresh = status === 401 && !original?._retry;
+    // Only try refresh on 401, only once, and never for auth endpoints
+    const willTryRefresh =
+      status === 401 && !original?._retry && !isAuthEndpoint(original);
 
     // If not going through refresh, END loading now
     if (!willTryRefresh) {
@@ -103,8 +113,8 @@ http.interceptors.response.use(
       throw err;
     }
 
+    // If a refresh is already running, wait for it
     if (isRefreshing) {
-      // Wait until refresh finished, then retry
       return new Promise((resolve, reject) => {
         queueRefresh((newToken) => {
           if (!newToken) {
@@ -125,13 +135,14 @@ http.interceptors.response.use(
     isRefreshing = true;
 
     try {
+      // IMPORTANT: authService.refresh should use rawHttp (no interceptors)
       const refreshed = await authService.refresh(refreshToken);
       authStore.setTokens(refreshed.token, refreshed.refresh_token, refreshed.role);
 
       resolveQueue(refreshed.token);
 
       original.headers.Authorization = `Bearer ${refreshed.token}`;
-      return http(original); // retry (no double inc)
+      return http(original);
     } catch (e) {
       resolveQueue(null);
       authStore.clear();
@@ -142,7 +153,7 @@ http.interceptors.response.use(
         original.__loadingTracked = false;
       }
 
-      throw err;
+      throw e; // ✅ throw the refresh error (real reason)
     } finally {
       isRefreshing = false;
     }

@@ -1,4 +1,5 @@
 import { http } from "../api/http";
+import { rawHttp } from "../api/rawHttp";
 
 type LoginResponse = {
   token: string;
@@ -14,7 +15,7 @@ export const authService = {
   },
 
   async refresh(refresh_token: string): Promise<LoginResponse> {
-    const res = await http.post("/api/auth/refresh", { refresh_token });
+    const res = await rawHttp.post("/api/auth/refresh", { refresh_token });
     return res.data;
   },
 
