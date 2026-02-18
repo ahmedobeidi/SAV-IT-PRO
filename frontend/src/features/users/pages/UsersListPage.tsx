@@ -9,7 +9,7 @@ import { UserPlus } from "lucide-react";
 export default function UsersListPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const limit = 20;
+  const limit = 10;
 
   const { data, loading, error } = useUsersList(search, page, limit);
 
