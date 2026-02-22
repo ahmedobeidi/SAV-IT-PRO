@@ -6,12 +6,21 @@ import { AuthGuard } from "./auth/auth.guard";
 import LoginPage from "./pages/LoginPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+
 import DashboardPage from "./pages/DashboardPage";
+
 import { GlobalLoadingOverlay } from "./ui/GlobalLoadingOverlay";
+
 import UsersListPage from "./features/users/pages/UsersListPage";
 import UserCreatePage from "./features/users/pages/UserCreatePage";
 import UserShowPage from "./features/users/pages/UserShowPage";
 import UserEditPage from "./features/users/pages/UserEditPage";
+
+import ClientsListPage from "./features/clients/pages/ClientsListPage";
+import ClientCreatePage from "./features/clients/pages/ClientCreatePage";
+import ClientShowPage from "./features/clients/pages/ClientShowPage";
+import ClientEditPage from "./features/clients/pages/ClientEditPage";
+import ClientRepairsPage from "./features/clients/pages/ClientRepairsPage";
 
 export default function App() {
   return (
@@ -39,6 +48,11 @@ export default function App() {
           <Route path="users/new" element={<UserCreatePage />} />
           <Route path="users/:id" element={<UserShowPage />} />
           <Route path="users/:id/edit" element={<UserEditPage />} />
+          <Route path="clients" element={<ClientsListPage />} />
+          <Route path="clients/new" element={<ClientCreatePage />} />
+          <Route path="clients/:id" element={<ClientShowPage />} />
+          <Route path="clients/:id/edit" element={<ClientEditPage />} />
+          <Route path="clients/:id/repairs" element={<ClientRepairsPage />} />
         </Route>
 
         {/* Default */}

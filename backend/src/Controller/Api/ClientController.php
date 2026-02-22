@@ -75,6 +75,14 @@ class ClientController extends AbstractController
         ], 200, [], ['groups' => ['client:read']]);
     }
 
+    #[Route('/{id}', name: 'api_clients_show', methods: ['GET'])]
+    public function show(Client $client): JsonResponse
+    {
+        $this->denyAccessUnlessGranted(ClientVoter::VIEW, $client);
+
+        return $this->json($client, 200, [], ['groups' => ['client:read']]);
+    }
+
     #[Route('/search', name: 'api_clients_search_phone', methods: ['GET'])]
     public function searchByPhone(Request $request, ClientRepository $repo): JsonResponse
     {

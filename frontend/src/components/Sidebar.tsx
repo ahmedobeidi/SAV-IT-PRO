@@ -12,7 +12,8 @@ const linkStyle = ({ isActive }: { isActive: boolean }) => ({
 export default function Sidebar() {
   const { role } = authStore.getTokens();
 
-  const canManageUsers = role === "Super Administrateur" || role === "Administrateur";
+  const canManageUsers =
+    role === "Super Administrateur" || role === "Administrateur";
 
   return (
     <aside
@@ -38,6 +39,10 @@ export default function Sidebar() {
             Utilisateurs
           </NavLink>
         )}
+
+        <NavLink to="/admin/clients" style={linkStyle}>
+          Clients
+        </NavLink>
       </nav>
     </aside>
   );
