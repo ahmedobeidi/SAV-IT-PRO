@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { ClientRead } from "../clients.types";
+import { Pencil, Wrench, UserX } from "lucide-react";
 
 export default function ClientsTable({
   items,
@@ -10,11 +11,32 @@ export default function ClientsTable({
 }) {
   return (
     <div className="card" style={{ padding: 12, overflowX: "auto" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          tableLayout: "fixed",
+        }}
+      >
+        {/* ✅ fixed widths + “same width feel” */}
+        <colgroup>
+          <col style={{ width: "26%" }} />
+          <col style={{ width: "18%" }} />
+          <col style={{ width: "26%" }} />
+          <col style={{ width: "14%" }} />
+          <col style={{ width: "16%" }} />
+        </colgroup>
+
         <thead>
           <tr style={{ textAlign: "left" }}>
             {["Nom", "Téléphone", "Email", "Ville", "Actions"].map((h) => (
-              <th key={h} style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
+              <th
+                key={h}
+                style={{
+                  padding: "10px 8px",
+                  borderBottom: "1px solid var(--border)",
+                }}
+              >
                 <span className="small">{h}</span>
               </th>
             ))}
@@ -24,44 +46,122 @@ export default function ClientsTable({
         <tbody>
           {items.map((c) => (
             <tr key={c.id}>
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
+              {/* Nom */}
+              <td
+                style={{
+                  padding: "10px 8px",
+                  borderBottom: "1px solid var(--border)",
+                  verticalAlign: "top",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+                title={`${c.lastName} ${c.firstName}`}
+              >
                 <Link to={`/admin/clients/${c.id}`} style={{ color: "var(--primary)" }}>
                   {c.lastName} {c.firstName}
                 </Link>
                 {c.isAnonymized && <span className="small"> — anonymisé</span>}
               </td>
 
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
+              {/* Téléphone */}
+              <td
+                style={{
+                  padding: "10px 8px",
+                  borderBottom: "1px solid var(--border)",
+                  verticalAlign: "top",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+                title={c.phone}
+              >
                 <span className="small">{c.phone}</span>
               </td>
 
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
+              {/* Email */}
+              <td
+                style={{
+                  padding: "10px 8px",
+                  borderBottom: "1px solid var(--border)",
+                  verticalAlign: "top",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+                title={c.email ?? ""}
+              >
                 <span className="small">{c.email ?? "-"}</span>
               </td>
 
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
+              {/* Ville */}
+              <td
+                style={{
+                  padding: "10px 8px",
+                  borderBottom: "1px solid var(--border)",
+                  verticalAlign: "top",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+                title={c.city ?? ""}
+              >
                 <span className="small">{c.city ?? "-"}</span>
               </td>
 
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
+              {/* Actions */}
+              <td
+                style={{
+                  padding: "10px 8px",
+                  borderBottom: "1px solid var(--border)",
+                  verticalAlign: "top",
+                }}
+              >
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <Link className="btn" to={`/admin/clients/${c.id}/edit`}>
-                    Modifier
+                  {/* Edit */}
+                  <Link
+                    className="btn"
+                    to={`/admin/clients/${c.id}/edit`}
+                    title="Modifier"
+                    aria-label="Modifier"
+                  >
+                    <Pencil size={18} />
                   </Link>
-                  <Link className="btn" to={`/admin/clients/${c.id}/repairs`}>
-                    Réparations
+
+                  {/* Repairs */}
+                  <Link
+                    className="btn"
+                    to={`/admin/clients/${c.id}/repairs`}
+                    title="Réparations"
+                    aria-label="Réparations"
+                  >
+                    <Wrench size={18} />
                   </Link>
-                  <button className="btn btn-danger" onClick={() => onAnonymize(c)} disabled={c.isAnonymized}>
-                    Anonymiser
+
+                  {/* Anonymize */}
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => onAnonymize(c)}
+                    disabled={c.isAnonymized}
+                    title={c.isAnonymized ? "Déjà anonymisé" : "Anonymiser"}
+                    aria-label="Anonymiser"
+                  >
+                    <UserX size={18} />
                   </button>
                 </div>
+
+                <div className="small" style={{ marginTop: 6 }} />
               </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {items.length === 0 && <div className="small" style={{ padding: 12 }}>Aucun client.</div>}
+      {items.length === 0 && (
+        <div className="small" style={{ padding: 12 }}>
+          Aucun client.
+        </div>
+      )}
     </div>
   );
 }

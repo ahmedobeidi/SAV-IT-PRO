@@ -8,11 +8,20 @@ import type {
 } from "./clients.types";
 
 export const clientsApi = {
-  async list(params: { page?: number; limit?: number }): Promise<ClientsListResponse> {
+  async list(params: { phone?: string; page?: number; limit?: number }): Promise<ClientsListResponse> {
     const res = await http.get("/api/clients", { params });
     return res.data;
   },
 
+  async listSilent(params: { phone?: string; page?: number; limit?: number }): Promise<ClientsListResponse> {
+    const res = await http.get("/api/clients", {
+      params,
+      meta: { skipLoading: true }, // ✅ same behavior as users
+    } as any);
+    return res.data;
+  },
+
+  // you can keep this if you still use it elsewhere
   async searchByPhone(phone: string): Promise<ClientRead> {
     const res = await http.get("/api/clients/search", { params: { phone } });
     return res.data;
