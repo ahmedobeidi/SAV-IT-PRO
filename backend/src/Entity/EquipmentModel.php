@@ -5,26 +5,32 @@ namespace App\Entity;
 use App\Repository\EquipmentModelRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EquipmentModelRepository::class)]
 class EquipmentModel
 {
+    #[Groups(['equipment_model:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Groups(['equipment_model:read'])]
     #[ORM\Column(length: 150)]
     private string $name;
 
+    #[Groups(['equipment_model:read'])]
     #[ORM\ManyToOne(inversedBy: 'models')]
     #[ORM\JoinColumn(nullable: false)]
     private EquipmentBrand $equipmentBrand;
 
+    #[Groups(['equipment_model:read'])]
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    #[Groups(['equipment_model:read'])]
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 

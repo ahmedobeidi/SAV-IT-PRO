@@ -42,6 +42,7 @@ security:
     # RESTRICTED business routes (specific)
     - { path: ^/api/users, roles: [ROLE_ADMIN, ROLE_SUPER_ADMIN] }
     - { path: ^/api/clients, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+    - { path: ^/api/equipment-, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
 
     # Authenticated-only endpoints (specific)
     - { path: ^/api/auth/logout, roles: IS_AUTHENTICATED_FULLY }
