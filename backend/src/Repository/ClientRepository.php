@@ -17,8 +17,8 @@ class ClientRepository extends ServiceEntityRepository
     }
 
     /**
-    * @return array{items: Client[], total: int}
-    */
+     * @return array{items: Client[], total: int}
+     */
     public function listPaginated(int $page, int $limit): array
     {
         $qb = $this->createQueryBuilder('c')
@@ -41,6 +41,34 @@ class ClientRepository extends ServiceEntityRepository
     {
         // option: normaliser ici si tu veux (ex: enlever espaces)
         return $this->findOneBy(['phone' => $phone, 'isAnonymized' => false]);
+    }
+
+    /**
+     * @return array{items: Client[], total: int}
+     */
+    public function searchByPhonePaginated(?string $phone, int $page, int $limit): array
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->andWhere('c.isAnonymized = :anon')
+            ->setParameter('anon', false);
+
+        if ($phone) {
+            // simple "contains" search
+            $qb->andWhere('c.phone LIKE :p')
+                ->setParameter('p', '%' . $phone . '%');
+        }
+
+        $qb->orderBy('c.createdAt', 'DESC');
+
+        $countQb = clone $qb;
+        $total = (int) $countQb->select('COUNT(c.id)')->getQuery()->getSingleScalarResult();
+
+        $items = $qb->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return ['items' => $items, 'total' => $total];
     }
 
     //    /**

@@ -62,10 +62,11 @@ class ClientController extends AbstractController
     {
         $this->denyAccessUnlessGranted(ClientVoter::VIEW_LIST);
 
+        $phone = $request->query->get('phone'); // ✅ add
         $page  = max(1, (int) $request->query->get('page', 1));
         $limit = min(100, max(1, (int) $request->query->get('limit', 10)));
 
-        $result = $repo->listPaginated($page, $limit);
+        $result = $repo->searchByPhonePaginated($phone, $page, $limit); // ✅ change
 
         return $this->json([
             'page' => $page,
