@@ -82,14 +82,14 @@ export default function ClientForm({
     <form onSubmit={submit} className="card" style={{ padding: 16, display: "grid", gap: 12, maxWidth: 720 }}>
       <div style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
         <div>
-          <label className="small">Prénom</label>
-          <input className="input" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-          {fieldErrors.firstName && <div style={{ color: "var(--danger)", fontSize: 13 }}>{fieldErrors.firstName}</div>}
-        </div>
-        <div>
           <label className="small">Nom</label>
           <input className="input" value={lastName} onChange={(e) => setLastName(e.target.value)} />
           {fieldErrors.lastName && <div style={{ color: "var(--danger)", fontSize: 13 }}>{fieldErrors.lastName}</div>}
+        </div>
+        <div>
+          <label className="small">Prénom</label>
+          <input className="input" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+          {fieldErrors.firstName && <div style={{ color: "var(--danger)", fontSize: 13 }}>{fieldErrors.firstName}</div>}
         </div>
       </div>
 
