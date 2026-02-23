@@ -3,7 +3,7 @@ import { equipmentApi } from "../equipment.api";
 import { useEquipmentTypes } from "../hooks/useEquipmentTypes";
 import EquipmentNameForm from "../components/EquipmentNameForm";
 import EquipmentTypeTable from "../components/EquipmentTypeTable";
-import ConfirmDialog from "../components/ConfirmDialog";
+import ConfirmDialog from "../../../components/ConfirmDialog";
 import type { EquipmentTypeRead } from "../equipment.types";
 
 function mapApiError(e: any): string {

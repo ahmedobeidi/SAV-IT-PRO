@@ -5,13 +5,13 @@ import { useClientsList } from "../hooks/useClientsList";
 import { clientsApi } from "../clients.api";
 import type { ClientRead } from "../clients.types";
 import { UserPlus } from "lucide-react";
+import ConfirmDialog from "../../../components/ConfirmDialog"; // ✅ adjust path if needed
 
 export default function ClientsListPage() {
   const [phone, setPhone] = useState("");
   const [page, setPage] = useState(1);
   const limit = 20;
 
-  // ✅ same pattern as Users page: hook takes search + page + limit
   const { data, loading, error } = useClientsList(phone, page, limit);
 
   const totalPages = useMemo(() => {
@@ -19,16 +19,19 @@ export default function ClientsListPage() {
     return Math.max(1, Math.ceil(data.total / data.limit));
   }, [data]);
 
-  async function onAnonymize(c: ClientRead) {
-    const ok = confirm("Confirmer l’anonymisation RGPD ? (action irréversible)");
-    if (!ok) return;
-    await clientsApi.anonymize(c.id);
-    window.location.reload(); // keep for now (later we can refactor clean refresh)
+  // ✅ anonymize confirm dialog state
+  const [anonymizing, setAnonymizing] = useState<ClientRead | null>(null);
+
+  async function anonymize() {
+    if (!anonymizing) return;
+    await clientsApi.anonymize(anonymizing.id);
+    setAnonymizing(null);
+    window.location.reload(); // keep for now (later: refetch/refresh)
   }
 
   return (
     <div style={{ display: "grid", gap: 12 }}>
-      {/* HEADER (same as Users) */}
+      {/* HEADER */}
       <div
         style={{
           display: "flex",
@@ -51,7 +54,7 @@ export default function ClientsListPage() {
         </Link>
       </div>
 
-      {/* CARD (same layout as Users) */}
+      {/* CARD */}
       <div
         className="card"
         style={{
@@ -64,20 +67,10 @@ export default function ClientsListPage() {
         }}
       >
         {/* LEFT */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            flexWrap: "wrap",
-          }}
-        >
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <input
             className="input"
-            style={{
-              width: 260,
-              flexShrink: 0,
-            }}
+            style={{ width: 260, flexShrink: 0 }}
             placeholder="Rechercher par téléphone..."
             value={phone}
             onChange={(e) => {
@@ -93,30 +86,36 @@ export default function ClientsListPage() {
 
         {/* RIGHT */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <button
-            className="btn"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page <= 1}
-          >
+          <button className="btn" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>
             Précédent
           </button>
 
-          <button
-            className="btn"
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page >= totalPages}
-          >
+          <button className="btn" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>
             Suivant
           </button>
         </div>
       </div>
 
       {loading && <div className="small">Chargement...</div>}
-      {error && (
-        <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>
+      {error && <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>}
+
+      {data && (
+        <ClientsTable
+          items={data.items}
+          onAnonymize={(c) => setAnonymizing(c)} // ✅ instead of confirm()
+        />
       )}
 
-      {data && <ClientsTable items={data.items} onAnonymize={onAnonymize} />}
+      <ConfirmDialog
+        open={!!anonymizing}
+        title="Anonymiser le client"
+        message="Confirmer l’anonymisation RGPD ? (action irréversible)"
+        danger
+        confirmText="Anonymiser"
+        cancelText="Annuler"
+        onCancel={() => setAnonymizing(null)}
+        onConfirm={anonymize}
+      />
     </div>
   );
 }
