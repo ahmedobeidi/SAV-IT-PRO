@@ -22,6 +22,10 @@ import ClientShowPage from "./features/clients/pages/ClientShowPage";
 import ClientEditPage from "./features/clients/pages/ClientEditPage";
 import ClientRepairsPage from "./features/clients/pages/ClientRepairsPage";
 
+import EquipmentTypesPage from "./features/equipment/pages/EquipmentTypesPage";
+import EquipmentBrandsPage from "./features/equipment/pages/EquipmentBrandsPage";
+import EquipmentModelsPage from "./features/equipment/pages/EquipmentModelsPage";
+
 export default function App() {
   return (
     <>
@@ -53,6 +57,9 @@ export default function App() {
           <Route path="clients/:id" element={<ClientShowPage />} />
           <Route path="clients/:id/edit" element={<ClientEditPage />} />
           <Route path="clients/:id/repairs" element={<ClientRepairsPage />} />
+          <Route path="equipment/types" element={<EquipmentTypesPage />} />
+          <Route path="equipment/types/:typeId/brands" element={<EquipmentBrandsPage />} />
+          <Route path="equipment/brands/:brandId/models" element={<EquipmentModelsPage />} />
         </Route>
 
         {/* Default */}

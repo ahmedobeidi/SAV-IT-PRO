@@ -43,6 +43,10 @@ export default function Sidebar() {
         <NavLink to="/admin/clients" style={linkStyle}>
           Clients
         </NavLink>
+
+        <NavLink to="/admin/equipment/types" style={linkStyle}>
+          Équipements
+        </NavLink>
       </nav>
     </aside>
   );
