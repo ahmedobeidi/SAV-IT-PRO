@@ -5,19 +5,21 @@ export default function EquipmentNameForm({
   initialName = "",
   submitLabel,
   onSubmit,
+  noCard,
+  actions,
 }: {
   initialName?: string;
   submitLabel: string;
   onSubmit: (name: string) => Promise<void>;
+  noCard?: boolean;
+  actions?: (opts: { loading: boolean }) => React.ReactNode;
 }) {
   const [name, setName] = useState(initialName);
   const [loading, setLoading] = useState(false);
   const [fieldError, setFieldError] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    setFormError(null);
 
     const err = validateName(name);
     setFieldError(err);
@@ -27,27 +29,47 @@ export default function EquipmentNameForm({
     try {
       await onSubmit(name.trim());
       setName("");
-    } catch (e: any) {
-      // on laisse la page mapper le message si besoin
-      setFormError("Action impossible (droits / validation / conflit).");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <form onSubmit={submit} className="card" style={{ padding: 12, display: "flex", gap: 10, alignItems: "end", flexWrap: "wrap" }}>
-      <div style={{ flex: 1, minWidth: 240 }}>
+    <form
+      onSubmit={submit}
+      className={noCard ? undefined : "card"}
+      style={{
+        padding: noCard ? 0 : 12,
+        display: "flex",
+        flexDirection: "column",
+        gap: 12,
+      }}
+    >
+      <div>
         <label className="small">Nom</label>
-        <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="ex: Smartphone" />
-        {fieldError && <div style={{ color: "var(--danger)", fontSize: 13 }}>{fieldError}</div>}
+        <input
+          className="input"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="ex: Smartphone"
+        />
+        {fieldError && (
+          <div style={{ color: "var(--danger)", fontSize: 13 }}>
+            {fieldError}
+          </div>
+        )}
       </div>
 
-      <button className="btn btn-primary" disabled={loading}>
-        {loading ? "..." : submitLabel}
-      </button>
-
-      {formError && <div style={{ color: "var(--danger)", fontSize: 13, width: "100%" }}>{formError}</div>}
+      {actions
+        ? actions({ loading })
+        : (
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <button className="btn btn-primary" type="submit" disabled={loading}>
+              {submitLabel}
+            </button>
+          </div>
+        )
+      }
     </form>
   );
 }

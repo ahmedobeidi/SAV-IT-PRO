@@ -1,3 +1,9 @@
+// ✅ EquipmentModelsPage.tsx (FULL FINAL)
+// Same UX as Types page:
+// - Create opens modal (blur background)
+// - Modal closes immediately on submit (success OR error)
+// - Message under search (green/red) for 7 seconds
+// - No toast, no OK button, no border styling
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { equipmentApi } from "../equipment.api";
@@ -11,7 +17,8 @@ function mapApiError(e: any): string {
   const s = e?.response?.status;
   if (s === 401) return "Session expirée. Reconnecte-toi.";
   if (s === 403) return "Accès interdit.";
-  if (s === 409) return e?.response?.data?.message ?? "Conflit: existe déjà / suppression interdite.";
+  if (s === 409)
+    return e?.response?.data?.message ?? "Conflit: existe déjà / suppression interdite.";
   if (s === 422) return "Validation échouée.";
   return "Erreur serveur.";
 }
@@ -26,23 +33,40 @@ export default function EquipmentModelsPage() {
 
   const { data, loading, error, refresh } = useEquipmentModels(bid, search, page, limit);
 
-  const [toast, setToast] = useState<string | null>(null);
   const totalPages = useMemo(() => {
     if (!data) return 1;
     return Math.max(1, Math.ceil(data.total / data.limit));
   }, [data]);
 
+  // ✅ flash message (7s auto-hide)
+  const [flash, setFlash] = useState<{
+    id: number;
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  function showFlash(type: "success" | "error", text: string) {
+    const id = Date.now();
+    setFlash({ id, type, text });
+    setTimeout(() => {
+      setFlash((cur) => (cur?.id === id ? null : cur));
+    }, 7000);
+  }
+
+  // ✅ modal create
+  const [creating, setCreating] = useState(false);
+
   const [editing, setEditing] = useState<EquipmentModelRead | null>(null);
   const [deleting, setDeleting] = useState<EquipmentModelRead | null>(null);
 
   async function create(name: string) {
+    setCreating(false); // ✅ close immediately
     try {
       await equipmentApi.createModel(bid, { name });
-      setToast("Modèle créé.");
+      showFlash("success", "Modèle créé.");
       refresh();
     } catch (e: any) {
-      setToast(mapApiError(e));
-      throw e;
+      showFlash("error", mapApiError(e));
     }
   }
 
@@ -50,12 +74,11 @@ export default function EquipmentModelsPage() {
     if (!editing) return;
     try {
       await equipmentApi.updateModel(editing.id, { name });
-      setToast("Modèle mis à jour.");
       setEditing(null);
+      showFlash("success", "Modèle mis à jour.");
       refresh();
     } catch (e: any) {
-      setToast(mapApiError(e));
-      throw e;
+      showFlash("error", mapApiError(e));
     }
   }
 
@@ -63,12 +86,12 @@ export default function EquipmentModelsPage() {
     if (!deleting) return;
     try {
       await equipmentApi.deleteModel(deleting.id);
-      setToast("Modèle supprimé.");
       setDeleting(null);
+      showFlash("success", "Modèle supprimé.");
       refresh();
     } catch (e: any) {
-      setToast(mapApiError(e));
       setDeleting(null);
+      showFlash("error", mapApiError(e));
     }
   }
 
@@ -80,10 +103,11 @@ export default function EquipmentModelsPage() {
           <div className="small">Brand ID: {bid}</div>
         </div>
 
-        <div style={{ display: "flex", gap: 10 }}>
+        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
           <Link className="btn" to="/admin/equipment/types">← Retour Types</Link>
 
-          <div className="card" style={{ padding: 10, display: "flex", gap: 10, alignItems: "center" }}>
+          {/* SEARCH CARD + CREATE BTN */}
+          <div className="card" style={{ padding: 10, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
             <input
               className="input"
               placeholder="Rechercher..."
@@ -91,6 +115,11 @@ export default function EquipmentModelsPage() {
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               style={{ width: 240 }}
             />
+
+            <button className="btn btn-primary" onClick={() => setCreating(true)}>
+              Créer
+            </button>
+
             <div className="small">Page {page}/{totalPages}</div>
             <button className="btn" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>Précédent</button>
             <button className="btn" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>Suivant</button>
@@ -98,16 +127,12 @@ export default function EquipmentModelsPage() {
         </div>
       </div>
 
-      {toast && (
-        <div className="card" style={{ padding: 12 }}>
-          <div className="small">{toast}</div>
-          <div style={{ marginTop: 8 }}>
-            <button className="btn" onClick={() => setToast(null)}>OK</button>
-          </div>
+      {/* ✅ message under search */}
+      {flash && (
+        <div className="small" style={{ color: flash.type === "success" ? "var(--success)" : "var(--danger)" }}>
+          {flash.text}
         </div>
       )}
-
-      <EquipmentNameForm submitLabel="Créer un modèle" onSubmit={create} />
 
       {loading && <div className="small">Chargement...</div>}
       {error && <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>}
@@ -120,11 +145,49 @@ export default function EquipmentModelsPage() {
         />
       )}
 
+      {/* Rename quick card (kept as-is, can be converted to modal later if you want) */}
       {editing && (
         <div className="card" style={{ padding: 12 }}>
           <div style={{ fontWeight: 700, marginBottom: 8 }}>Renommer le modèle</div>
           <EquipmentNameForm initialName={editing.name} submitLabel="Enregistrer" onSubmit={rename} />
           <button className="btn" onClick={() => setEditing(null)}>Fermer</button>
+        </div>
+      )}
+
+      {/* ✅ CREATE MODAL */}
+      {creating && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            background: "rgba(0,0,0,0.35)",
+            backdropFilter: "blur(4px)",
+            WebkitBackdropFilter: "blur(4px)",
+            display: "grid",
+            placeItems: "center",
+            padding: 16,
+          }}
+        >
+          <div className="card" style={{ width: "100%", maxWidth: 520, padding: 16 }}>
+            <div style={{ fontWeight: 700, marginBottom: 10 }}>Créer un modèle</div>
+
+            <EquipmentNameForm
+              noCard
+              submitLabel="Créer"
+              onSubmit={create}
+              actions={({ loading }) => (
+                <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
+                  <button className="btn btn-primary" type="submit" disabled={loading}>
+                    Créer
+                  </button>
+                  <button className="btn" type="button" onClick={() => setCreating(false)} disabled={loading}>
+                    Fermer
+                  </button>
+                </div>
+              )}
+            />
+          </div>
         </div>
       )}
 

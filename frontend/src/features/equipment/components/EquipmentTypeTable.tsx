@@ -28,7 +28,6 @@ export default function EquipmentTypeTable({
             <tr key={t.id}>
               <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
                 <div style={{ fontWeight: 600 }}>{t.name}</div>
-                <div className="small">ID: {t.id}</div>
               </td>
 
               <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
@@ -36,9 +35,6 @@ export default function EquipmentTypeTable({
                   <Link className="btn" to={`/admin/equipment/types/${t.id}/brands`}>Marques</Link>
                   <button className="btn" onClick={() => onEdit(t)}>Renommer</button>
                   <button className="btn btn-danger" onClick={() => onDelete(t)}>Supprimer</button>
-                </div>
-                <div className="small" style={{ marginTop: 6 }}>
-                  (Suppression bloquée si des marques existent → 409)
                 </div>
               </td>
             </tr>
