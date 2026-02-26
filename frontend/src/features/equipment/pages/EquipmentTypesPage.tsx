@@ -11,7 +11,10 @@ function mapApiError(e: any): string {
   if (s === 401) return "Session expirée. Reconnecte-toi.";
   if (s === 403) return "Accès interdit (droits insuffisants).";
   if (s === 409)
-    return e?.response?.data?.message ?? "Conflit: existe déjà ou suppression interdite.";
+    return (
+      e?.response?.data?.message ??
+      "Conflit: existe déjà ou suppression interdite."
+    );
   if (s === 422) return "Validation échouée.";
   return "Erreur serveur.";
 }
@@ -21,7 +24,11 @@ export default function EquipmentTypesPage() {
   const [page, setPage] = useState(1);
   const limit = 20;
 
-  const { data, loading, error, refresh } = useEquipmentTypes(search, page, limit);
+  const { data, loading, error, refresh } = useEquipmentTypes(
+    search,
+    page,
+    limit,
+  );
 
   const totalPages = useMemo(() => {
     if (!data) return 1;
@@ -114,7 +121,14 @@ export default function EquipmentTypesPage() {
         }}
       >
         {/* LEFT */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexWrap: "wrap",
+          }}
+        >
           <input
             className="input"
             style={{ width: 260, flexShrink: 0 }}
@@ -133,11 +147,19 @@ export default function EquipmentTypesPage() {
 
         {/* RIGHT */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <button className="btn" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>
+          <button
+            className="btn"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+          >
             Précédent
           </button>
 
-          <button className="btn" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>
+          <button
+            className="btn"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages}
+          >
             Suivant
           </button>
         </div>
@@ -148,7 +170,8 @@ export default function EquipmentTypesPage() {
         <div
           className="small"
           style={{
-            color: flash.type === "success" ? "var(--success)" : "var(--danger)",
+            color:
+              flash.type === "success" ? "var(--success)" : "var(--danger)",
           }}
         >
           {flash.text}
@@ -156,7 +179,9 @@ export default function EquipmentTypesPage() {
       )}
 
       {loading && <div className="small">Chargement...</div>}
-      {error && <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>}
+      {error && (
+        <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>
+      )}
 
       {data && (
         <EquipmentTypeTable
@@ -167,14 +192,56 @@ export default function EquipmentTypesPage() {
       )}
 
       {editing && (
-        <div className="card" style={{ padding: 12 }}>
-          <div style={{ fontWeight: 700, marginBottom: 8 }}>Renommer le type</div>
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            background: "rgba(0,0,0,0.35)",
+            backdropFilter: "blur(4px)",
+            WebkitBackdropFilter: "blur(4px)",
+            display: "grid",
+            placeItems: "center",
+            padding: 16,
+          }}
+        >
+          <div
+            className="card"
+            style={{ width: "100%", maxWidth: 520, padding: 16 }}
+          >
+            <div style={{ fontWeight: 700, marginBottom: 10 }}>
+              Renommer le type
+            </div>
 
-          <EquipmentNameForm initialName={editing.name} submitLabel="Enregistrer" onSubmit={rename} />
+            <EquipmentNameForm
+              noCard
+              initialName={editing.name}
+              submitLabel="Enregistrer"
+              onSubmit={rename}
+              actions={({ loading }) => (
+                <div
+                  style={{ display: "flex", justifyContent: "center", gap: 10 }}
+                >
+                  <button
+                    className="btn"
+                    type="button"
+                    onClick={() => setEditing(null)}
+                    disabled={loading}
+                  >
+                    Fermer
+                  </button>
 
-          <button className="btn" onClick={() => setEditing(null)}>
-            Fermer
-          </button>
+                  <button
+                    className="btn btn-primary"
+                    type="submit"
+                    disabled={loading}
+                  >
+                    Enregistrer
+                  </button>
+                </div>
+              )}
+            />
+          </div>
         </div>
       )}
 
@@ -193,20 +260,36 @@ export default function EquipmentTypesPage() {
             padding: 16,
           }}
         >
-          <div className="card" style={{ width: "100%", maxWidth: 520, padding: 16 }}>
-            <div style={{ fontWeight: 700, marginBottom: 10 }}>Créer un type</div>
+          <div
+            className="card"
+            style={{ width: "100%", maxWidth: 520, padding: 16 }}
+          >
+            <div style={{ fontWeight: 700, marginBottom: 10 }}>
+              Créer un type
+            </div>
 
             <EquipmentNameForm
               noCard
               submitLabel="Créer"
               onSubmit={create}
               actions={({ loading }) => (
-                <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
-                   <button className="btn" type="button" onClick={() => setCreating(false)} disabled={loading}>
+                <div
+                  style={{ display: "flex", justifyContent: "center", gap: 10 }}
+                >
+                  <button
+                    className="btn"
+                    type="button"
+                    onClick={() => setCreating(false)}
+                    disabled={loading}
+                  >
                     Fermer
                   </button>
-                  
-                  <button className="btn btn-primary" type="submit" disabled={loading}>
+
+                  <button
+                    className="btn btn-primary"
+                    type="submit"
+                    disabled={loading}
+                  >
                     Créer
                   </button>
                 </div>

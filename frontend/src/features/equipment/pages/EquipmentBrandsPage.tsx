@@ -204,18 +204,56 @@ export default function EquipmentBrandsPage() {
       )}
 
       {editing && (
-        <div className="card" style={{ padding: 12 }}>
-          <div style={{ fontWeight: 700, marginBottom: 8 }}>
-            Renommer la marque
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            background: "rgba(0,0,0,0.35)",
+            backdropFilter: "blur(4px)",
+            WebkitBackdropFilter: "blur(4px)",
+            display: "grid",
+            placeItems: "center",
+            padding: 16,
+          }}
+        >
+          <div
+            className="card"
+            style={{ width: "100%", maxWidth: 520, padding: 16 }}
+          >
+            <div style={{ fontWeight: 700, marginBottom: 10 }}>
+              Renommer la marque
+            </div>
+
+            <EquipmentNameForm
+              noCard
+              initialName={editing.name}
+              submitLabel="Enregistrer"
+              onSubmit={rename}
+              actions={({ loading }) => (
+                <div
+                  style={{ display: "flex", justifyContent: "center", gap: 10 }}
+                >
+                  <button
+                    className="btn"
+                    type="button"
+                    onClick={() => setEditing(null)}
+                    disabled={loading}
+                  >
+                    Fermer
+                  </button>
+
+                  <button
+                    className="btn btn-primary"
+                    type="submit"
+                    disabled={loading}
+                  >
+                    Enregistrer
+                  </button>
+                </div>
+              )}
+            />
           </div>
-          <EquipmentNameForm
-            initialName={editing.name}
-            submitLabel="Enregistrer"
-            onSubmit={rename}
-          />
-          <button className="btn" onClick={() => setEditing(null)}>
-            Fermer
-          </button>
         </div>
       )}
 
