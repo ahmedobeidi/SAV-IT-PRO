@@ -1,4 +1,5 @@
 import type { EquipmentModelRead } from "../equipment.types";
+import { Pencil, Trash2 } from "lucide-react";
 
 export default function EquipmentModelTable({
   items,
@@ -11,11 +12,29 @@ export default function EquipmentModelTable({
 }) {
   return (
     <div className="card" style={{ padding: 12, overflowX: "auto" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          tableLayout: "fixed",
+        }}
+      >
+        {/* ✅ fixed widths like ClientsTable */}
+        <colgroup>
+          <col style={{ width: "70%" }} />
+          <col style={{ width: "30%" }} />
+        </colgroup>
+
         <thead>
           <tr style={{ textAlign: "left" }}>
             {["Nom", "Actions"].map((h) => (
-              <th key={h} style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
+              <th
+                key={h}
+                style={{
+                  padding: "10px 8px",
+                  borderBottom: "1px solid var(--border)",
+                }}
+              >
                 <span className="small">{h}</span>
               </th>
             ))}
@@ -25,18 +44,49 @@ export default function EquipmentModelTable({
         <tbody>
           {items.map((m) => (
             <tr key={m.id}>
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
-                <div style={{ fontWeight: 600 }}>{m.name}</div>
-                <div className="small">ID: {m.id}</div>
+              {/* Nom */}
+              <td
+                style={{
+                  padding: "10px 8px",
+                  borderBottom: "1px solid var(--border)",
+                  verticalAlign: "top",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+                title={m.name}
+              >
+                <span style={{ fontWeight: 600 }}>{m.name}</span>
               </td>
 
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
+              {/* Actions */}
+              <td
+                style={{
+                  padding: "10px 8px",
+                  borderBottom: "1px solid var(--border)",
+                  verticalAlign: "top",
+                }}
+              >
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <button className="btn" onClick={() => onEdit(m)}>Renommer</button>
-                  <button className="btn btn-danger" onClick={() => onDelete(m)}>Supprimer</button>
-                </div>
-                <div className="small" style={{ marginTop: 6 }}>
-                  (Suppression bloquée si utilisé dans des réparations → 409)
+                  {/* Rename */}
+                  <button
+                    className="btn"
+                    onClick={() => onEdit(m)}
+                    title="Renommer"
+                    aria-label="Renommer"
+                  >
+                    <Pencil size={18} />
+                  </button>
+
+                  {/* Delete */}
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => onDelete(m)}
+                    title="Supprimer"
+                    aria-label="Supprimer"
+                  >
+                    <Trash2 size={18} />
+                  </button>
                 </div>
               </td>
             </tr>
@@ -44,7 +94,11 @@ export default function EquipmentModelTable({
         </tbody>
       </table>
 
-      {items.length === 0 && <div className="small" style={{ padding: 12 }}>Aucun modèle.</div>}
+      {items.length === 0 && (
+        <div className="small" style={{ padding: 12 }}>
+          Aucun modèle.
+        </div>
+      )}
     </div>
   );
 }
