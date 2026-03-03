@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
+    .title { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+    .block { margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; }
+    td, th { border: 1px solid #333; padding: 6px; }
+  </style>
+</head>
+<body>
+  <div class="title">Ticket de réparation #{{ repair.id }}</div>
+
+  <div class="block">
+    <strong>Client :</strong> {{ repair.createdFor.firstName }} {{ repair.createdFor.lastName }}<br>
+    <strong>Téléphone :</strong> {{ repair.createdFor.phone }}<br>
+    {% if repair.createdFor.email %}<strong>Email :</strong> {{ repair.createdFor.email }}<br>{% endif %}
+  </div>
+
+  <div class="block">
+    <strong>Équipement :</strong> {{ repair.equipmentModel.name }}<br>
+    <strong>Panne :</strong> {{ repair.issue.name }}<br>
+    <strong>Statut :</strong> {{ repair.status.value }}<br>
+    {% if repair.assignedTo %}<strong>Technicien :</strong> {{ repair.assignedTo.firstName }} {{ repair.assignedTo.lastName }}<br>{% endif %}
+  </div>
+
+  <div class="block">
+    <table>
+      <tr><th>Prix</th><th>Acompte</th></tr>
+      <tr>
+        <td>{{ repair.price }} €</td>
+        <td>{{ repair.deposit is not null ? (repair.deposit ~ ' €') : '-' }}</td>
+      </tr>
+    </table>
+  </div>
+
+  {% if repair.description %}
+    <div class="block">
+      <strong>Description :</strong><br>
+      {{ repair.description }}
+    </div>
+  {% endif %}
+
+  <div class="block">
+    <small>Généré le {{ "now"|date("d/m/Y H:i") }}</small>
+  </div>
+</body>
+</html>

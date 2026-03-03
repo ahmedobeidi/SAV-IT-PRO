@@ -1,0 +1,70 @@
+import { useState } from "react";
+import type { RepairStatus } from "../repairs.types";
+
+const ALL: RepairStatus[] = [
+  "CREATED","ASSIGNED","IN_PROGRESS","WAITING_PARTS","DONE","DELIVERED","CANCELED"
+];
+
+export default function UpdateStatusDialog({
+  open,
+  current,
+  allowed,
+  onClose,
+  onConfirm,
+}: {
+  open: boolean;
+  current: RepairStatus;
+  allowed: RepairStatus[];
+  onClose: () => void;
+  onConfirm: (status: RepairStatus) => Promise<void>;
+}) {
+  const [status, setStatus] = useState<RepairStatus>(current);
+  const [loading, setLoading] = useState(false);
+
+  if (!open) return null;
+
+  const options = allowed.length ? allowed : ALL;
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.55)",
+        display: "grid",
+        placeItems: "center",
+        padding: 16,
+        zIndex: 60,
+      }}
+    >
+      <div className="card" style={{ width: "100%", maxWidth: 520, padding: 16 }}>
+        <div style={{ fontWeight: 700, marginBottom: 6 }}>Changer le statut</div>
+
+        <select className="input" value={status} onChange={(e) => setStatus(e.target.value as RepairStatus)}>
+          {options.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+
+        <div style={{ display: "flex", gap: 10, justifyContent: "end", marginTop: 12 }}>
+          <button className="btn" onClick={onClose}>Annuler</button>
+          <button
+            className="btn btn-primary"
+            disabled={loading}
+            onClick={async () => {
+              setLoading(true);
+              try {
+                await onConfirm(status);
+                onClose();
+              } finally {
+                setLoading(false);
+              }
+            }}
+          >
+            {loading ? "..." : "Confirmer"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

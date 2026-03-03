@@ -47,6 +47,14 @@ export default function Sidebar() {
         <NavLink to="/admin/equipment/types" style={linkStyle}>
           Équipements
         </NavLink>
+
+        <NavLink to="/admin/repair-orders" style={linkStyle}>
+          Réparations
+        </NavLink>
+
+        <NavLink to="/admin/technician/repair-orders" style={linkStyle}>
+          Espace technicien
+        </NavLink>
       </nav>
     </aside>
   );

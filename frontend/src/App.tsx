@@ -26,6 +26,10 @@ import EquipmentTypesPage from "./features/equipment/pages/EquipmentTypesPage";
 import EquipmentBrandsPage from "./features/equipment/pages/EquipmentBrandsPage";
 import EquipmentModelsPage from "./features/equipment/pages/EquipmentModelsPage";
 
+import RepairOrdersListPage from "./features/repairs/pages/RepairOrdersListPage";
+import RepairOrderCreatePage from "./features/repairs/pages/RepairOrderCreatePage";
+import TechnicianRepairOrdersPage from "./features/repairs/pages/TechnicianRepairOrdersPage";
+
 export default function App() {
   return (
     <>
@@ -60,6 +64,9 @@ export default function App() {
           <Route path="equipment/types" element={<EquipmentTypesPage />} />
           <Route path="equipment/types/:typeId/brands" element={<EquipmentBrandsPage />} />
           <Route path="equipment/brands/:brandId/models" element={<EquipmentModelsPage />} />
+          <Route path="repair-orders" element={<RepairOrdersListPage />} />
+          <Route path="repair-orders/new" element={<RepairOrderCreatePage />} />
+          <Route path="technician/repair-orders" element={<TechnicianRepairOrdersPage />} />
         </Route>
 
         {/* Default */}

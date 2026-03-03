@@ -19,26 +19,31 @@ class RepairOrder
     private ?int $id = null;
 
     // createdBy (User 1 — 0..*)
+    #[Groups(['repair:read'])]
     #[ORM\ManyToOne(inversedBy: 'createdRepairOrders')]
     #[ORM\JoinColumn(nullable: false)]
     private User $createdBy;
 
     // createdFor (Client 1 — 0..*)
+    #[Groups(['repair:read'])]
     #[ORM\ManyToOne(inversedBy: 'repairOrders')]
     #[ORM\JoinColumn(nullable: false)]
     private Client $createdFor;
 
     // equipmentModel (EquipmentModel 1 — 0..*)
+    #[Groups(['repair:read'])]
     #[ORM\ManyToOne(inversedBy: 'repairOrders')]
     #[ORM\JoinColumn(nullable: false)]
     private EquipmentModel $equipmentModel;
 
     // issue (Issue 1 — 0..*)
+    #[Groups(['repair:read'])]
     #[ORM\ManyToOne(inversedBy: 'repairOrders')]
     #[ORM\JoinColumn(nullable: false)]
     private Issue $issue;
 
     // assignedTo (User 0..* — 0..1)
+    #[Groups(['repair:read'])]
     #[ORM\ManyToOne(inversedBy: 'assignedRepairOrders')]
     #[ORM\JoinColumn(nullable: true)]
     private ?User $assignedTo = null;

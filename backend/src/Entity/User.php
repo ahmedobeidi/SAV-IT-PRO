@@ -17,17 +17,17 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    #[Groups(['user:read'])]
+    #[Groups(['user:read', 'repair:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[Groups(['user:read'])]
+    #[Groups(['user:read', 'repair:read'])]
     #[ORM\Column(length: 100)]
     private string $firstName;
 
-    #[Groups(['user:read'])]
+    #[Groups(['user:read', 'repair:read'])]
     #[ORM\Column(length: 100)]
     private string $lastName;
 
