@@ -1,4 +1,3 @@
-// useClientSearchList.ts
 import { useEffect, useRef, useState } from "react";
 import { clientsApi } from "../../clients/clients.api";
 import type { ClientRead } from "../../clients/clients.types";
@@ -21,6 +20,7 @@ export function useClientSearchList(phone: string) {
 
     const timeout = setTimeout(async () => {
       const current = ++reqId.current;
+
       setLoading(true);
       setError(null);
 
@@ -45,10 +45,14 @@ export function useClientSearchList(phone: string) {
       } finally {
         if (current === reqId.current) setLoading(false);
       }
-    }, 300); // debounce
+    }, 300);
 
     return () => clearTimeout(timeout);
   }, [phone]);
 
-  return { loading, items, error };
+  return {
+    loading,
+    items,
+    error,
+  };
 }
