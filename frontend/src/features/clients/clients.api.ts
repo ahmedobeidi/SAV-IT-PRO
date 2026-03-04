@@ -23,8 +23,8 @@ export const clientsApi = {
 
   // you can keep this if you still use it elsewhere
   async searchByPhone(phone: string): Promise<ClientRead> {
-    const res = await http.get("/api/clients/search", { params: { phone } });
-    return res.data;
+    const data = await this.list({ phone, page: 1, limit: 1 });
+    return data.items?.[0] ?? null;
   },
 
   async show(id: number): Promise<ClientRead> {
