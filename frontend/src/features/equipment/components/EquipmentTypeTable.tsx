@@ -89,7 +89,7 @@ export default function EquipmentTypeTable({
 
                   {/* Rename */}
                   <button
-                    className="btn"
+                    className="btn btn-warning"
                     onClick={() => onEdit(t)}
                     title="Renommer"
                     aria-label="Renommer"

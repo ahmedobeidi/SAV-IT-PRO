@@ -72,7 +72,7 @@ export default function EquipmentModelTable({
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", }}>
                   {/* Rename */}
                   <button
-                    className="btn"
+                    className="btn btn-warning"
                     onClick={() => onEdit(m)}
                     title="Renommer"
                     aria-label="Renommer"

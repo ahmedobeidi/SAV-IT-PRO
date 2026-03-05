@@ -94,7 +94,7 @@ export default function UsersTable({
               <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top" }}>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {/* Edit */}
-                  <Link className="btn" to={`/admin/users/${u.id}/edit`} title="Modifier" aria-label="Modifier">
+                  <Link className="btn btn-warning" to={`/admin/users/${u.id}/edit`} title="Modifier" aria-label="Modifier">
                     <Pencil size={18} />
                   </Link>
 
