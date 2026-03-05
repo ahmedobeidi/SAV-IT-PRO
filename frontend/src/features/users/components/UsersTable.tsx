@@ -61,9 +61,9 @@ export default function UsersTable({
                 }}
                 title={`${u.lastName} ${u.firstName}`}
               >
-                <Link to={`/admin/users/${u.id}`} style={{ color: "var(--primary)" }}>
+                <div style={{ color: "var(--primary)" }}>
                   {u.lastName} {u.firstName}
-                </Link>
+                </div>
                 {u.isAnonymized && <span className="small"> — anonymisé</span>}
               </td>
 

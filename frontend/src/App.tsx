@@ -13,7 +13,6 @@ import { GlobalLoadingOverlay } from "./ui/GlobalLoadingOverlay";
 
 import UsersListPage from "./features/users/pages/UsersListPage";
 import UserCreatePage from "./features/users/pages/UserCreatePage";
-import UserShowPage from "./features/users/pages/UserShowPage";
 import UserEditPage from "./features/users/pages/UserEditPage";
 
 import ClientsListPage from "./features/clients/pages/ClientsListPage";
@@ -53,7 +52,6 @@ export default function App() {
           <Route index element={<DashboardPage />} />
           <Route path="users" element={<UsersListPage />} />
           <Route path="users/new" element={<UserCreatePage />} />
-          <Route path="users/:id" element={<UserShowPage />} />
           <Route path="users/:id/edit" element={<UserEditPage />} />
           <Route path="clients" element={<ClientsListPage />} />
           <Route path="clients/new" element={<ClientCreatePage />} />

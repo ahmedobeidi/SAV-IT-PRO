@@ -34,7 +34,7 @@ export default function UsersListPage() {
   function showFlash(type: "success" | "error", text: string) {
     const id = Date.now();
     setFlash({ id, type, text });
-    setTimeout(() => setFlash((cur) => (cur?.id === id ? null : cur)), 7000);
+    setTimeout(() => setFlash((cur) => (cur?.id === id ? null : cur)), 5000);
   }
 
   // ✅ dialogs state

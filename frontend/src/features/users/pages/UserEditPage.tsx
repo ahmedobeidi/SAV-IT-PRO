@@ -65,8 +65,8 @@ export default function UserEditPage() {
           mode="edit"
           initial={user}
           onSubmit={async (payload) => {
-            const updated = await usersApi.update(userId, payload as UpdateUserPayload);
-            navigate(`/admin/users/${updated.id}`);
+            await usersApi.update(userId, payload as UpdateUserPayload);
+            navigate(`/admin/users`);
           }}
         />
       </div>

@@ -48,8 +48,8 @@ export default function UserCreatePage() {
         <UserForm
           mode="create"
           onSubmit={async (payload) => {
-            const created = await usersApi.create(payload as CreateUserPayload);
-            navigate(`/admin/users/${created.id}`);
+            await usersApi.create(payload as CreateUserPayload);
+            navigate(`/admin/users`);
           }}
         />
       </div>
