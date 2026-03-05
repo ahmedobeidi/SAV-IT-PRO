@@ -6,6 +6,7 @@ import { useClientSearchList } from "../hooks/useClientSearchList";
 import type { ClientRead } from "../../clients/clients.types";
 import { useIssuesByType } from "../hooks/useIssuesByType";
 import { issuesApi } from "../../issues/issues.api";
+import IssueManagementDialog from "./IssueManagementDialog";
 
 export default function RepairOrderCreateForm({
   onSubmit,
@@ -31,11 +32,8 @@ export default function RepairOrderCreateForm({
   const [issueId, setIssueId] = useState<number | "">("");
   const issues = useIssuesByType(eq.typeId);
 
-  // ✅ Create issue modal
-  const [showCreateIssueModal, setShowCreateIssueModal] = useState(false);
-  const [newIssueName, setNewIssueName] = useState("");
-  const [creatingIssue, setCreatingIssue] = useState(false);
-  const [createIssueError, setCreateIssueError] = useState<string | null>(null);
+  // ✅ Issue management modal
+  const [showIssueManager, setShowIssueManager] = useState(false);
 
   // reset issue when type changes
   useEffect(() => {
@@ -82,42 +80,6 @@ export default function RepairOrderCreateForm({
       throw e;
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function createNewIssue() {
-    const name = newIssueName.trim();
-    if (!name) {
-      setCreateIssueError("Le nom de la panne ne peut pas être vide.");
-      return;
-    }
-
-    if (!eq.typeId) {
-      setCreateIssueError("Sélectionne d'abord un type d'équipement.");
-      return;
-    }
-
-    setCreatingIssue(true);
-    setCreateIssueError(null);
-    try {
-      const newIssue = await issuesApi.create(Number(eq.typeId), { name });
-      setNewIssueName("");
-      setShowCreateIssueModal(false);
-      // Set the newly created issue in the dropdown
-      setIssueId(newIssue.id);
-      // Refresh the issues list
-      await issues.refresh?.();
-    } catch (e: any) {
-      const status = e?.response?.status;
-      if (status === 409) {
-        setCreateIssueError("Cette panne existe déjà pour ce type.");
-      } else if (status === 422) {
-        setCreateIssueError("Validation échouée.");
-      } else {
-        setCreateIssueError("Erreur lors de la création de la panne.");
-      }
-    } finally {
-      setCreatingIssue(false);
     }
   }
 
@@ -373,11 +335,10 @@ export default function RepairOrderCreateForm({
               <button
                 type="button"
                 className="btn btn-primary"
-                onClick={() => setShowCreateIssueModal(true)}
+                onClick={() => setShowIssueManager(true)}
                 disabled={!eq.typeId}
-                // style={{ marginTop: 20 }}
               >
-                + Ajouter
+                ⚙️ Gérer
               </button>
             </div>
 
@@ -450,80 +411,19 @@ export default function RepairOrderCreateForm({
       )}
 
       {/* ========================================================= */}
-      {/* CREATE ISSUE MODAL */}
+      {/* ISSUE MANAGEMENT DIALOG */}
       {/* ========================================================= */}
-      {showCreateIssueModal && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 9999,
-            background: "rgba(0,0,0,0.35)",
-            backdropFilter: "blur(4px)",
-            WebkitBackdropFilter: "blur(4px)",
-            display: "grid",
-            placeItems: "center",
-            padding: 16,
-          }}
-        >
-          <div
-            className="card"
-            style={{ width: "100%", maxWidth: 520, padding: 16 }}
-          >
-            <div style={{ fontWeight: 700, marginBottom: 10 }}>
-              Créer une panne
-            </div>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                createNewIssue();
-              }}
-              style={{ display: "grid", gap: 12 }}
-            >
-              <div>
-                <label className="small">Nom de la panne</label>
-                <input
-                  className="input"
-                  placeholder="ex: Écran cassé"
-                  value={newIssueName}
-                  onChange={(e) => setNewIssueName(e.target.value)}
-                  disabled={creatingIssue}
-                />
-              </div>
-
-              {createIssueError && (
-                <div style={{ color: "var(--danger)", fontSize: 13 }}>
-                  {createIssueError}
-                </div>
-              )}
-
-              <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => {
-                    setShowCreateIssueModal(false);
-                    setNewIssueName("");
-                    setCreateIssueError(null);
-                  }}
-                  disabled={creatingIssue}
-                >
-                  Fermer
-                </button>
-
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={creatingIssue}
-                >
-                  {creatingIssue ? "Création..." : "Créer"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <IssueManagementDialog
+        open={showIssueManager}
+        onClose={() => setShowIssueManager(false)}
+        typeId={eq.typeId || 0}
+        issues={issues.items}
+        onIssueSelected={(issue) => {
+          setIssueId(issue.id);
+          setShowIssueManager(false);
+        }}
+        onRefresh={issues.refresh || (() => {})}
+      />
     </>
   );
 }

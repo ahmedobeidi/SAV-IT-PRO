@@ -27,4 +27,16 @@ export const issuesApi = {
     const res = await http.post(`/api/equipment-types/${typeId}/issues`, data);
     return res.data;
   },
+
+  async update(
+    issueId: number,
+    data: { name: string }
+  ): Promise<IssueRead> {
+    const res = await http.patch(`/api/issues/${issueId}`, data);
+    return res.data;
+  },
+
+  async delete(issueId: number): Promise<void> {
+    await http.delete(`/api/issues/${issueId}`);
+  },
 };
