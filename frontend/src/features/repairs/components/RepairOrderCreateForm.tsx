@@ -5,6 +5,7 @@ import { useEquipmentCascade } from "../hooks/useEquipmentCascade";
 import { useClientSearchList } from "../hooks/useClientSearchList";
 import type { ClientRead } from "../../clients/clients.types";
 import { useIssuesByType } from "../hooks/useIssuesByType";
+import { issuesApi } from "../../issues/issues.api";
 
 export default function RepairOrderCreateForm({
   onSubmit,
@@ -30,6 +31,12 @@ export default function RepairOrderCreateForm({
   const [issueId, setIssueId] = useState<number | "">("");
   const issues = useIssuesByType(eq.typeId);
 
+  // ✅ Create issue modal
+  const [showCreateIssueModal, setShowCreateIssueModal] = useState(false);
+  const [newIssueName, setNewIssueName] = useState("");
+  const [creatingIssue, setCreatingIssue] = useState(false);
+  const [createIssueError, setCreateIssueError] = useState<string | null>(null);
+
   // reset issue when type changes
   useEffect(() => {
     setIssueId("");
@@ -50,14 +57,14 @@ export default function RepairOrderCreateForm({
     setFormError(null);
 
     if (!selectedClient) {
-      setFormError("Sélectionne un client avant de créer l’ordre.");
+      setFormError("Sélectionne un client avant de créer l'ordre.");
       return;
     }
 
     const payload: CreateRepairOrderPayload = {
       clientId,
       equipmentModelId,
-      issueId: issueId ? Number(issueId) : 0, // ✅ important
+      issueId: issueId ? Number(issueId) : 0,
       price: Number(price),
       deposit: deposit === "" ? null : Number(deposit),
       description: description || null,
@@ -75,6 +82,42 @@ export default function RepairOrderCreateForm({
       throw e;
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function createNewIssue() {
+    const name = newIssueName.trim();
+    if (!name) {
+      setCreateIssueError("Le nom de la panne ne peut pas être vide.");
+      return;
+    }
+
+    if (!eq.typeId) {
+      setCreateIssueError("Sélectionne d'abord un type d'équipement.");
+      return;
+    }
+
+    setCreatingIssue(true);
+    setCreateIssueError(null);
+    try {
+      const newIssue = await issuesApi.create(Number(eq.typeId), { name });
+      setNewIssueName("");
+      setShowCreateIssueModal(false);
+      // Set the newly created issue in the dropdown
+      setIssueId(newIssue.id);
+      // Refresh the issues list
+      await issues.refresh?.();
+    } catch (e: any) {
+      const status = e?.response?.status;
+      if (status === 409) {
+        setCreateIssueError("Cette panne existe déjà pour ce type.");
+      } else if (status === 422) {
+        setCreateIssueError("Validation échouée.");
+      } else {
+        setCreateIssueError("Erreur lors de la création de la panne.");
+      }
+    } finally {
+      setCreatingIssue(false);
     }
   }
 
@@ -201,7 +244,7 @@ export default function RepairOrderCreateForm({
             marginTop: 16,
           }}
         >
-          <div style={{ fontWeight: 700 }}>2) Créer l’ordre de réparation</div>
+          <div style={{ fontWeight: 700 }}>2) Créer l'ordre de réparation</div>
 
           {/* EQUIPMENT */}
           {eq.error && (
@@ -251,7 +294,7 @@ export default function RepairOrderCreateForm({
                     ? eq.loadingBrands
                       ? "Chargement..."
                       : "— Choisir —"
-                    : "Choisis d’abord un type"}
+                    : "Choisis d'abord un type"}
                 </option>
                 {eq.brands.map((b) => (
                   <option key={b.id} value={b.id}>
@@ -276,7 +319,7 @@ export default function RepairOrderCreateForm({
                     ? eq.loadingModels
                       ? "Chargement..."
                       : "— Choisir —"
-                    : "Choisis d’abord une marque"}
+                    : "Choisis d'abord une marque"}
                 </option>
                 {eq.models.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -302,28 +345,41 @@ export default function RepairOrderCreateForm({
 
           <div>
             <label className="small">Panne</label>
-            <select
-              className="input"
-              value={issueId}
-              onChange={(e) =>
-                setIssueId(e.target.value ? Number(e.target.value) : "")
-              }
-              disabled={!eq.typeId || issues.loading}
-            >
-              <option value="">
-                {!eq.typeId
-                  ? "Choisis d’abord un type"
-                  : issues.loading
-                  ? "Chargement..."
-                  : "— Choisir —"}
-              </option>
-
-              {issues.items.map((i) => (
-                <option key={i.id} value={i.id}>
-                  {i.name}
+            <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+              <select
+                className="input"
+                value={issueId}
+                onChange={(e) =>
+                  setIssueId(e.target.value ? Number(e.target.value) : "")
+                }
+                disabled={!eq.typeId || issues.loading}
+                style={{ flex: 1 }}
+              >
+                <option value="">
+                  {!eq.typeId
+                    ? "Choisis d'abord un type"
+                    : issues.loading
+                    ? "Chargement..."
+                    : "— Choisir —"}
                 </option>
-              ))}
-            </select>
+
+                {issues.items.map((i) => (
+                  <option key={i.id} value={i.id}>
+                    {i.name}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setShowCreateIssueModal(true)}
+                disabled={!eq.typeId}
+                // style={{ marginTop: 20 }}
+              >
+                + Ajouter
+              </button>
+            </div>
 
             {fieldErrors.issueId && (
               <div style={{ color: "var(--danger)", fontSize: 13 }}>
@@ -388,9 +444,85 @@ export default function RepairOrderCreateForm({
           )}
 
           <button className="btn btn-primary" disabled={loading}>
-            {loading ? "Création..." : "Créer l’ordre de réparation"}
+            {loading ? "Création..." : "Créer l'ordre de réparation"}
           </button>
         </form>
+      )}
+
+      {/* ========================================================= */}
+      {/* CREATE ISSUE MODAL */}
+      {/* ========================================================= */}
+      {showCreateIssueModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            background: "rgba(0,0,0,0.35)",
+            backdropFilter: "blur(4px)",
+            WebkitBackdropFilter: "blur(4px)",
+            display: "grid",
+            placeItems: "center",
+            padding: 16,
+          }}
+        >
+          <div
+            className="card"
+            style={{ width: "100%", maxWidth: 520, padding: 16 }}
+          >
+            <div style={{ fontWeight: 700, marginBottom: 10 }}>
+              Créer une panne
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                createNewIssue();
+              }}
+              style={{ display: "grid", gap: 12 }}
+            >
+              <div>
+                <label className="small">Nom de la panne</label>
+                <input
+                  className="input"
+                  placeholder="ex: Écran cassé"
+                  value={newIssueName}
+                  onChange={(e) => setNewIssueName(e.target.value)}
+                  disabled={creatingIssue}
+                />
+              </div>
+
+              {createIssueError && (
+                <div style={{ color: "var(--danger)", fontSize: 13 }}>
+                  {createIssueError}
+                </div>
+              )}
+
+              <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => {
+                    setShowCreateIssueModal(false);
+                    setNewIssueName("");
+                    setCreateIssueError(null);
+                  }}
+                  disabled={creatingIssue}
+                >
+                  Fermer
+                </button>
+
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={creatingIssue}
+                >
+                  {creatingIssue ? "Création..." : "Créer"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </>
   );

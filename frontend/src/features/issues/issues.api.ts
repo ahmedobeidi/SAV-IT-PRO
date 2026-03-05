@@ -19,4 +19,12 @@ export const issuesApi = {
     });
     return res.data;
   },
+
+  async create(
+    typeId: number,
+    data: { name: string }
+  ): Promise<IssueRead> {
+    const res = await http.post(`/api/equipment-types/${typeId}/issues`, data);
+    return res.data;
+  },
 };
