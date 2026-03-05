@@ -20,7 +20,7 @@ export default function RepairOrdersTable({
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr style={{ textAlign: "left" }}>
-            {["#","Client","Équipement","Panne","Statut","Technicien","Actions"].map((h) => (
+            {["#", "Client", "Équipement", "Panne", "Statut", "Technicien", "Actions"].map((h) => (
               <th key={h} style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
                 <span className="small">{h}</span>
               </th>
@@ -33,7 +33,11 @@ export default function RepairOrdersTable({
             <tr key={r.id}>
               <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
                 <div style={{ fontWeight: 700 }}>#{r.id}</div>
-                <div className="small">{r.createdAt ?? ""}</div>
+                <div className="small">
+                  {r.createdAt
+                    ? new Date(r.createdAt).toLocaleString("fr-FR")
+                    : ""}
+                </div>
               </td>
 
               <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
@@ -42,11 +46,11 @@ export default function RepairOrdersTable({
               </td>
 
               <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
-                <div style={{ fontWeight: 600 }}>{r.equipmentModel.name}</div>
+                <div style={{ fontWeight: 600 }}>{r.equipmentModel?.name ?? "-"}</div>
               </td>
 
               <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
-                <div className="small">{r.issue.name}</div>
+                <div className="small">{r.issue?.name ?? "-"}</div>
               </td>
 
               <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
