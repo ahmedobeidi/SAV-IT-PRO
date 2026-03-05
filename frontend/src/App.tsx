@@ -20,7 +20,6 @@ import ClientsListPage from "./features/clients/pages/ClientsListPage";
 import ClientCreatePage from "./features/clients/pages/ClientCreatePage";
 import ClientShowPage from "./features/clients/pages/ClientShowPage";
 import ClientEditPage from "./features/clients/pages/ClientEditPage";
-import ClientRepairsPage from "./features/clients/pages/ClientRepairsPage";
 
 import EquipmentTypesPage from "./features/equipment/pages/EquipmentTypesPage";
 import EquipmentBrandsPage from "./features/equipment/pages/EquipmentBrandsPage";
@@ -60,7 +59,6 @@ export default function App() {
           <Route path="clients/new" element={<ClientCreatePage />} />
           <Route path="clients/:id" element={<ClientShowPage />} />
           <Route path="clients/:id/edit" element={<ClientEditPage />} />
-          <Route path="clients/:id/repairs" element={<ClientRepairsPage />} />
           <Route path="equipment/types" element={<EquipmentTypesPage />} />
           <Route path="equipment/types/:typeId/brands" element={<EquipmentBrandsPage />} />
           <Route path="equipment/brands/:brandId/models" element={<EquipmentModelsPage />} />

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import type { ClientRead } from "../clients.types";
-import { Pencil, Wrench, UserX } from "lucide-react";
+import { Pencil, UserX } from "lucide-react";
 
 export default function ClientsTable({
   items,
@@ -126,16 +126,6 @@ export default function ClientsTable({
                     aria-label="Modifier"
                   >
                     <Pencil size={18} />
-                  </Link>
-
-                  {/* Repairs */}
-                  <Link
-                    className="btn"
-                    to={`/admin/clients/${c.id}/repairs`}
-                    title="Réparations"
-                    aria-label="Réparations"
-                  >
-                    <Wrench size={18} />
                   </Link>
 
                   {/* Anonymize */}

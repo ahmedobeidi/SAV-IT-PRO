@@ -33,7 +33,6 @@ export default function ClientShowPage() {
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <Link className="btn" to="/admin/clients">Retour</Link>
           <Link className="btn" to={`/admin/clients/${client.id}/edit`}>Modifier</Link>
-          <Link className="btn" to={`/admin/clients/${client.id}/repairs`}>Réparations</Link>
         </div>
       </div>
 
