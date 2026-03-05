@@ -1,12 +1,7 @@
 import type { UserRole } from "../users.types";
+import { ROLE_LABEL } from "../users.validators";
 
 export default function RoleBadge({ role }: { role: UserRole }) {
-  const label =
-    role === "ROLE_SUPER_ADMIN" ? "Super Admin" :
-    role === "ROLE_ADMIN" ? "Admin" :
-    role === "ROLE_TECHNICIAN" ? "Technicien" :
-    "Réception";
-
   return (
     <span
       style={{
@@ -17,7 +12,7 @@ export default function RoleBadge({ role }: { role: UserRole }) {
         background: "rgba(255,255,255,0.04)",
       }}
     >
-      {label}
+      {ROLE_LABEL[role]}
     </span>
   );
 }
