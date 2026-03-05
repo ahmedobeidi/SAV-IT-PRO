@@ -26,7 +26,7 @@ export default function EquipmentBrandsPage() {
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const limit = 20;
+  const limit = 10;
 
   const { data, loading, error, refresh } = useEquipmentBrands(
     tid,

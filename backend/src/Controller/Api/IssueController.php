@@ -30,7 +30,7 @@ class IssueController extends AbstractController
 
         $search = $request->query->get('search');
         $page  = max(1, (int) $request->query->get('page', 1));
-        $limit = min(100, max(1, (int) $request->query->get('limit', 20)));
+        $limit = min(100, max(1, (int) $request->query->get('limit', 10)));
 
         $result = $repo->listByTypePaginated($type, $search, $page, $limit);
 

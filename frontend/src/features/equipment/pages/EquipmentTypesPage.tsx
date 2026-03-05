@@ -22,7 +22,7 @@ function mapApiError(e: any): string {
 export default function EquipmentTypesPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const limit = 20;
+  const limit = 10;
 
   const { data, loading, error, refresh } = useEquipmentTypes(
     search,

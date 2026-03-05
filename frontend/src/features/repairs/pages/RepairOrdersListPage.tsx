@@ -14,7 +14,7 @@ export default function RepairOrdersListPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<RepairStatus | "">("");
   const [page, setPage] = useState(1);
-  const limit = 20;
+  const limit = 10;
 
   const { data, loading, error, refresh } = useRepairOrdersList(search, status, page, limit);
 

@@ -10,7 +10,7 @@ import ConfirmDialog from "../../../components/ConfirmDialog"; // ✅ adjust pat
 export default function ClientsListPage() {
   const [phone, setPhone] = useState("");
   const [page, setPage] = useState(1);
-  const limit = 20;
+  const limit = 10;
 
   const { data, loading, error } = useClientsList(phone, page, limit);
 
