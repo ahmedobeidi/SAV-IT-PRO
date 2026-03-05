@@ -100,7 +100,7 @@ export default function EquipmentTypesPage() {
         }}
       >
         <div>
-          <h2 style={{ margin: 0 }}>Équipements — Types</h2>
+          <h2 style={{ margin: 0 }}>Types</h2>
         </div>
 
         <button className="btn btn-primary" onClick={() => setCreating(true)}>

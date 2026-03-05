@@ -105,7 +105,7 @@ export default function EquipmentBrandsPage() {
         }}
       >
         <div>
-          <h2 style={{ margin: 0 }}>Équipements — Marques</h2>
+          <h2 style={{ margin: 0 }}>Marques</h2>
         </div>
 
         {/* RIGHT SIDE */}

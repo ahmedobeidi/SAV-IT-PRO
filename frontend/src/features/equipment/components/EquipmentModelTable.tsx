@@ -33,6 +33,7 @@ export default function EquipmentModelTable({
                 style={{
                   padding: "10px 8px",
                   borderBottom: "1px solid var(--border)",
+                  textAlign: h === "Actions" ? "center" : "left",
                 }}
               >
                 <span className="small">{h}</span>
@@ -65,9 +66,10 @@ export default function EquipmentModelTable({
                   padding: "10px 8px",
                   borderBottom: "1px solid var(--border)",
                   verticalAlign: "top",
+                  textAlign: "center",
                 }}
               >
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", }}>
                   {/* Rename */}
                   <button
                     className="btn"

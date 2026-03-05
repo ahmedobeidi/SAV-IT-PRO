@@ -38,6 +38,7 @@ export default function UsersTable({
                 style={{
                   padding: "10px 8px",
                   borderBottom: "1px solid var(--border)",
+                  textAlign: h === "Actions" ? "center" : "left",
                 }}
               >
                 <span className="small">{h}</span>
