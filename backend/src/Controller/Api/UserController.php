@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 #[Route('/api/users')]
 class UserController extends AbstractController
@@ -56,7 +57,16 @@ class UserController extends AbstractController
             ], 422);
         }
 
-        $user = $this->userService->create($actor, $dto);
+        try {
+            $user = $this->userService->create($actor, $dto);
+        } catch (UniqueConstraintViolationException $e) {
+            return $this->json([
+                'message' => 'Validation échouée',
+                'errors' => [
+                    ['field' => 'email', 'message' => 'Cet email existe déjà.'],
+                ],
+            ], 422);
+        }
 
         return $this->json($user, 201, [], ['groups' => ['user:read']]);
     }
@@ -125,7 +135,16 @@ class UserController extends AbstractController
             ], 422);
         }
 
-        $updated = $this->userService->update($actor, $user, $dto);
+        try {
+            $updated = $this->userService->update($actor, $user, $dto);
+        } catch (UniqueConstraintViolationException $e) {
+            return $this->json([
+                'message' => 'Validation échouée',
+                'errors' => [
+                    ['field' => 'email', 'message' => 'Cet email existe déjà.'],
+                ],
+            ], 422);
+        }
 
         return $this->json($updated, 200, [], ['groups' => ['user:read']]);
     }

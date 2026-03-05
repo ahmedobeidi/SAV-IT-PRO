@@ -28,14 +28,43 @@ export default function UserForm({
   const [email, setEmail] = useState(initial?.email ?? "");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<UserRole>(
-    (initial?.role as UserRole) ?? "ROLE_TECHNICIAN",
+    (initial?.role as UserRole) ?? "ROLE_RECEPTION",
   );
 
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  // const roles = useMemo(() => ALL_ROLES, []);
+  function applyBackendErrors(err: any) {
+    const data = err?.response?.data;
+
+    // reset
+    setFieldErrors({});
+    setFormError(null);
+
+    // Symfony format: { message, errors: [{field, message}] }
+    if (data?.errors && Array.isArray(data.errors)) {
+      const fe: Record<string, string> = {};
+      for (const e of data.errors) {
+        if (e?.field && e?.message && !fe[e.field]) fe[e.field] = e.message;
+      }
+
+      setFieldErrors(fe);
+
+      // ✅ Only show global message if no field errors
+      if (Object.keys(fe).length === 0) {
+        setFormError(data?.message ?? "Validation échouée.");
+      }
+
+      return;
+    }
+
+    // fallback
+    const s = err?.response?.status;
+    if (s === 401) setFormError("Session expirée. Reconnecte-toi.");
+    else if (s === 403) setFormError("Accès interdit (droits insuffisants).");
+    else setFormError(data?.message ?? "Erreur serveur.");
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -57,9 +86,7 @@ export default function UserForm({
       try {
         await onSubmit(payload);
       } catch (err: any) {
-        setFormError(
-          "Création impossible (vérifiez les droits / email unique).",
-        );
+        applyBackendErrors(err);
       } finally {
         setLoading(false);
       }
@@ -82,9 +109,7 @@ export default function UserForm({
     try {
       await onSubmit(payload);
     } catch (err: any) {
-      setFormError(
-        "Modification impossible (vérifiez les droits / contraintes).",
-      );
+      applyBackendErrors(err);
     } finally {
       setLoading(false);
     }
