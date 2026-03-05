@@ -5,33 +5,74 @@ import { useUsersList } from "../hooks/useUsersList";
 import { usersApi } from "../users.api";
 import type { UserRead } from "../users.types";
 import { UserPlus } from "lucide-react";
-import ConfirmDialog from "../../../components/ConfirmDialog"; // ✅ adjust path if needed
+import ConfirmDialog from "../../../components/ConfirmDialog";
+
+function mapApiError(e: any): string {
+  const s = e?.response?.status;
+  if (s === 401) return "Session expirée. Reconnecte-toi.";
+  if (s === 403) return "Accès interdit (droits insuffisants).";
+  if (s === 409) return e?.response?.data?.message ?? "Conflit.";
+  if (s === 422) return "Validation échouée.";
+  return "Erreur serveur.";
+}
 
 export default function UsersListPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const { data, loading, error } = useUsersList(search, page, limit);
+  const { data, loading, error, refresh } = useUsersList(search, page, limit);
 
   const totalPages = useMemo(() => {
     if (!data) return 1;
     return Math.max(1, Math.ceil(data.total / data.limit));
   }, [data]);
 
-  // ✅ anonymize confirm dialog state
-  const [anonymizing, setAnonymizing] = useState<UserRead | null>(null);
+  // ✅ flash like equipment types
+  const [flash, setFlash] = useState<{ id: number; type: "success" | "error"; text: string } | null>(null);
 
-  async function onToggleActive(u: UserRead) {
-    await usersApi.setActive(u.id, !u.isActive);
-    window.location.reload();
+  function showFlash(type: "success" | "error", text: string) {
+    const id = Date.now();
+    setFlash({ id, type, text });
+    setTimeout(() => setFlash((cur) => (cur?.id === id ? null : cur)), 7000);
+  }
+
+  // ✅ dialogs state
+  const [anonymizing, setAnonymizing] = useState<UserRead | null>(null);
+  const [toggling, setToggling] = useState<UserRead | null>(null);
+
+  async function toggleActive() {
+    if (!toggling) return;
+
+    // ✅ close modal immediately (same feel as create type)
+    const user = toggling;
+    setToggling(null);
+
+    try {
+      await usersApi.setActive(user.id, !user.isActive);
+      showFlash("success", user.isActive ? "Utilisateur bloqué." : "Utilisateur débloqué.");
+      refresh(); // ✅ triggers loading + re-fetch list
+    } catch (e: any) {
+      showFlash("error", mapApiError(e));
+      refresh(); // optional: keep list consistent
+    }
   }
 
   async function anonymize() {
     if (!anonymizing) return;
-    await usersApi.anonymize(anonymizing.id);
+
+    // ✅ close modal immediately
+    const user = anonymizing;
     setAnonymizing(null);
-    window.location.reload();
+
+    try {
+      await usersApi.anonymize(user.id);
+      showFlash("success", "Utilisateur anonymisé (RGPD).");
+      refresh();
+    } catch (e: any) {
+      showFlash("error", mapApiError(e));
+      refresh();
+    }
   }
 
   return (
@@ -41,12 +82,7 @@ export default function UsersListPage() {
           <h2 style={{ margin: 0 }}>Utilisateurs</h2>
         </div>
 
-        <Link
-          to="/admin/users/new"
-          className="btn btn-primary"
-          title="Créer un utilisateur"
-          aria-label="Créer un utilisateur"
-        >
+        <Link to="/admin/users/new" className="btn btn-primary" title="Créer un utilisateur" aria-label="Créer un utilisateur">
           <UserPlus size={18} />
         </Link>
       </div>
@@ -62,7 +98,6 @@ export default function UsersListPage() {
           gap: 10,
         }}
       >
-        {/* LEFT */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <input
             className="input"
@@ -80,7 +115,6 @@ export default function UsersListPage() {
           </div>
         </div>
 
-        {/* RIGHT */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <button className="btn" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>
             Précédent
@@ -92,17 +126,40 @@ export default function UsersListPage() {
         </div>
       </div>
 
+      {/* ✅ flash below the card */}
+      {flash && (
+        <div
+          className="small"
+          style={{ color: flash.type === "success" ? "var(--success)" : "var(--danger)" }}
+        >
+          {flash.text}
+        </div>
+      )}
+
       {loading && <div className="small">Chargement...</div>}
       {error && <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>}
 
       {data && (
         <UsersTable
           items={data.items}
-          onToggleActive={onToggleActive}
-          onAnonymize={(u) => setAnonymizing(u)} // ✅ instead of confirm()
+          onToggleActive={(u) => setToggling(u)}
+          onAnonymize={(u) => setAnonymizing(u)}
         />
       )}
 
+      {/* Block/Unblock confirm */}
+      <ConfirmDialog
+        open={!!toggling}
+        title={toggling?.isActive ? "Bloquer l’utilisateur" : "Débloquer l’utilisateur"}
+        message={toggling?.isActive ? "Confirmer le blocage de cet utilisateur ?" : "Confirmer le déblocage de cet utilisateur ?"}
+        danger={toggling?.isActive}
+        confirmText={toggling?.isActive ? "Bloquer" : "Débloquer"}
+        cancelText="Annuler"
+        onCancel={() => setToggling(null)}
+        onConfirm={toggleActive}
+      />
+
+      {/* Anonymize confirm */}
       <ConfirmDialog
         open={!!anonymizing}
         title="Anonymiser l’utilisateur"
