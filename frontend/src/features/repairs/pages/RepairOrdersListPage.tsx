@@ -8,7 +8,7 @@ import UpdateStatusDialog from "../components/UpdateStatusDialog";
 import { repairsApi } from "../repairs.api";
 import { mapApiError } from "../repairs.validators";
 
-const STATUS: Array<RepairStatus | ""> = ["", "CREATED","ASSIGNED","IN_PROGRESS","WAITING_PARTS","DONE","DELIVERED","CANCELED"];
+const STATUS: Array<RepairStatus | ""> = ["", "CREATED", "ASSIGNED", "IN_PROGRESS", "WAITING_PARTS", "DONE", "DELIVERED", "CANCELED"];
 
 export default function RepairOrdersListPage() {
   const [search, setSearch] = useState("");
@@ -54,11 +54,18 @@ export default function RepairOrdersListPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 12 }}>
         <div>
           <h2 style={{ margin: 0 }}>Réparations</h2>
-          <div className="small">Liste staff (accueil/admin) + assignation + tickets (EPIC 5/6)</div>
         </div>
 
-        <Link to="/admin/repair-orders/new" className="btn btn-primary">
-          + Créer un ordre
+        <Link
+          to="/admin/repair-orders/new"
+          className="btn btn-primary"
+          style={{
+            display: "inline-block",
+            lineHeight: "1",
+            textDecoration: "none"
+          }}
+        >
+          Créer
         </Link>
       </div>
 
@@ -115,7 +122,7 @@ export default function RepairOrdersListPage() {
       <UpdateStatusDialog
         open={!!statusTarget}
         current={statusTarget?.status ?? "CREATED"}
-        allowed={["CREATED","ASSIGNED","IN_PROGRESS","WAITING_PARTS","DONE","DELIVERED","CANCELED"]}
+        allowed={["CREATED", "ASSIGNED", "IN_PROGRESS", "WAITING_PARTS", "DONE", "DELIVERED", "CANCELED"]}
         onClose={() => setStatusTarget(null)}
         onConfirm={staffUpdateStatus}
       />
