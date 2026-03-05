@@ -33,7 +33,7 @@ export default function EquipmentModelTable({
                 style={{
                   padding: "10px 8px",
                   borderBottom: "1px solid var(--border)",
-                  textAlign: h === "Actions" ? "center" : "left",
+                  textAlign: h === "Actions" ? "right" : "left",
                 }}
               >
                 <span className="small">{h}</span>
@@ -66,10 +66,10 @@ export default function EquipmentModelTable({
                   padding: "10px 8px",
                   borderBottom: "1px solid var(--border)",
                   verticalAlign: "top",
-                  textAlign: "center",
+                  textAlign: "right",
                 }}
               >
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "right", }}>
                   {/* Rename */}
                   <button
                     className="btn btn-warning"
