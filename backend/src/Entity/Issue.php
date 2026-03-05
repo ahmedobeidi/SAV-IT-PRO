@@ -11,23 +11,28 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: IssueRepository::class)]
 class Issue
 {
-    #[Groups(['repair:read'])]
+    #[Groups(['repair:read', 'issue:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[Groups(['repair:read'])]
+    #[Groups(['repair:read', 'issue:read'])]
     #[ORM\Column(length: 180)]
     private string $name;
 
-    #[Groups(['repair:read'])]
+    #[Groups(['repair:read', 'issue:read'])]
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
-    #[Groups(['repair:read'])]
+    #[Groups(['repair:read', 'issue:read'])]
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    #[Groups(['issue:read'])]
+    #[ORM\ManyToOne(inversedBy: 'issues')]
+    #[ORM\JoinColumn(nullable: false)]
+    private EquipmentType $equipmentType;
 
     /** @var Collection<int, RepairOrder> */
     #[ORM\OneToMany(mappedBy: 'issue', targetEntity: RepairOrder::class)]
@@ -81,10 +86,18 @@ class Issue
         return $this;
     }
 
-// =====================
-// Relations
-// OneToMany: Issue -> RepairOrder
-// =====================
+    public function getEquipmentType(): EquipmentType { return $this->equipmentType; }
+
+    public function setEquipmentType(EquipmentType $equipmentType): self
+    {
+        $this->equipmentType = $equipmentType;
+        return $this;
+    }
+
+    // =====================
+    // Relations
+    // OneToMany: Issue -> RepairOrder
+    // =====================
 
     /**
      * @return Collection<int, RepairOrder>

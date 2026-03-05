@@ -33,10 +33,15 @@ class EquipmentType
     #[ORM\OneToMany(mappedBy: 'equipmentType', targetEntity: EquipmentBrand::class)]
     private Collection $brands;
 
+    /** @var Collection<int, Issue> */
+    #[ORM\OneToMany(mappedBy: 'equipmentType', targetEntity: Issue::class)]
+    private Collection $issues;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->brands = new ArrayCollection();
+        $this->issues = new ArrayCollection();
     }
 
     // =====================
@@ -99,6 +104,24 @@ class EquipmentType
         if (!$this->brands->contains($brand)) {
             $this->brands->add($brand);
             $brand->setEquipmentType($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Issue>
+     */
+    public function getIssues(): Collection
+    {
+        return $this->issues;
+    }
+
+    public function addIssue(Issue $issue): self
+    {
+        if (!$this->issues->contains($issue)) {
+            $this->issues->add($issue);
+            $issue->setEquipmentType($this);
         }
 
         return $this;
