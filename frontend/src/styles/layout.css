@@ -6,14 +6,29 @@
   border-radius: 10px;
   cursor: pointer;
 }
+
 .btn:hover { filter: brightness(1.08); }
+
 .btn-primary {
   background: var(--primary);
   border-color: transparent;
   color: #fff;
 }
+
 .btn-danger {
   background: var(--danger);
+  border-color: transparent;
+  color: #fff;
+}
+
+.btn-emerald {
+  background: var(--emerald);
+  border-color: transparent;
+  color: #fff;
+}
+
+.btn-warning {
+  background: var(--warning);
   border-color: transparent;
   color: #fff;
 }

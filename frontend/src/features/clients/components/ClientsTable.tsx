@@ -120,7 +120,7 @@ export default function ClientsTable({
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {/* Edit */}
                   <Link
-                    className="btn"
+                    className="btn btn-warning"
                     to={`/admin/clients/${c.id}/edit`}
                     title="Modifier"
                     aria-label="Modifier"
