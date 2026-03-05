@@ -11,13 +11,13 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: EquipmentModelRepository::class)]
 class EquipmentModel
 {
-    #[Groups(['equipment_model:read'])]
+    #[Groups(['equipment_model:read', 'repair:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[Groups(['equipment_model:read'])]
+    #[Groups(['equipment_model:read', 'repair:read'])]
     #[ORM\Column(length: 150)]
     private string $name;
 
