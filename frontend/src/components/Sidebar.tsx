@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useMatch  } from "react-router-dom";
 import { authStore } from "../auth/auth.store.ts";
 
 const linkStyle = ({ isActive }: { isActive: boolean }) => ({
@@ -11,6 +11,8 @@ const linkStyle = ({ isActive }: { isActive: boolean }) => ({
 
 export default function Sidebar() {
   const { role } = authStore.getTokens();
+
+  const equipmentMatch = useMatch("/admin/equipment/*");
 
   const canManageUsers =
     role === "Super Administrateur" || role === "Administrateur";
@@ -44,7 +46,7 @@ export default function Sidebar() {
           Clients
         </NavLink>
 
-        <NavLink to="/admin/equipment/types" style={linkStyle}>
+        <NavLink to="/admin/equipment/types" style={() => linkStyle({ isActive: !!equipmentMatch })}>
           Équipements
         </NavLink>
 
