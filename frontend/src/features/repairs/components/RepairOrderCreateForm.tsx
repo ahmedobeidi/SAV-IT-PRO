@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { validateCreateRepair, mapApiError } from "../repairs.validators";
 import type { CreateRepairOrderPayload } from "../repairs.types";
 import { useEquipmentCascade } from "../hooks/useEquipmentCascade";
 import { useClientSearchList } from "../hooks/useClientSearchList";
 import type { ClientRead } from "../../clients/clients.types";
+import { useIssuesByType } from "../hooks/useIssuesByType";
 
 export default function RepairOrderCreateForm({
   onSubmit,
@@ -25,7 +26,15 @@ export default function RepairOrderCreateForm({
   // --- STEP 2: Create order form
   const eq = useEquipmentCascade();
 
-  const [issueIdInput, setIssueIdInput] = useState("");
+  // ✅ Issue dropdown
+  const [issueId, setIssueId] = useState<number | "">("");
+  const issues = useIssuesByType(eq.typeId);
+
+  // reset issue when type changes
+  useEffect(() => {
+    setIssueId("");
+  }, [eq.typeId]);
+
   const [price, setPrice] = useState("0");
   const [deposit, setDeposit] = useState("");
   const [description, setDescription] = useState("");
@@ -35,7 +44,6 @@ export default function RepairOrderCreateForm({
   const [formError, setFormError] = useState<string | null>(null);
 
   const equipmentModelId = eq.modelId ? Number(eq.modelId) : 0;
-  const issueId = useMemo(() => Number(issueIdInput), [issueIdInput]);
 
   async function submitCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -49,7 +57,7 @@ export default function RepairOrderCreateForm({
     const payload: CreateRepairOrderPayload = {
       clientId,
       equipmentModelId,
-      issueId,
+      issueId: issueId ? Number(issueId) : 0, // ✅ important
       price: Number(price),
       deposit: deposit === "" ? null : Number(deposit),
       description: description || null,
@@ -138,10 +146,7 @@ export default function RepairOrderCreateForm({
                   <b>
                     {c.lastName} {c.firstName}
                   </b>
-                  <span
-                    className="small"
-                    style={{ marginLeft: 8, opacity: 0.8 }}
-                  >
+                  <span className="small" style={{ marginLeft: 8, opacity: 0.8 }}>
                     {c.phone}
                   </span>
                 </span>
@@ -164,9 +169,7 @@ export default function RepairOrderCreateForm({
               Client sélectionné : {selectedClient.lastName}{" "}
               {selectedClient.firstName}
             </div>
-            <div className="small">
-              {selectedClient.phone}
-            </div>
+            <div className="small">{selectedClient.phone}</div>
           </div>
         )}
 
@@ -292,16 +295,40 @@ export default function RepairOrderCreateForm({
             </div>
           </div>
 
-          {/* ISSUE */}
+          {/* ISSUE DROPDOWN */}
           <div style={{ fontWeight: 700 }}>Panne</div>
 
+          {issues.error && (
+            <div style={{ color: "var(--danger)", fontSize: 13 }}>
+              {issues.error}
+            </div>
+          )}
+
           <div>
-            <label className="small">Issue ID (temporaire)</label>
-            <input
+            <label className="small">Panne</label>
+            <select
               className="input"
-              value={issueIdInput}
-              onChange={(e) => setIssueIdInput(e.target.value)}
-            />
+              value={issueId}
+              onChange={(e) =>
+                setIssueId(e.target.value ? Number(e.target.value) : "")
+              }
+              disabled={!eq.typeId || issues.loading}
+            >
+              <option value="">
+                {!eq.typeId
+                  ? "Choisis d’abord un type"
+                  : issues.loading
+                  ? "Chargement..."
+                  : "— Choisir —"}
+              </option>
+
+              {issues.items.map((i) => (
+                <option key={i.id} value={i.id}>
+                  {i.name}
+                </option>
+              ))}
+            </select>
+
             {fieldErrors.issueId && (
               <div style={{ color: "var(--danger)", fontSize: 13 }}>
                 {fieldErrors.issueId}
