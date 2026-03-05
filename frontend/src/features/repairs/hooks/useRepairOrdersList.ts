@@ -16,7 +16,7 @@ export function useRepairOrdersList(search: string, status: RepairStatus | "", p
     setError(null);
 
     repairsApi
-      .list({ search: search || undefined, status: status || undefined, page, limit })
+      .listSilent({ search: search || undefined, status: status || undefined, page, limit })
       .then((res) => alive && setData(res))
       .catch(() => alive && setError("Impossible de charger les réparations."))
       .finally(() => alive && setLoading(false));

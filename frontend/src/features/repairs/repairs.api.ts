@@ -26,6 +26,20 @@ export const repairsApi = {
     return res.data;
   },
 
+  // ✅ same return type, but no GlobalLoadingOverlay
+  async listSilent(params: {
+    page?: number;
+    limit?: number;
+    status?: RepairStatus;
+    search?: string;
+  }): Promise<Paginated<RepairOrderRead>> {
+    const res = await http.get("/api/repair-orders", {
+      params,
+      meta: { skipLoading: true },
+    } as any);
+    return res.data;
+  },
+
   async assign(id: number, payload: AssignTechnicianPayload): Promise<RepairOrderRead> {
     const res = await http.patch(`/api/repair-orders/${id}/assign`, payload);
     return res.data;
@@ -45,6 +59,8 @@ export const repairsApi = {
     const res = await http.get("/api/technician/repair-orders", { params });
     return res.data;
   },
+
+  // (optional) also add technicianListSilent if you have a search box there later
 
   async technicianUpdateStatus(id: number, payload: UpdateStatusPayload): Promise<RepairOrderRead> {
     const res = await http.patch(`/api/technician/repair-orders/${id}/status`, payload);
