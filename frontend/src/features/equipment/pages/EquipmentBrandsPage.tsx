@@ -144,7 +144,7 @@ export default function EquipmentBrandsPage() {
           <input
             className="input"
             style={{ width: 260, flexShrink: 0 }}
-            placeholder="Rechercher..."
+            placeholder="Rechercher par nom..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
