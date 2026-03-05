@@ -39,9 +39,6 @@ export default function RepairOrderCreatePage() {
 
           <div style={{ textAlign: "center", flex: 1 }}>
             <h2 style={{ margin: 0 }}>Créer un ordre de réparation</h2>
-            <div className="small">
-              Client (recherche téléphone) + Équipement (Type → Marque → Modèle)
-            </div>
           </div>
 
           {/* spacer to keep title centered */}

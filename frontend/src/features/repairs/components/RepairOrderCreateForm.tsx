@@ -14,8 +14,11 @@ export default function RepairOrderCreateForm({
   const [phone, setPhone] = useState("");
   const [selectedClient, setSelectedClient] = useState<ClientRead | null>(null);
 
-  const { loading: clientLoading, items: clientsFound, error: clientError } =
-    useClientSearchList(phone);
+  const {
+    loading: clientLoading,
+    items: clientsFound,
+    error: clientError,
+  } = useClientSearchList(phone);
 
   const clientId = selectedClient?.id ?? 0;
 
@@ -67,18 +70,6 @@ export default function RepairOrderCreateForm({
     }
   }
 
-  function resetAll() {
-    setPhone("");
-    setSelectedClient(null);
-
-    setIssueIdInput("");
-    setPrice("0");
-    setDeposit("");
-    setDescription("");
-    setFieldErrors({});
-    setFormError(null);
-  }
-
   return (
     <>
       {/* ========================================================= */}
@@ -91,7 +82,14 @@ export default function RepairOrderCreateForm({
       >
         <div style={{ fontWeight: 700 }}>1) Rechercher un client</div>
 
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 12,
+            flexWrap: "wrap",
+            alignItems: "flex-end",
+          }}
+        >
           <div style={{ flex: 1, minWidth: 260 }}>
             <label className="small">Téléphone</label>
             <input
@@ -105,21 +103,14 @@ export default function RepairOrderCreateForm({
                 setFieldErrors({});
               }}
             />
-            <div className="small" style={{ marginTop: 6 }}>
-              {clientLoading
-                ? "Recherche en cours..."
-                : phone.trim().length
-                ? "Recherche automatique"
-                : "Tape un numéro pour rechercher"}
-            </div>
           </div>
-
-          <button type="button" className="btn" onClick={resetAll}>
-            Réinitialiser
-          </button>
         </div>
 
-        {clientError && <div style={{ color: "var(--danger)", fontSize: 13 }}>{clientError}</div>}
+        {clientError && (
+          <div style={{ color: "var(--danger)", fontSize: 13 }}>
+            {clientError}
+          </div>
+        )}
 
         {!selectedClient && clientsFound.length > 0 && (
           <div style={{ display: "grid", gap: 8 }}>
@@ -147,12 +138,12 @@ export default function RepairOrderCreateForm({
                   <b>
                     {c.lastName} {c.firstName}
                   </b>
-                  <span className="small" style={{ marginLeft: 8, opacity: 0.8 }}>
-                    📞 {c.phone}
+                  <span
+                    className="small"
+                    style={{ marginLeft: 8, opacity: 0.8 }}
+                  >
+                    {c.phone}
                   </span>
-                </span>
-                <span className="small" style={{ opacity: 0.8 }}>
-                  ID: {c.id}
                 </span>
               </button>
             ))}
@@ -170,15 +161,12 @@ export default function RepairOrderCreateForm({
             }}
           >
             <div style={{ fontWeight: 700 }}>
-              ✅ Client sélectionné : {selectedClient.lastName} {selectedClient.firstName}
+              Client sélectionné : {selectedClient.lastName}{" "}
+              {selectedClient.firstName}
             </div>
             <div className="small">
-              📞 {selectedClient.phone} — ID: {selectedClient.id}
+              {selectedClient.phone}
             </div>
-
-            <button type="button" className="btn" onClick={() => setSelectedClient(null)}>
-              Changer
-            </button>
           </div>
         )}
 
@@ -197,29 +185,45 @@ export default function RepairOrderCreateForm({
       {/* FORM 2 — CREATE ORDER */}
       {/* ========================================================= */}
       {!selectedClient ? (
-        <div className="small" style={{ opacity: 0.7, maxWidth: 860 }}>
-          Sélectionne un client pour afficher le formulaire de création.
-        </div>
+        <></>
       ) : (
         <form
           onSubmit={submitCreate}
           className="card"
-          style={{ padding: 16, display: "grid", gap: 12, maxWidth: 860, marginTop: 16, }}
+          style={{
+            padding: 16,
+            display: "grid",
+            gap: 12,
+            maxWidth: 860,
+            marginTop: 16,
+          }}
         >
           <div style={{ fontWeight: 700 }}>2) Créer l’ordre de réparation</div>
 
           {/* EQUIPMENT */}
           <div style={{ fontWeight: 700 }}>Équipement</div>
 
-          {eq.error && <div style={{ color: "var(--danger)", fontSize: 13 }}>{eq.error}</div>}
+          {eq.error && (
+            <div style={{ color: "var(--danger)", fontSize: 13 }}>
+              {eq.error}
+            </div>
+          )}
 
-          <div style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr 1fr" }}>
+          <div
+            style={{
+              display: "grid",
+              gap: 12,
+              gridTemplateColumns: "1fr 1fr 1fr",
+            }}
+          >
             <div>
               <label className="small">Type</label>
               <select
                 className="input"
                 value={eq.typeId}
-                onChange={(e) => eq.setTypeId(e.target.value ? Number(e.target.value) : "")}
+                onChange={(e) =>
+                  eq.setTypeId(e.target.value ? Number(e.target.value) : "")
+                }
                 disabled={eq.loadingTypes}
               >
                 <option value="">— Choisir —</option>
@@ -236,11 +240,17 @@ export default function RepairOrderCreateForm({
               <select
                 className="input"
                 value={eq.brandId}
-                onChange={(e) => eq.setBrandId(e.target.value ? Number(e.target.value) : "")}
+                onChange={(e) =>
+                  eq.setBrandId(e.target.value ? Number(e.target.value) : "")
+                }
                 disabled={!eq.typeId || eq.loadingBrands}
               >
                 <option value="">
-                  {eq.typeId ? (eq.loadingBrands ? "Chargement..." : "— Choisir —") : "Choisis d’abord un type"}
+                  {eq.typeId
+                    ? eq.loadingBrands
+                      ? "Chargement..."
+                      : "— Choisir —"
+                    : "Choisis d’abord un type"}
                 </option>
                 {eq.brands.map((b) => (
                   <option key={b.id} value={b.id}>
@@ -255,11 +265,17 @@ export default function RepairOrderCreateForm({
               <select
                 className="input"
                 value={eq.modelId}
-                onChange={(e) => eq.setModelId(e.target.value ? Number(e.target.value) : "")}
+                onChange={(e) =>
+                  eq.setModelId(e.target.value ? Number(e.target.value) : "")
+                }
                 disabled={!eq.brandId || eq.loadingModels}
               >
                 <option value="">
-                  {eq.brandId ? (eq.loadingModels ? "Chargement..." : "— Choisir —") : "Choisis d’abord une marque"}
+                  {eq.brandId
+                    ? eq.loadingModels
+                      ? "Chargement..."
+                      : "— Choisir —"
+                    : "Choisis d’abord une marque"}
                 </option>
                 {eq.models.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -269,7 +285,9 @@ export default function RepairOrderCreateForm({
               </select>
 
               {fieldErrors.equipmentModelId && (
-                <div style={{ color: "var(--danger)", fontSize: 13 }}>{fieldErrors.equipmentModelId}</div>
+                <div style={{ color: "var(--danger)", fontSize: 13 }}>
+                  {fieldErrors.equipmentModelId}
+                </div>
               )}
             </div>
           </div>
@@ -279,24 +297,50 @@ export default function RepairOrderCreateForm({
 
           <div>
             <label className="small">Issue ID (temporaire)</label>
-            <input className="input" value={issueIdInput} onChange={(e) => setIssueIdInput(e.target.value)} />
-            {fieldErrors.issueId && <div style={{ color: "var(--danger)", fontSize: 13 }}>{fieldErrors.issueId}</div>}
+            <input
+              className="input"
+              value={issueIdInput}
+              onChange={(e) => setIssueIdInput(e.target.value)}
+            />
+            {fieldErrors.issueId && (
+              <div style={{ color: "var(--danger)", fontSize: 13 }}>
+                {fieldErrors.issueId}
+              </div>
+            )}
           </div>
 
           {/* DETAILS */}
           <div style={{ fontWeight: 700 }}>Détails</div>
 
-          <div style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
+          <div
+            style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}
+          >
             <div>
               <label className="small">Prix (€)</label>
-              <input className="input" value={price} onChange={(e) => setPrice(e.target.value)} />
-              {fieldErrors.price && <div style={{ color: "var(--danger)", fontSize: 13 }}>{fieldErrors.price}</div>}
+              <input
+                className="input"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
+              {fieldErrors.price && (
+                <div style={{ color: "var(--danger)", fontSize: 13 }}>
+                  {fieldErrors.price}
+                </div>
+              )}
             </div>
 
             <div>
               <label className="small">Acompte (€)</label>
-              <input className="input" value={deposit} onChange={(e) => setDeposit(e.target.value)} />
-              {fieldErrors.deposit && <div style={{ color: "var(--danger)", fontSize: 13 }}>{fieldErrors.deposit}</div>}
+              <input
+                className="input"
+                value={deposit}
+                onChange={(e) => setDeposit(e.target.value)}
+              />
+              {fieldErrors.deposit && (
+                <div style={{ color: "var(--danger)", fontSize: 13 }}>
+                  {fieldErrors.deposit}
+                </div>
+              )}
             </div>
           </div>
 
@@ -309,11 +353,17 @@ export default function RepairOrderCreateForm({
               style={{ minHeight: 110, resize: "vertical" }}
             />
             {fieldErrors.description && (
-              <div style={{ color: "var(--danger)", fontSize: 13 }}>{fieldErrors.description}</div>
+              <div style={{ color: "var(--danger)", fontSize: 13 }}>
+                {fieldErrors.description}
+              </div>
             )}
           </div>
 
-          {formError && <div style={{ color: "var(--danger)", fontSize: 13 }}>{formError}</div>}
+          {formError && (
+            <div style={{ color: "var(--danger)", fontSize: 13 }}>
+              {formError}
+            </div>
+          )}
 
           <button className="btn btn-primary" disabled={loading}>
             {loading ? "Création..." : "Créer l’ordre de réparation"}
