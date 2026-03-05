@@ -5,7 +5,6 @@ import { useEquipmentCascade } from "../hooks/useEquipmentCascade";
 import { useClientSearchList } from "../hooks/useClientSearchList";
 import type { ClientRead } from "../../clients/clients.types";
 import { useIssuesByType } from "../hooks/useIssuesByType";
-import { issuesApi } from "../../issues/issues.api";
 import IssueManagementDialog from "./IssueManagementDialog";
 
 export default function RepairOrderCreateForm({
