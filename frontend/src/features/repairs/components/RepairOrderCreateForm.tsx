@@ -204,8 +204,6 @@ export default function RepairOrderCreateForm({
           <div style={{ fontWeight: 700 }}>2) Créer l’ordre de réparation</div>
 
           {/* EQUIPMENT */}
-          <div style={{ fontWeight: 700 }}>Équipement</div>
-
           {eq.error && (
             <div style={{ color: "var(--danger)", fontSize: 13 }}>
               {eq.error}
@@ -296,8 +294,6 @@ export default function RepairOrderCreateForm({
           </div>
 
           {/* ISSUE DROPDOWN */}
-          <div style={{ fontWeight: 700 }}>Panne</div>
-
           {issues.error && (
             <div style={{ color: "var(--danger)", fontSize: 13 }}>
               {issues.error}
@@ -337,7 +333,6 @@ export default function RepairOrderCreateForm({
           </div>
 
           {/* DETAILS */}
-          <div style={{ fontWeight: 700 }}>Détails</div>
 
           <div
             style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}
