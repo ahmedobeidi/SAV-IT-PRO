@@ -21,6 +21,13 @@ export default function AuthLayout() {
         />
       </Link>
 
+      <div style={{ textAlign: "center", marginBottom: 20 }}>
+        <div style={{ fontSize: 20, fontWeight: 600 }}>IT-PRO</div>
+        <div style={{ fontSize: 13, color: "var(--muted)" }}>
+          Informatique & Téléphones
+        </div>
+      </div>
+
       <div className="card" style={{ width: "100%", maxWidth: 420, padding: 20 }}>
         <Outlet />
       </div>
