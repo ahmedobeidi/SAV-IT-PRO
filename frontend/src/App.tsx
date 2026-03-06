@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import AuthLayout from "./layouts/AuthLayout";
 import AdminLayout from "./layouts/AdminLayout";
 import { AuthGuard } from "./auth/auth.guard";
+import { GuestGuard } from "./auth/guest.guard";
 
 import LoginPage from "./pages/LoginPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
@@ -32,9 +33,16 @@ export default function App() {
   return (
     <>
       <GlobalLoadingOverlay />
+
       <Routes>
         {/* Public/auth pages */}
-        <Route element={<AuthLayout />}>
+        <Route
+          element={
+            <GuestGuard>
+              <AuthLayout />
+            </GuestGuard>
+          }
+        >
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />

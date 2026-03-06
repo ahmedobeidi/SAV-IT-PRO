@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 import logo from "../assets/logo.svg";
 
 export default function AuthLayout() {
@@ -13,11 +13,13 @@ export default function AuthLayout() {
         padding: 24,
       }}
     >
-      <img
-        src={logo}
-        alt="Logo"
-        style={{ width: 120, marginBottom: 16, borderRadius: 30, cursor: "pointer" }}
-      />
+      <Link to="/login">
+        <img
+          src={logo}
+          alt="Logo"
+          style={{ width: 120, marginBottom: 16, borderRadius: 30, cursor: "pointer" }}
+        />
+      </Link>
 
       <div className="card" style={{ width: "100%", maxWidth: 420, padding: 20 }}>
         <Outlet />
