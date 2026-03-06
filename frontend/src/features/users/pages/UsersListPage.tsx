@@ -79,7 +79,7 @@ export default function UsersListPage() {
     <div style={{ display: "grid", gap: 12 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 12 }}>
         <div>
-          <h2 style={{ margin: 0 }}>Utilisateurs</h2>
+          <h2 style={{ margin: 0 }}>Employés</h2>
         </div>
 
         <Link to="/admin/users/new" className="btn btn-primary" title="Créer un utilisateur" aria-label="Créer un utilisateur">
@@ -150,8 +150,8 @@ export default function UsersListPage() {
       {/* Block/Unblock confirm */}
       <ConfirmDialog
         open={!!toggling}
-        title={toggling?.isActive ? "Bloquer l’utilisateur" : "Débloquer l’utilisateur"}
-        message={toggling?.isActive ? "Confirmer le blocage de cet utilisateur ?" : "Confirmer le déblocage de cet utilisateur ?"}
+        title={toggling?.isActive ? "Bloquer l’employé" : "Débloquer l’employé"}
+        message={toggling?.isActive ? "Confirmer le blocage de cet employé ?" : "Confirmer le déblocage de cet employé ?"}
         danger={toggling?.isActive}
         confirmText={toggling?.isActive ? "Bloquer" : "Débloquer"}
         cancelText="Annuler"
@@ -162,7 +162,7 @@ export default function UsersListPage() {
       {/* Anonymize confirm */}
       <ConfirmDialog
         open={!!anonymizing}
-        title="Anonymiser l’utilisateur"
+        title="Anonymiser l’employé"
         message="Confirmer l’anonymisation RGPD ? (action irréversible)"
         danger
         confirmText="Anonymiser"

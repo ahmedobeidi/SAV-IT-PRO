@@ -54,7 +54,7 @@ export default function UserEditPage() {
           </Link>
 
           <div style={{ textAlign: "center", flex: 1 }}>
-            <h2 style={{ margin: 0 }}>Modifier l’utilisateur</h2>
+            <h2 style={{ margin: 0 }}>Modifier l’employé</h2>
           </div>
 
           {/* spacer to keep title centered */}

@@ -130,7 +130,7 @@ export default function UsersTable({
 
       {items.length === 0 && (
         <div className="small" style={{ padding: 12 }}>
-          Aucun utilisateur.
+          Aucun employé.
         </div>
       )}
     </div>

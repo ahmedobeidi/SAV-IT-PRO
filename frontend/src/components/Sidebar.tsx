@@ -38,7 +38,7 @@ export default function Sidebar() {
 
         {canManageUsers && (
           <NavLink to="/admin/users" style={linkStyle}>
-            Utilisateurs
+            Employés
           </NavLink>
         )}
 

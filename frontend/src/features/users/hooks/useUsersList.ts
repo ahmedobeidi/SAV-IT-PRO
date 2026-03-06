@@ -26,7 +26,7 @@ export function useUsersList(search: string, page: number, limit: number) {
       })
       .catch(() => {
         if (current !== reqId.current) return;
-        setError("Impossible de charger la liste des utilisateurs.");
+        setError("Impossible de charger la liste des employés.");
       })
       .finally(() => {
         if (current === reqId.current) setLoading(false);
