@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { strongPassword, PASSWORD_ERROR } from "../auth/auth.validators";
 import { authService } from "../auth/auth.service";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -26,6 +27,12 @@ export default function ResetPasswordPage() {
 
     if (!token) {
       setError("Lien invalide: jeton manquant.");
+      setLoading(false);
+      return;
+    }
+
+    if (!newPassword || !strongPassword(newPassword)) {
+      setError(PASSWORD_ERROR);
       setLoading(false);
       return;
     }
@@ -65,7 +72,7 @@ export default function ResetPasswordPage() {
                   setShowPassword(false);
                 }
               }}
-              autoComplete="current-password"
+              autoComplete="new-password"
             />
 
             {newPassword.length > 0 && (
