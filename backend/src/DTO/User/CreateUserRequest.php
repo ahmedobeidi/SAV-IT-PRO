@@ -2,6 +2,7 @@
 
 namespace App\DTO\User;
 
+use App\Validator\PasswordRules;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class CreateUserRequest
@@ -22,8 +23,8 @@ class CreateUserRequest
     #[Assert\NotBlank]
     #[Assert\Length(min: 8, max: 255)]
     #[Assert\Regex(
-        pattern: '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/',
-        message: 'Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character.'
+        pattern: PasswordRules::REGEX,
+        message: PasswordRules::MESSAGE
     )]
     public string $password;
 
