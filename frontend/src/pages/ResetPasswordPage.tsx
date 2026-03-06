@@ -1,24 +1,30 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { strongPassword, PASSWORD_ERROR } from "../auth/auth.validators";
 import { authService } from "../auth/auth.service";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function ResetPasswordPage() {
-  const [searchParams] = useSearchParams();
-  const [token, setToken] = useState("");
+  const navigate = useNavigate();
+
+  const [token] = useState(() => {
+    const hash = window.location.hash;
+    const params = new URLSearchParams(hash.replace(/^#/, ""));
+    return params.get("token") ?? "";
+  });
+
   const [loading, setLoading] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const t = searchParams.get("token") ?? "";
-    setToken(t);
-  }, [searchParams]);
+    if (token) {
+      window.history.replaceState({}, document.title, "/reset-password");
+    }
+  }, [token]);
 
-  const onSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -69,7 +75,6 @@ export default function ResetPasswordPage() {
               value={newPassword}
               onChange={(e) => {
                 setNewPassword(e.target.value);
-
                 if (e.target.value.length === 0) {
                   setShowPassword(false);
                 }
