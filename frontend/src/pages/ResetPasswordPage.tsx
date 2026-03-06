@@ -16,8 +16,6 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const t = searchParams.get("token") ?? "";
     setToken(t);
-    // Optional: remove token from URL after reading (clean + safer)
-    window.history.replaceState({}, document.title, "/reset-password");
   }, [searchParams]);
 
   const onSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -26,7 +24,7 @@ export default function ResetPasswordPage() {
     setLoading(true);
 
     if (!token) {
-      setError("Lien invalide: jeton manquant.");
+      setError("Lien invalide : jeton manquant.");
       setLoading(false);
       return;
     }

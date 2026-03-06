@@ -1,22 +1,34 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { authService } from "../auth/auth.service";
+import axios from "axios";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const onSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
+    setDone(false);
+
     try {
       await authService.forgotPassword(email);
       setDone(true);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.error || err.response?.data?.message || "Erreur serveur.");
+        console.log("Forgot password backend error:", err.response?.data);
+      } else {
+        setError("Erreur serveur.");
+      }
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <>
@@ -41,6 +53,12 @@ export default function ForgotPasswordPage() {
       {done && (
         <div style={{ marginTop: 12, color: "var(--success)", fontSize: 13 }}>
           Si l’adresse existe, un email de réinitialisation a été envoyé.
+        </div>
+      )}
+
+      {error && (
+        <div style={{ marginTop: 12, color: "var(--danger)", fontSize: 13 }}>
+          {error}
         </div>
       )}
 

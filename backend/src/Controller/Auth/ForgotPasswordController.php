@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Routing\Attribute\Route;
 use SymfonyCasts\Bundle\ResetPassword\Exception\TooManyPasswordRequestsException;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
@@ -52,17 +52,15 @@ class ForgotPasswordController extends AbstractController
             urlencode($token)
         );
 
-        $message = (new Email())
+        $message = (new TemplatedEmail())
             ->from('no-reply@sav-it-pro.com')
             ->to($user->getEmail())
             ->subject('Réinitialisez votre mot de passe')
-            ->text(
-                "Bonjour,\n\n".
-                "Pour réinitialiser votre mot de passe, cliquez sur le lien ci-dessous :\n\n".
-                $frontendResetUrl . "\n\n".
-                "Ce lien expirera bientôt.\n\n".
-                "Si vous n’avez pas fait cette demande, ignorez cet e-mail."
-            );
+            ->htmlTemplate('emails/reset_password.html.twig')
+            ->context([
+                'resetUrl' => $frontendResetUrl,
+                'user' => $user,
+            ]);
 
         // ✅ If mail fails, show error only in dev (so you can debug)
         try {
