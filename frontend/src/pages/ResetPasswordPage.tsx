@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { authService } from "../auth/auth.service";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -57,17 +58,25 @@ export default function ResetPasswordPage() {
               className="input"
               type={showPassword ? "text" : "password"}
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+
+                if (e.target.value.length === 0) {
+                  setShowPassword(false);
+                }
+              }}
               autoComplete="current-password"
             />
 
-            <button
-              type="button"
-              className="eye-btn"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? "🙈" : "👁️"}
-            </button>
+            {newPassword.length > 0 && (
+              <button
+                type="button"
+                className="eye-btn"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            )}
           </div>
         </div>
 
