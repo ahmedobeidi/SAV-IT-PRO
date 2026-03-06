@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { strongPassword, PASSWORD_ERROR } from "../auth/auth.validators";
 import { authService } from "../auth/auth.service";
 import { Eye, EyeOff } from "lucide-react";
@@ -10,8 +10,8 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const t = searchParams.get("token") ?? "";
@@ -39,7 +39,11 @@ export default function ResetPasswordPage() {
 
     try {
       await authService.resetPassword(token, newPassword);
-      setDone(true);
+      navigate("/login", {
+        state: {
+          success: "Mot de passe mis à jour. Vous pouvez vous connecter.",
+        },
+      });
     } catch {
       setError("Jeton invalide ou expiré.");
     } finally {
@@ -95,12 +99,6 @@ export default function ResetPasswordPage() {
           {loading ? "Mise à jour..." : "Mettre à jour"}
         </button>
       </form>
-
-      {done && (
-        <div style={{ marginTop: 12, color: "var(--success)", fontSize: 13 }}>
-          Mot de passe mis à jour. Vous pouvez vous connecter.
-        </div>
-      )}
 
       <div style={{ marginTop: 12 }} className="small">
         <Link to="/login" style={{ color: "var(--primary)" }}>

@@ -1,17 +1,41 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { authService } from "../auth/auth.service";
 import { authStore } from "../auth/auth.store";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const message = (location.state as { success?: string } | null)?.success;
+
+    if (message) {
+      setSuccessMessage(message);
+
+      // clear router state so it does not persist on refresh/back
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.state, location.pathname, navigate]);
+
+  // auto-hide after 5 seconds
+  useEffect(() => {
+    if (!successMessage) return;
+
+    const timer = setTimeout(() => {
+      setSuccessMessage(null);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [successMessage]);
 
   const onSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,7 +46,7 @@ export default function LoginPage() {
       const res = await authService.login(email, password);
       authStore.setTokens(res.token, res.refresh_token, res.role);
       navigate("/admin");
-    } catch (err: any) {
+    } catch {
       setError(
         "Connexion impossible. Vérifiez l’email/mot de passe ou l’état du compte.",
       );
@@ -34,6 +58,12 @@ export default function LoginPage() {
   return (
     <>
       <h2 style={{ marginTop: 0 }}>Connexion</h2>
+
+      {successMessage && (
+        <div style={{ color: "var(--success)", fontSize: 13, marginBottom: 12 }}>
+          {successMessage}
+        </div>
+      )}
 
       <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
         <div>
