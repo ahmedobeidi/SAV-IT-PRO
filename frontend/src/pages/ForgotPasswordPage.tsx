@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { authService } from "../auth/auth.service";
+import { validEmail, EMAIL_ERROR } from "../auth/auth.validators";
 import axios from "axios";
 
 export default function ForgotPasswordPage() {
@@ -14,6 +15,22 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     setError(null);
     setDone(false);
+
+    const trimmedEmail = email.trim();
+
+    // ✅ 1. required check
+    if (!trimmedEmail) {
+      setError("L’e-mail est requis.");
+      setLoading(false);
+      return;
+    }
+
+    // ✅ 2. format validation
+    if (!validEmail(trimmedEmail)) {
+      setError(EMAIL_ERROR);
+      setLoading(false);
+      return;
+    }
 
     try {
       await authService.forgotPassword(email);

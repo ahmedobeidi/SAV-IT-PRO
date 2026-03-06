@@ -23,30 +23,35 @@ class ForgotPasswordController extends AbstractController
         MailerInterface $mailer
     ): JsonResponse {
         $data = json_decode($request->getContent(), true) ?? [];
-        $email = $data['email'] ?? null;
+        $email = trim($data['email'] ?? '');
 
         if (!$email) {
             return new JsonResponse(['message' => 'L’email est requis'], 400);
         }
 
-        $user = $em->getRepository(User::class)->findOneBy(['email' => $email]);
-
-        // ✅ Always respond same (prevent email enumeration)
-        if (!$user) {
-            return new JsonResponse(['message' => 'Si l’email existe, un lien de réinitialisation a été envoyé.'], 200);
+        // Validate format, but do not reveal whether it exists
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return new JsonResponse(['message' => 'Adresse e-mail invalide'], 400);
         }
 
-        // ✅ Generate token (may throw TooManyPasswordRequestsException)
+        $user = $em->getRepository(User::class)->findOneBy(['email' => $email]);
+
+        if (!$user) {
+            return new JsonResponse([
+                'message' => 'Si l’email existe, un lien de réinitialisation a été envoyé.'
+            ], 200);
+        }
+
         try {
             $resetToken = $resetPasswordHelper->generateResetToken($user);
         } catch (TooManyPasswordRequestsException $e) {
-            // ✅ Do NOT reveal throttling info (security)
-            return new JsonResponse(['message' => 'Si l’email existe, un lien de réinitialisation a été envoyé.'], 200);
+            return new JsonResponse([
+                'message' => 'Si l’email existe, un lien de réinitialisation a été envoyé.'
+            ], 200);
         }
 
         $token = $resetToken->getToken();
 
-        // ✅ Send a frontend URL (adapt domain)
         $frontendResetUrl = sprintf(
             'http://localhost:5173/reset-password?token=%s',
             urlencode($token)
@@ -62,7 +67,6 @@ class ForgotPasswordController extends AbstractController
                 'user' => $user,
             ]);
 
-        // ✅ If mail fails, show error only in dev (so you can debug)
         try {
             $mailer->send($message);
         } catch (\Throwable $e) {
@@ -73,10 +77,13 @@ class ForgotPasswordController extends AbstractController
                 ], 500);
             }
 
-            // In prod: still hide errors
-            return new JsonResponse(['message' => 'Si l’email existe, un lien de réinitialisation a été envoyé.'], 200);
+            return new JsonResponse([
+                'message' => 'Si l’email existe, un lien de réinitialisation a été envoyé.'
+            ], 200);
         }
 
-        return new JsonResponse(['message' => 'Si l’email existe, un lien de réinitialisation a été envoyé.'], 200);
+        return new JsonResponse([
+            'message' => 'Si l’email existe, un lien de réinitialisation a été envoyé.'
+        ], 200);
     }
 }
