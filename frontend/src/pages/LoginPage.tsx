@@ -48,7 +48,7 @@ export default function LoginPage() {
       navigate("/admin");
     } catch {
       setError(
-        "Connexion impossible. Vérifiez l’email/mot de passe ou l’état du compte.",
+        "Email ou mot de passe invalide.",
       );
     } finally {
       setLoading(false);
@@ -71,7 +71,7 @@ export default function LoginPage() {
           <input
             className="input"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {setEmail(e.target.value); setError(null);}}
             autoComplete="email"
           />
         </div>
@@ -85,6 +85,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
+                setError(null);
 
                 if (e.target.value.length === 0) {
                   setShowPassword(false);
