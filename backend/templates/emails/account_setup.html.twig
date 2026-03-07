@@ -1,13 +1,76 @@
-<h2>Bonjour {{ user.firstName }},</h2>
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<meta charset="UTF-8"/>
+		<title>Activation de votre compte</title>
+	</head>
 
-<p>Votre compte a été créé sur la plateforme.</p>
+	<body style="margin:0; padding:0; background-color:#f4f6f8; font-family:Arial, Helvetica, sans-serif;">
+		<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f8; padding:30px 0;">
+			<tr>
+				<td align="center">
 
-<p>Cliquez sur le lien ci-dessous pour définir votre mot de passe :</p>
+					<table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:10px; overflow:hidden;">
 
-<p>
-    <a href="{{ setupUrl }}">Définir mon mot de passe</a>
-</p>
+						<tr>
+							<td align="center" style="padding:30px 20px 10px;">
+								<img src="https://www.it-pro.fr/wp-content/uploads/2025/01/cropped-cropped-cropped-Photoroom-20241227_184125.png" alt="Logo" style="max-width:140px; height:auto;"/>
+								<h1 style="margin:10px 0 0; color:#222;">IT-PRO</h1>
+							</td>
+						</tr>
 
-<p>Si vous n’êtes pas à l’origine de cette demande, vous pouvez ignorer cet e-mail.</p>
+						<tr>
+							<td style="padding:20px 40px; color:#333333;">
 
-<p>Ce lien expirera automatiquement.</p>
+								<h2 style="margin:0 0 20px; font-size:24px; color:#222;">
+									Activez votre compte
+								</h2>
+
+								<p style="font-size:16px; line-height:1.6; margin:0 0 20px;">
+									Bonjour
+									{{ user.firstName }},
+								</p>
+
+								<p style="font-size:16px; line-height:1.6; margin:0 0 30px;">
+									Votre compte a été créé sur la plateforme
+									<strong>SAV-IT-PRO</strong>.
+									<br><br>
+									Cliquez sur le bouton ci-dessous pour définir votre mot de passe et activer votre compte.
+								</p>
+
+								<table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:30px auto;">
+									<tr>
+										<td align="center" bgcolor="#0d6efd" style="border-radius:6px;">
+											<a href="{{ setupUrl }}" style="display:inline-block; padding:14px 28px; font-size:16px; color:#ffffff; text-decoration:none; font-weight:bold;">
+												Définir mon mot de passe
+											</a>
+										</td>
+									</tr>
+								</table>
+
+								<p style="font-size:14px; line-height:1.6; color:#666; margin-top:30px;">
+									Ce lien expirera automatiquement pour des raisons de sécurité.
+								</p>
+
+								<p style="font-size:14px; line-height:1.6; color:#666;">
+									Si vous n’êtes pas à l’origine de cette invitation, vous pouvez ignorer cet e-mail.
+								</p>
+
+							</td>
+						</tr>
+
+						<tr>
+							<td align="center" style="padding:20px; background:#f8f9fa; font-size:12px; color:#888;">
+								©
+								{{ "now"|date("Y") }}
+								SAV-IT-PRO. Tous droits réservés.
+							</td>
+						</tr>
+
+					</table>
+
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>
