@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import UsersTable from "../components/UsersTable";
 import { useUsersList } from "../hooks/useUsersList";
 import { usersApi } from "../users.api";
@@ -16,7 +16,15 @@ function mapApiError(e: any): string {
   return "Erreur serveur.";
 }
 
+type FlashState = {
+  success?: string;
+  error?: string;
+} | null;
+
 export default function UsersListPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -28,40 +36,60 @@ export default function UsersListPage() {
     return Math.max(1, Math.ceil(data.total / data.limit));
   }, [data]);
 
-  // ✅ flash like equipment types
-  const [flash, setFlash] = useState<{ id: number; type: "success" | "error"; text: string } | null>(null);
+  const [flash, setFlash] = useState<{
+    id: number;
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   function showFlash(type: "success" | "error", text: string) {
     const id = Date.now();
     setFlash({ id, type, text });
-    setTimeout(() => setFlash((cur) => (cur?.id === id ? null : cur)), 5000);
+    setTimeout(() => {
+      setFlash((cur) => (cur?.id === id ? null : cur));
+    }, 5000);
   }
 
-  // ✅ dialogs state
+  useEffect(() => {
+    const state = location.state as FlashState;
+
+    if (state?.success) {
+      showFlash("success", state.success);
+      navigate(location.pathname, { replace: true });
+      return;
+    }
+
+    if (state?.error) {
+      showFlash("error", state.error);
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.state, location.pathname, navigate]);
+
   const [anonymizing, setAnonymizing] = useState<UserRead | null>(null);
   const [toggling, setToggling] = useState<UserRead | null>(null);
 
   async function toggleActive() {
     if (!toggling) return;
 
-    // ✅ close modal immediately (same feel as create type)
     const user = toggling;
     setToggling(null);
 
     try {
       await usersApi.setActive(user.id, !user.isActive);
-      showFlash("success", user.isActive ? "Utilisateur bloqué." : "Utilisateur débloqué.");
-      refresh(); // ✅ triggers loading + re-fetch list
+      showFlash(
+        "success",
+        user.isActive ? "Utilisateur bloqué." : "Utilisateur débloqué."
+      );
+      refresh();
     } catch (e: any) {
       showFlash("error", mapApiError(e));
-      refresh(); // optional: keep list consistent
+      refresh();
     }
   }
 
   async function anonymize() {
     if (!anonymizing) return;
 
-    // ✅ close modal immediately
     const user = anonymizing;
     setAnonymizing(null);
 
@@ -77,7 +105,14 @@ export default function UsersListPage() {
 
   return (
     <div style={{ display: "grid", gap: 12 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "end",
+          gap: 12,
+        }}
+      >
         <div>
           <h2 style={{ margin: 0 }}>Employés</h2>
         </div>
@@ -105,7 +140,14 @@ export default function UsersListPage() {
           gap: 10,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexWrap: "wrap",
+          }}
+        >
           <input
             className="input"
             style={{ width: 260, flexShrink: 0 }}
@@ -123,28 +165,42 @@ export default function UsersListPage() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <button className="btn" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>
+          <button
+            className="btn"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+          >
             Précédent
           </button>
 
-          <button className="btn" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>
+          <button
+            className="btn"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages}
+          >
             Suivant
           </button>
         </div>
       </div>
 
-      {/* ✅ flash below the card */}
       {flash && (
         <div
           className="small"
-          style={{ color: flash.type === "success" ? "var(--success)" : "var(--danger)" }}
+          style={{
+            color:
+              flash.type === "success"
+                ? "var(--success)"
+                : "var(--danger)",
+          }}
         >
           {flash.text}
         </div>
       )}
 
       {loading && <div className="small">Chargement...</div>}
-      {error && <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>}
+      {error && (
+        <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>
+      )}
 
       {data && (
         <UsersTable
@@ -154,11 +210,14 @@ export default function UsersListPage() {
         />
       )}
 
-      {/* Block/Unblock confirm */}
       <ConfirmDialog
         open={!!toggling}
         title={toggling?.isActive ? "Bloquer l’employé" : "Débloquer l’employé"}
-        message={toggling?.isActive ? "Confirmer le blocage de cet employé ?" : "Confirmer le déblocage de cet employé ?"}
+        message={
+          toggling?.isActive
+            ? "Confirmer le blocage de cet employé ?"
+            : "Confirmer le déblocage de cet employé ?"
+        }
         danger={toggling?.isActive}
         confirmText={toggling?.isActive ? "Bloquer" : "Débloquer"}
         cancelText="Annuler"
@@ -166,7 +225,6 @@ export default function UsersListPage() {
         onConfirm={toggleActive}
       />
 
-      {/* Anonymize confirm */}
       <ConfirmDialog
         open={!!anonymizing}
         title="Anonymiser l’employé"

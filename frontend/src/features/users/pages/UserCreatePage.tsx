@@ -47,7 +47,13 @@ export default function UserCreatePage() {
           mode="create"
           onSubmit={async (payload) => {
             await usersApi.create(payload as CreateUserPayload);
-            navigate("/admin/users");
+
+            navigate("/admin/users", {
+              state: {
+                success:
+                  "Employé créé avec succès.",
+              },
+            });
           }}
         />
       </div>

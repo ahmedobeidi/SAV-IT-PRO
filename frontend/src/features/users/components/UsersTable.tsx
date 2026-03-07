@@ -76,7 +76,6 @@ export default function UsersTable({
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                 }}
-                title={u.email}
               >
                 <span className="small">{u.email}</span>
               </td>
