@@ -2,7 +2,6 @@
 
 namespace App\DTO\User;
 
-use App\Validator\PasswordRules;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class CreateUserRequest
@@ -20,17 +19,6 @@ class CreateUserRequest
     #[Assert\Length(max: 180)]
     public string $email;
 
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 8, max: 255)]
-    #[Assert\Regex(
-        pattern: PasswordRules::REGEX,
-        message: PasswordRules::MESSAGE
-    )]
-    public string $password;
-
-    /**
-     * On va envoyer le rôle en string: "ROLE_ADMIN", etc.
-     */
     #[Assert\NotBlank]
     #[Assert\Choice(choices: [
         'ROLE_SUPER_ADMIN',

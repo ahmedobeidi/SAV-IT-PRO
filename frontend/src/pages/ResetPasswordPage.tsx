@@ -59,12 +59,6 @@ export default function ResetPasswordPage() {
     <>
       <h2 style={{ marginTop: 0 }}>Réinitialisation du mot de passe</h2>
 
-      {!token && (
-        <div style={{ color: "var(--danger)", fontSize: 13 }}>
-          Jeton manquant. Ouvrez le lien reçu par e-mail.
-        </div>
-      )}
-
       <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
         <div>
           <label className="small label">Nouveau mot de passe</label>
@@ -93,6 +87,12 @@ export default function ResetPasswordPage() {
             )}
           </div>
         </div>
+
+        {!token && (
+          <div style={{ color: "var(--danger)", fontSize: 13 }}>
+            Jeton manquant. Ouvrez le lien reçu par e-mail.
+          </div>
+        )}
 
         {error && (
           <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>

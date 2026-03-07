@@ -46,9 +46,9 @@ export default function LoginPage() {
       const res = await authService.login(email, password);
       authStore.setTokens(res.token, res.refresh_token, res.role);
       navigate("/admin");
-    } catch {
+    } catch (err: any) {
       setError(
-        "Email ou mot de passe invalide.",
+        err?.response?.data?.message ?? "Email ou mot de passe invalide."
       );
     } finally {
       setLoading(false);
@@ -59,19 +59,13 @@ export default function LoginPage() {
     <>
       <h2 style={{ marginTop: 0 }}>Connexion</h2>
 
-      {successMessage && (
-        <div style={{ color: "var(--success)", fontSize: 13, marginBottom: 12 }}>
-          {successMessage}
-        </div>
-      )}
-
       <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
         <div>
           <label className="small label">Email</label>
           <input
             className="input"
             value={email}
-            onChange={(e) => {setEmail(e.target.value); setError(null);}}
+            onChange={(e) => { setEmail(e.target.value); setError(null); }}
             autoComplete="email"
           />
         </div>
@@ -105,6 +99,12 @@ export default function LoginPage() {
             )}
           </div>
         </div>
+
+        {successMessage && (
+          <div style={{ color: "var(--success)", fontSize: 13, marginBottom: 0 }}>
+            {successMessage}
+          </div>
+        )}
 
         {error && (
           <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>

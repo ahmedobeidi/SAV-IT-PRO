@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Enum\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\String\ByteString;
 use Symfony\Component\Uid\Uuid;
 
 class UserService
@@ -19,7 +20,6 @@ class UserService
 
     public function create(User $actor, CreateUserRequest $dto): User
     {
-        // règle EPIC: ADMIN ne peut pas créer SUPER_ADMIN
         if ($actor->getRole() === UserRole::ADMIN && $dto->role === UserRole::SUPER_ADMIN->value) {
             throw new \DomainException('Un administrateur ne peut pas créer un super administrateur.');
         }
@@ -28,15 +28,15 @@ class UserService
         $user->setFirstName($dto->firstName);
         $user->setLastName($dto->lastName);
         $user->setEmail($dto->email);
+        $user->setRole(UserRole::from($dto->role));
 
-        $roleEnum = UserRole::from($dto->role);
-        $user->setRole($roleEnum);
-
-        $hashed = $this->hasher->hashPassword($user, $dto->password);
-        $user->setPassword($hashed);
+        // Temporary random password, employee will define real one via email link
+        $temporaryPassword = ByteString::fromRandom(32)->toString();
+        $user->setPassword($this->hasher->hashPassword($user, $temporaryPassword));
 
         $user->setIsActive(true);
         $user->setIsAnonymized(false);
+        $user->setPasswordSetupRequired(true);
         $user->setUpdatedAt(new \DateTimeImmutable());
 
         $this->em->persist($user);
@@ -47,7 +47,6 @@ class UserService
 
     public function update(User $actor, User $target, UpdateUserRequest $dto): User
     {
-        // ADMIN ne peut pas modifier un SUPER_ADMIN (sécurité double: voter + service)
         if ($actor->getRole() === UserRole::ADMIN && $target->getRole() === UserRole::SUPER_ADMIN) {
             throw new \DomainException('Un administrateur ne peut pas modifier un super administrateur.');
         }
@@ -57,7 +56,6 @@ class UserService
         if ($dto->email !== null)     $target->setEmail($dto->email);
 
         if ($dto->role !== null) {
-            // ADMIN ne peut pas promouvoir quelqu'un en SUPER_ADMIN
             if ($actor->getRole() === UserRole::ADMIN && $dto->role === UserRole::SUPER_ADMIN->value) {
                 throw new \DomainException('Un administrateur ne peut pas attribuer le rôle super administrateur.');
             }
@@ -66,10 +64,10 @@ class UserService
 
         if ($dto->password !== null) {
             $target->setPassword($this->hasher->hashPassword($target, $dto->password));
+            $target->setPasswordSetupRequired(false);
         }
 
         if ($dto->isActive !== null) {
-            // ADMIN ne peut pas bloquer un SUPER_ADMIN (si jamais isActive est utilisé comme block)
             if ($actor->getRole() === UserRole::ADMIN && $target->getRole() === UserRole::SUPER_ADMIN) {
                 throw new \DomainException('Un administrateur ne peut pas bloquer un super administrateur.');
             }
@@ -101,21 +99,17 @@ class UserService
             throw new \DomainException('Un administrateur ne peut pas anonymiser un super administrateur.');
         }
 
-        // RGPD: anonymiser les données perso
         $suffix = Uuid::v4()->toRfc4122();
 
         $target->setFirstName('Anonyme');
         $target->setLastName('Anonyme');
-        $target->setEmail("anonyme+{$suffix}@example.invalid"); // unique + domaine "invalid"
+        $target->setEmail("anonyme+{$suffix}@example.invalid");
         $target->setIsAnonymized(true);
-
-        // généralement on bloque l’accès aussi
         $target->setIsActive(false);
-
-        // on invalide le mot de passe
         $target->setPassword($this->hasher->hashPassword($target, Uuid::v4()->toRfc4122()));
-
+        $target->setPasswordSetupRequired(true);
         $target->setUpdatedAt(new \DateTimeImmutable());
+
         $this->em->flush();
 
         return $target;

@@ -51,6 +51,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $isAnonymized = false;
 
     #[Groups(['user:read'])]
+    #[ORM\Column(options: ['default' => true])]
+    private bool $passwordSetupRequired = true;
+
+    #[Groups(['user:read'])]
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -82,10 +86,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->tickets = new ArrayCollection();
         $this->repairOrderLogs = new ArrayCollection();
     }
-
-    // =====================
-    // Getters / Setters
-    // =====================
 
     public function getId(): ?int
     {
@@ -169,6 +169,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function isPasswordSetupRequired(): bool
+    {
+        return $this->passwordSetupRequired;
+    }
+
+    public function setPasswordSetupRequired(bool $passwordSetupRequired): self
+    {
+        $this->passwordSetupRequired = $passwordSetupRequired;
+        return $this;
+    }
+
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
@@ -191,15 +202,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    // =====================
-    // Relations
-    // =====================
-
-    // ---- Created Repair Orders ----
-
-    /**
-     * @return Collection<int, RepairOrder>
-     */
     public function getCreatedRepairOrders(): Collection
     {
         return $this->createdRepairOrders;
@@ -215,11 +217,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    // ---- Assigned Repair Orders ----
-
-    /**
-     * @return Collection<int, RepairOrder>
-     */
     public function getAssignedRepairOrders(): Collection
     {
         return $this->assignedRepairOrders;
@@ -246,11 +243,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    // ---- Tickets ----
-
-    /**
-     * @return Collection<int, Ticket>
-     */
     public function getTickets(): Collection
     {
         return $this->tickets;
@@ -266,11 +258,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    // ---- Repair Order Logs ----
-
-    /**
-     * @return Collection<int, RepairOrderLog>
-     */
     public function getRepairOrderLogs(): Collection
     {
         return $this->repairOrderLogs;
@@ -286,32 +273,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * Symfony 5.3+ uses getUserIdentifier()
-     */
     public function getUserIdentifier(): string
     {
         return $this->email;
     }
 
-    /**
-     * Needed by UserInterface (old method kept for compatibility in some places)
-     */
     public function getUsername(): string
     {
         return $this->email;
     }
 
-    /**
-     * Symfony expects an array of strings like ROLE_USER, ROLE_ADMIN...
-     */
     public function getRoles(): array
     {
-        // You store ONE role as enum => convert it to string role name
-        // This assumes your enum values are like 'ROLE_ADMIN', 'ROLE_TECH', etc.
         $roles = [$this->role->value];
-
-        // Always guarantee at least ROLE_USER
         $roles[] = 'ROLE_USER';
 
         return array_values(array_unique($roles));
@@ -319,6 +293,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function eraseCredentials(): void
     {
-        // If you had a plainPassword property, you would clear it here.
     }
 }

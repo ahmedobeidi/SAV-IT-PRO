@@ -18,6 +18,7 @@ security:
       pattern: ^/api/auth/login
       stateless: true
       provider: app_user_provider
+      user_checker: App\Security\UserChecker
       json_login:
         check_path: /api/auth/login
         username_path: email
@@ -29,23 +30,23 @@ security:
       pattern: ^/api
       stateless: true
       provider: app_user_provider
-      jwt: ~
       user_checker: App\Security\UserChecker
+      jwt: ~
 
   access_control:
-    # PUBLIC (specific)
+    # PUBLIC
     - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
     - { path: ^/api/auth/forgot-password, roles: PUBLIC_ACCESS }
     - { path: ^/api/auth/reset-password, roles: PUBLIC_ACCESS }
     - { path: ^/api/auth/refresh, roles: PUBLIC_ACCESS }
 
-    # RESTRICTED business routes (specific)
+    # BUSINESS ROUTES
     - { path: ^/api/users, roles: [ROLE_ADMIN, ROLE_SUPER_ADMIN] }
     - { path: ^/api/clients, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
     - { path: ^/api/equipment-, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
 
-    # Authenticated-only endpoints (specific)
+    # AUTHENTICATED
     - { path: ^/api/auth/logout, roles: IS_AUTHENTICATED_FULLY }
 
-    # GENERAL fallback (last)
+    # FALLBACK
     - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

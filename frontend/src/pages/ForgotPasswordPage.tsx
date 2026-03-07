@@ -62,22 +62,22 @@ export default function ForgotPasswordPage() {
           />
         </div>
 
+        {done && (
+          <div style={{ marginTop: 0, color: "var(--success)", fontSize: 13 }}>
+            Si l’adresse existe, un email de réinitialisation a été envoyé.
+          </div>
+        )}
+
+        {error && (
+          <div style={{ marginTop: 0, color: "var(--danger)", fontSize: 13 }}>
+            {error}
+          </div>
+        )}
+
         <button className="btn btn-primary" disabled={loading}>
           {loading ? "Envoi..." : "Envoyer le lien de réinitialisation"}
         </button>
       </form>
-
-      {done && (
-        <div style={{ marginTop: 12, color: "var(--success)", fontSize: 13 }}>
-          Si l’adresse existe, un email de réinitialisation a été envoyé.
-        </div>
-      )}
-
-      {error && (
-        <div style={{ marginTop: 12, color: "var(--danger)", fontSize: 13 }}>
-          {error}
-        </div>
-      )}
 
       <div style={{ marginTop: 12 }} className="small">
         <Link to="/login" style={{ color: "var(--primary)" }}>

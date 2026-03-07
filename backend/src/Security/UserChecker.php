@@ -22,10 +22,16 @@ class UserChecker implements UserCheckerInterface
         if ($user->isAnonymized()) {
             throw new CustomUserMessageAuthenticationException('Compte anonymisé.');
         }
+
+        if ($user->isPasswordSetupRequired()) {
+            throw new CustomUserMessageAuthenticationException(
+                'Votre compte n’est pas encore activé. Vérifiez votre e-mail.'
+            );
+        }
     }
 
     public function checkPostAuth(UserInterface $user): void
     {
-        // optional checks after password validation
+        // Optional checks after password verification
     }
 }

@@ -10,20 +10,26 @@ use App\Enum\UserRole;
 use App\Repository\UserRepository;
 use App\Security\Voter\UserVoter;
 use App\Service\User\UserService;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Symfony\Component\Mailer\MailerInterface;
+use SymfonyCasts\Bundle\ResetPassword\Exception\TooManyPasswordRequestsException;
+use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
 #[Route('/api/users')]
 class UserController extends AbstractController
 {
     public function __construct(
         private ValidatorInterface $validator,
-        private UserService $userService
+        private UserService $userService,
+        private ResetPasswordHelperInterface $resetPasswordHelper,
+        private MailerInterface $mailer,
     ) {}
 
     #[Route('', name: 'api_users_create', methods: ['POST'])]
@@ -43,7 +49,6 @@ class UserController extends AbstractController
         $dto->firstName = $data['firstName'] ?? '';
         $dto->lastName  = $data['lastName'] ?? '';
         $dto->email     = $data['email'] ?? '';
-        $dto->password  = $data['password'] ?? '';
         $dto->role      = $data['role'] ?? '';
 
         $errors = $this->validator->validate($dto);
@@ -68,7 +73,50 @@ class UserController extends AbstractController
             ], 422);
         }
 
-        return $this->json($user, 201, [], ['groups' => ['user:read']]);
+        try {
+            $resetToken = $this->resetPasswordHelper->generateResetToken($user);
+            $token = $resetToken->getToken();
+
+            $frontendSetupUrl = sprintf(
+                'http://localhost:5173/reset-password#token=%s',
+                urlencode($token)
+            );
+
+            $message = (new TemplatedEmail())
+                ->from('no-reply@sav-it-pro.com')
+                ->to($user->getEmail())
+                ->subject('Créez votre mot de passe')
+                ->htmlTemplate('emails/account_setup.html.twig')
+                ->context([
+                    'setupUrl' => $frontendSetupUrl,
+                    'user' => $user,
+                ]);
+
+            $this->mailer->send($message);
+        } catch (TooManyPasswordRequestsException $e) {
+            return $this->json([
+                'message' => 'Utilisateur créé, mais un email de configuration n’a pas pu être envoyé immédiatement.',
+                'user' => $user,
+            ], 201, [], ['groups' => ['user:read']]);
+        } catch (\Throwable $e) {
+            if ($this->getParameter('kernel.environment') === 'dev') {
+                return $this->json([
+                    'message' => 'Utilisateur créé, mais erreur lors de l’envoi de l’email.',
+                    'user' => $user,
+                    'error' => $e->getMessage(),
+                ], 201, [], ['groups' => ['user:read']]);
+            }
+
+            return $this->json([
+                'message' => 'Utilisateur créé, mais l’email de configuration n’a pas pu être envoyé.',
+                'user' => $user,
+            ], 201, [], ['groups' => ['user:read']]);
+        }
+
+        return $this->json([
+            'message' => 'Utilisateur créé. Un email a été envoyé pour définir le mot de passe.',
+            'user' => $user,
+        ], 201, [], ['groups' => ['user:read']]);
     }
 
     #[Route('', name: 'api_users_list', methods: ['GET'])]

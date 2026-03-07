@@ -19,7 +19,6 @@ export default function UserCreatePage() {
       }}
     >
       <div style={{ width: "100%", maxWidth: 720 }}>
-        {/* Header with Retour */}
         <div
           style={{
             display: "flex",
@@ -41,7 +40,6 @@ export default function UserCreatePage() {
             <h2 style={{ margin: 0 }}>Créer un employé</h2>
           </div>
 
-          {/* spacer to keep title centered */}
           <div style={{ width: 80 }} />
         </div>
 
@@ -49,7 +47,7 @@ export default function UserCreatePage() {
           mode="create"
           onSubmit={async (payload) => {
             await usersApi.create(payload as CreateUserPayload);
-            navigate(`/admin/users`);
+            navigate("/admin/users");
           }}
         />
       </div>

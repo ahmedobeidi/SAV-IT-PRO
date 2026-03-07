@@ -28,7 +28,7 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
         $jwt = $this->jwtManager->create($user);
         $refresh = $this->authService->createRefreshToken($user, 7);
 
-         $roles = $user->getRoles();
+        $roles = $user->getRoles();
 
         $mainRole = array_values(array_filter(
             $roles,

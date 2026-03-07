@@ -12,8 +12,9 @@ export type UserRead = {
   role: UserRole;
   isActive: boolean;
   isAnonymized: boolean;
-  createdAt?: string;
-  updatedAt?: string | null;
+  passwordSetupRequired: boolean;
+  createdAt: string;
+  updatedAt: string | null;
 };
 
 export type UsersListResponse = {
@@ -27,15 +28,14 @@ export type CreateUserPayload = {
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
   role: UserRole;
 };
 
-export type UpdateUserPayload = Partial<{
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  role: UserRole;
-  isActive: boolean;
-}>;
+export type UpdateUserPayload = {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  password?: string;
+  role?: UserRole;
+  isActive?: boolean;
+};

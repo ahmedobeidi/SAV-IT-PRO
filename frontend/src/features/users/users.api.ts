@@ -1,4 +1,5 @@
 import { http } from "../../api/http";
+
 import type {
   UsersListResponse,
   UserRead,
@@ -15,7 +16,7 @@ export const usersApi = {
   async listSilent(params: { search?: string; page?: number; limit?: number }): Promise<UsersListResponse> {
     const res = await http.get("/api/users", {
       params,
-      meta: { skipLoading: true }, // ✅ no GlobalLoadingOverlay
+      meta: { skipLoading: true },
     } as any);
     return res.data;
   },
@@ -25,7 +26,7 @@ export const usersApi = {
     return res.data;
   },
 
-  async create(payload: CreateUserPayload): Promise<UserRead> {
+  async create(payload: CreateUserPayload): Promise<{ message: string; user: UserRead }> {
     const res = await http.post("/api/users", payload);
     return res.data;
   },

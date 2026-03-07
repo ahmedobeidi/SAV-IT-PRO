@@ -13,7 +13,7 @@ class LoginFailureHandler implements AuthenticationFailureHandlerInterface
     {
         return new JsonResponse([
             'code' => 401,
-            'message' => 'Identifiants invalides.',
+            'message' => $exception->getMessageKey(),
         ], 401);
     }
 }

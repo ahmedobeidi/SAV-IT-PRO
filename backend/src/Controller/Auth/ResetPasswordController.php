@@ -61,6 +61,9 @@ class ResetPasswordController extends AbstractController
         }
 
         $user->setPassword($passwordHasher->hashPassword($user, $newPassword));
+        $user->setPasswordSetupRequired(false);
+        $user->setUpdatedAt(new \DateTimeImmutable());
+
         $em->flush();
 
         $resetPasswordHelper->removeResetRequest($token);

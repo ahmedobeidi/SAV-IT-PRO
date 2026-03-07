@@ -38,11 +38,9 @@ export default function UserForm({
   function applyBackendErrors(err: any) {
     const data = err?.response?.data;
 
-    // reset
     setFieldErrors({});
     setFormError(null);
 
-    // Symfony format: { message, errors: [{field, message}] }
     if (data?.errors && Array.isArray(data.errors)) {
       const fe: Record<string, string> = {};
       for (const e of data.errors) {
@@ -51,7 +49,6 @@ export default function UserForm({
 
       setFieldErrors(fe);
 
-      // ✅ Only show global message if no field errors
       if (Object.keys(fe).length === 0) {
         setFormError(data?.message ?? "Validation échouée.");
       }
@@ -59,7 +56,6 @@ export default function UserForm({
       return;
     }
 
-    // fallback
     const s = err?.response?.status;
     if (s === 401) setFormError("Session expirée. Reconnecte-toi.");
     else if (s === 403) setFormError("Accès interdit (droits insuffisants).");
@@ -75,9 +71,9 @@ export default function UserForm({
         firstName,
         lastName,
         email,
-        password,
         role,
       };
+
       const errs = validateCreate(payload);
       setFieldErrors(errs);
       if (Object.keys(errs).length) return;
@@ -93,7 +89,6 @@ export default function UserForm({
       return;
     }
 
-    // edit
     const payload: UpdateUserPayload = {
       firstName,
       lastName,
@@ -101,6 +96,7 @@ export default function UserForm({
       role,
       ...(password ? { password } : {}),
     };
+
     const errs = validateUpdate(payload);
     setFieldErrors(errs);
     if (Object.keys(errs).length) return;
@@ -164,26 +160,25 @@ export default function UserForm({
         )}
       </div>
 
-      <div>
-        <label className="small label">
-          Mot de passe{" "}
-          {mode === "edit" && (
-            <span className="small">(laisser vide pour ne pas changer)</span>
+      {mode === "edit" && (
+        <div>
+          <label className="small label">
+            Mot de passe <span className="small">(laisser vide pour ne pas changer)</span>
+          </label>
+          <input
+            className="input"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
+          />
+          {fieldErrors.password && (
+            <div style={{ color: "var(--danger)", fontSize: 13 }}>
+              {fieldErrors.password}
+            </div>
           )}
-        </label>
-        <input
-          className="input"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          autoComplete={mode === "create" ? "new-password" : "new-password"}
-        />
-        {fieldErrors.password && (
-          <div style={{ color: "var(--danger)", fontSize: 13 }}>
-            {fieldErrors.password}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <div>
         <label className="small label">Rôle</label>
@@ -204,6 +199,12 @@ export default function UserForm({
           </div>
         )}
       </div>
+
+      {mode === "create" && (
+        <div className="small" style={{ color: "var(--muted, #666)" }}>
+          Un email sera envoyé à l’employé pour définir son mot de passe.
+        </div>
+      )}
 
       {formError && (
         <div style={{ color: "var(--danger)", fontSize: 13 }}>{formError}</div>
