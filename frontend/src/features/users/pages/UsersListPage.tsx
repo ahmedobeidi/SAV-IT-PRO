@@ -82,8 +82,15 @@ export default function UsersListPage() {
           <h2 style={{ margin: 0 }}>Employés</h2>
         </div>
 
-        <Link to="/admin/users/new" className="btn btn-primary" title="Créer un utilisateur" aria-label="Créer un utilisateur">
+        <Link
+          to="/admin/users/new"
+          className="btn btn-primary"
+          title="Créer un employé"
+          aria-label="Créer un employé"
+          style={{ display: "flex", alignItems: "center", gap: 6 }}
+        >
           <UserPlus size={18} />
+          Employé
         </Link>
       </div>
 
