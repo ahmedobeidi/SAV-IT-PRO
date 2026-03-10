@@ -26,7 +26,6 @@ export default function UserForm({
   const [firstName, setFirstName] = useState(initial?.firstName ?? "");
   const [lastName, setLastName] = useState(initial?.lastName ?? "");
   const [email, setEmail] = useState(initial?.email ?? "");
-  const [password, setPassword] = useState("");
   const [role, setRole] = useState<UserRole>(
     (initial?.role as UserRole) ?? "ROLE_RECEPTION",
   );
@@ -57,9 +56,15 @@ export default function UserForm({
     }
 
     const s = err?.response?.status;
-    if (s === 401) setFormError("Session expirée. Reconnecte-toi.");
-    else if (s === 403) setFormError("Accès interdit (droits insuffisants).");
-    else setFormError(data?.message ?? "Erreur serveur.");
+    if (s === 401) {
+      setFormError("Session expirée. Reconnecte-toi.");
+    } else if (s === 403) {
+      setFormError("Accès interdit (droits insuffisants).");
+    } else if (s === 422) {
+      setFormError(data?.message ?? "Validation échouée.");
+    } else {
+      setFormError(data?.message ?? "Erreur serveur.");
+    }
   }
 
   async function submit(e: React.FormEvent) {
@@ -94,7 +99,6 @@ export default function UserForm({
       lastName,
       email,
       role,
-      ...(password ? { password } : {}),
     };
 
     const errs = validateUpdate(payload);
@@ -159,26 +163,6 @@ export default function UserForm({
           </div>
         )}
       </div>
-
-      {mode === "edit" && (
-        <div>
-          <label className="small label">
-            Mot de passe <span className="small">(laisser vide pour ne pas changer)</span>
-          </label>
-          <input
-            className="input"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
-          />
-          {fieldErrors.password && (
-            <div style={{ color: "var(--danger)", fontSize: 13 }}>
-              {fieldErrors.password}
-            </div>
-          )}
-        </div>
-      )}
 
       <div>
         <label className="small label">Rôle</label>

@@ -1,4 +1,9 @@
-import type { CreateUserPayload, UpdateUserPayload, UserRole } from "./users.types";
+import type {
+  ChangeMyPasswordPayload,
+  CreateUserPayload,
+  UpdateUserPayload,
+  UserRole,
+} from "./users.types";
 
 export function isEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
@@ -19,12 +24,45 @@ export function validateCreate(payload: CreateUserPayload): Record<string, strin
 
 export function validateUpdate(payload: UpdateUserPayload): Record<string, string> {
   const e: Record<string, string> = {};
-  if (payload.email !== undefined && payload.email !== "" && !isEmail(payload.email)) {
-    e.email = "Email invalide.";
+
+  if (payload.firstName !== undefined && !payload.firstName.trim()) {
+    e.firstName = "Prénom obligatoire.";
   }
-  if (payload.password !== undefined && payload.password !== "" && !strongPassword(payload.password)) {
-    e.password = "8 caractères min + 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial.";
+
+  if (payload.lastName !== undefined && !payload.lastName.trim()) {
+    e.lastName = "Nom obligatoire.";
   }
+
+  if (payload.email !== undefined) {
+    if (!payload.email.trim()) e.email = "Email obligatoire.";
+    else if (!isEmail(payload.email)) e.email = "Email invalide.";
+  }
+
+  return e;
+}
+
+export function validateChangeMyPassword(
+  payload: ChangeMyPasswordPayload,
+): Record<string, string> {
+  const e: Record<string, string> = {};
+
+  if (!payload.currentPassword.trim()) {
+    e.currentPassword = "Mot de passe actuel obligatoire.";
+  }
+
+  if (!payload.newPassword.trim()) {
+    e.newPassword = "Nouveau mot de passe obligatoire.";
+  } else if (!strongPassword(payload.newPassword)) {
+    e.newPassword =
+      "8 caractères min + 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial.";
+  }
+
+  if (!payload.confirmPassword.trim()) {
+    e.confirmPassword = "Confirmation obligatoire.";
+  } else if (payload.newPassword !== payload.confirmPassword) {
+    e.confirmPassword = "La confirmation ne correspond pas.";
+  }
+
   return e;
 }
 

@@ -2,28 +2,24 @@
 
 namespace App\DTO\User;
 
-use App\Validator\PasswordRules;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class UpdateUserRequest
 {
+    #[Assert\NotBlank(message: 'Le prénom ne peut pas être vide.')]
     #[Assert\Length(max: 100)]
     public ?string $firstName = null;
 
+    #[Assert\NotBlank(message: 'Le nom ne peut pas être vide.')]
     #[Assert\Length(max: 100)]
     public ?string $lastName = null;
 
-    #[Assert\Email]
+    #[Assert\NotBlank(message: 'L’email ne peut pas être vide.')]
+    #[Assert\Email(message: 'Email invalide.')]
     #[Assert\Length(max: 180)]
     public ?string $email = null;
 
-    #[Assert\Length(min: 8, max: 255)]
-    #[Assert\Regex(
-        pattern: PasswordRules::REGEX,
-        message: PasswordRules::MESSAGE
-    )]
-    public ?string $password = null;
-
+    #[Assert\NotBlank(message: 'Le rôle ne peut pas être vide.')]
     #[Assert\Choice(choices: [
         'ROLE_SUPER_ADMIN',
         'ROLE_ADMIN',

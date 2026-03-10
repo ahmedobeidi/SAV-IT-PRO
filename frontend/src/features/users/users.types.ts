@@ -35,7 +35,12 @@ export type UpdateUserPayload = {
   firstName?: string;
   lastName?: string;
   email?: string;
-  password?: string;
   role?: UserRole;
   isActive?: boolean;
+};
+
+export type ChangeMyPasswordPayload = {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 };

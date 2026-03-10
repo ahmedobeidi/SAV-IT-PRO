@@ -1,10 +1,10 @@
 import { http } from "../../api/http";
-
 import type {
-  UsersListResponse,
-  UserRead,
+  ChangeMyPasswordPayload,
   CreateUserPayload,
   UpdateUserPayload,
+  UserRead,
+  UsersListResponse,
 } from "./users.types";
 
 export const usersApi = {
@@ -43,6 +43,11 @@ export const usersApi = {
 
   async anonymize(id: number): Promise<UserRead> {
     const res = await http.patch(`/api/users/${id}/anonymize`);
+    return res.data;
+  },
+
+  async changeMyPassword(payload: ChangeMyPasswordPayload): Promise<{ message: string }> {
+    const res = await http.patch("/api/me/password", payload);
     return res.data;
   },
 };

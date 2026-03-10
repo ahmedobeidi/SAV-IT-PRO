@@ -35,7 +35,6 @@ export default function UserEditPage() {
       }}
     >
       <div style={{ width: "100%", maxWidth: 720 }}>
-        {/* Header with Retour */}
         <div
           style={{
             display: "flex",
@@ -57,7 +56,6 @@ export default function UserEditPage() {
             <h2 style={{ margin: 0 }}>Modifier l’employé</h2>
           </div>
 
-          {/* spacer to keep title centered */}
           <div style={{ width: 80 }} />
         </div>
 
@@ -66,7 +64,7 @@ export default function UserEditPage() {
           initial={user}
           onSubmit={async (payload) => {
             await usersApi.update(userId, payload as UpdateUserPayload);
-            navigate(`/admin/users`);
+            navigate("/admin/users");
           }}
         />
       </div>
