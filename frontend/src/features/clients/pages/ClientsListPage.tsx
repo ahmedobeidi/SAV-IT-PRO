@@ -49,8 +49,10 @@ export default function ClientsListPage() {
           className="btn btn-primary"
           title="Créer un client"
           aria-label="Créer un client"
+          style={{ display: "flex", alignItems: "center", gap: 6 }}
         >
           <UserPlus size={18} />
+          Client
         </Link>
       </div>
 

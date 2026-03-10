@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 import { authStore } from "../auth/auth.store";
 import { authService } from "../auth/auth.service";
 
@@ -27,13 +28,16 @@ export default function Topbar() {
         padding: "0 20px",
         borderBottom: "1px solid var(--border)",
         background: "rgba(43,43,43,0.7)",
-        backdropFilter: "blur(6px)",
+        backdropFilter: "blur(10px)",
       }}
     >
-      <div style={{ fontWeight: 600 }}>{role ?? "Administration"}</div>
+      <div style={{ fontWeight: 600, letterSpacing: "0.2px" }}>
+        {role ?? "Administration"}
+      </div>
 
-      <button className="btn btn-danger" onClick={handleLogout}>
-        Déconnexion
+      <button className="logout-btn" onClick={handleLogout}>
+        <LogOut size={16} strokeWidth={2.2} />
+        <span>Déconnexion</span>
       </button>
     </header>
   );
