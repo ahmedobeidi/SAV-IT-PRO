@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { strongPassword, PASSWORD_ERROR } from "../auth/auth.validators";
-import { authService } from "../auth/auth.service";
+import { strongPassword, PASSWORD_ERROR } from "../auth.validators";
+import { authService } from "../auth.service";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function ResetPasswordPage() {

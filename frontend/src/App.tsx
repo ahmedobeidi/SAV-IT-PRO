@@ -1,14 +1,14 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import AuthLayout from "./layouts/AuthLayout";
 import AdminLayout from "./layouts/AdminLayout";
-import { AuthGuard } from "./auth/auth.guard";
-import { GuestGuard } from "./auth/guest.guard";
+import { AuthGuard } from "./features/auth/auth.guard";
+import { GuestGuard } from "./features/auth/guest.guard";
 
-import LoginPage from "./pages/LoginPage";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
+import LoginPage from "./features/auth/pages/LoginPage";
+import ForgotPasswordPage from "./features/auth/pages/ForgotPasswordPage";
+import ResetPasswordPage from "./features/auth/pages/ResetPasswordPage";
 
-import DashboardPage from "./pages/DashboardPage";
+import DashboardPage from "./features/dashboard/DashboardPage";
 
 import { GlobalLoadingOverlay } from "./ui/GlobalLoadingOverlay";
 

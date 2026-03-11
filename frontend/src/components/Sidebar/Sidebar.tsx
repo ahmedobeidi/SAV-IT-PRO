@@ -7,7 +7,7 @@ import {
   UserCog,
   User,
 } from "lucide-react";
-import { authStore } from "../../auth/auth.store.ts";
+import { authStore } from "../../features/auth/auth.store.ts";
 import "./Sidebar.css";
 import logo2 from "../../assets/logo2.svg";
 

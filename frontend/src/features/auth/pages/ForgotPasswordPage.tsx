@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { authService } from "../auth/auth.service";
-import { validEmail, EMAIL_ERROR } from "../auth/auth.validators";
+import { authService } from "../auth.service";
+import { validEmail, EMAIL_ERROR } from "../auth.validators";
 import axios from "axios";
 
 export default function ForgotPasswordPage() {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { authService } from "../auth/auth.service";
-import { authStore } from "../auth/auth.store";
+import { authService } from "../auth.service";
+import { authStore } from "../auth.store";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {

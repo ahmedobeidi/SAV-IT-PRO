@@ -1,5 +1,5 @@
-import { http } from "../api/http";
-import { rawHttp } from "../api/rawHttp";
+import { http } from "../../api/http";
+import { rawHttp } from "../../api/rawHttp";
 
 type LoginResponse = {
   token: string;

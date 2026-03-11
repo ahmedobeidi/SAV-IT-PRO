@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
-import { authStore } from "../../auth/auth.store";
-import { authService } from "../../auth/auth.service";
+import { authStore } from "../../features/auth/auth.store";
+import { authService } from "../../features/auth/auth.service";
 import "./Topbar.css";
 
 export default function Topbar() {
