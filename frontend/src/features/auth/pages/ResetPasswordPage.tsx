@@ -15,7 +15,8 @@ export default function ResetPasswordPage() {
 
   const [loading, setLoading] = useState(false);
   const [newPassword, setNewPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPasswords, setShowPasswords] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -41,8 +42,15 @@ export default function ResetPasswordPage() {
       return;
     }
 
+    if (newPassword !== confirmPassword) {
+      setError("Les mots de passe ne correspondent pas.");
+      setLoading(false);
+      return;
+    }
+
     try {
       await authService.resetPassword(token, newPassword);
+
       navigate("/login", {
         state: {
           success: "Mot de passe mis à jour. Vous pouvez vous connecter.",
@@ -62,17 +70,13 @@ export default function ResetPasswordPage() {
       <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
         <div>
           <label className="small label">Nouveau mot de passe</label>
+
           <div className="password-wrapper">
             <input
               className="input"
-              type={showPassword ? "text" : "password"}
+              type={showPasswords ? "text" : "password"}
               value={newPassword}
-              onChange={(e) => {
-                setNewPassword(e.target.value);
-                if (e.target.value.length === 0) {
-                  setShowPassword(false);
-                }
-              }}
+              onChange={(e) => setNewPassword(e.target.value)}
               autoComplete="new-password"
             />
 
@@ -80,9 +84,35 @@ export default function ResetPasswordPage() {
               <button
                 type="button"
                 className="eye-btn"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => setShowPasswords((prev) => !prev)}
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPasswords ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <label className="small label">
+            Confirmer le nouveau mot de passe
+          </label>
+
+          <div className="password-wrapper">
+            <input
+              className="input"
+              type={showPasswords ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+            />
+
+            {confirmPassword.length > 0 && (
+              <button
+                type="button"
+                className="eye-btn"
+                onClick={() => setShowPasswords((prev) => !prev)}
+              >
+                {showPasswords ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             )}
           </div>
@@ -95,10 +125,12 @@ export default function ResetPasswordPage() {
         )}
 
         {error && (
-          <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>
+          <div style={{ color: "var(--danger)", fontSize: 13 }}>
+            {error}
+          </div>
         )}
 
-        <button className="btn btn-primary" disabled={!token || loading}>
+        <button className="btn btn-primary">
           {loading ? "Mise à jour..." : "Mettre à jour"}
         </button>
       </form>
