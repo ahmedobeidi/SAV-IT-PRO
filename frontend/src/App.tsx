@@ -10,7 +10,7 @@ import ResetPasswordPage from "./features/auth/pages/ResetPasswordPage";
 
 import DashboardPage from "./features/dashboard/DashboardPage";
 
-import { GlobalLoadingOverlay } from "./ui/GlobalLoadingOverlay";
+import { GlobalLoadingOverlay } from "./components/Loading/GlobalLoadingOverlay";
 
 import UsersListPage from "./features/users/pages/UsersListPage";
 import UserCreatePage from "./features/users/pages/UserCreatePage";

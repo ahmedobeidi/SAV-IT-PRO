@@ -2,7 +2,7 @@ import axios from "axios";
 import type { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { authStore } from "../features/auth/auth.store";
 import { authService } from "../features/auth/auth.service";
-import { loadingStore } from "../ui/loading.store";
+import { loadingStore } from "../components/Loading/loading.store";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
