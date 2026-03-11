@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { usersApi } from "../users.api";
-import type { ChangeMyPasswordPayload } from "../users.types";
-import { validateChangeMyPassword } from "../users.validators";
+import { profileApi } from "../profile.api";
+import type { ChangeMyPasswordPayload } from "../profile.types";
+import { validateChangeMyPassword } from "../profile.validators";
 
 export default function ChangeMyPasswordForm() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -60,7 +60,7 @@ export default function ChangeMyPasswordForm() {
 
     setLoading(true);
     try {
-      const res = await usersApi.changeMyPassword(payload);
+      const res = await profileApi.changeMyPassword(payload);
       setSuccess(res.message);
       setCurrentPassword("");
       setNewPassword("");

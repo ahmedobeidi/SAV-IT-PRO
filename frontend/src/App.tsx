@@ -16,6 +16,8 @@ import UsersListPage from "./features/users/pages/UsersListPage";
 import UserCreatePage from "./features/users/pages/UserCreatePage";
 import UserEditPage from "./features/users/pages/UserEditPage";
 
+import MyProfilePage from "./features/profile/pages/MyProfilePage";
+
 import ClientsListPage from "./features/clients/pages/ClientsListPage";
 import ClientCreatePage from "./features/clients/pages/ClientCreatePage";
 import ClientShowPage from "./features/clients/pages/ClientShowPage";
@@ -58,6 +60,7 @@ export default function App() {
           }
         >
           <Route index element={<DashboardPage />} />
+          <Route path="profile" element={<MyProfilePage />} />
           <Route path="users" element={<UsersListPage />} />
           <Route path="users/new" element={<UserCreatePage />} />
           <Route path="users/:id/edit" element={<UserEditPage />} />

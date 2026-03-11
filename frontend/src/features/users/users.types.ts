@@ -38,9 +38,3 @@ export type UpdateUserPayload = {
   role?: UserRole;
   isActive?: boolean;
 };
-
-export type ChangeMyPasswordPayload = {
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
-};
