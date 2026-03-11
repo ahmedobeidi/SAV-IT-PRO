@@ -5,7 +5,7 @@ import { useUsersList } from "../hooks/useUsersList";
 import { usersApi } from "../users.api";
 import type { UserRead } from "../users.types";
 import { UserPlus } from "lucide-react";
-import ConfirmDialog from "../../../components/ConfirmDialog";
+import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
 
 function mapApiError(e: any): string {
   const s = e?.response?.status;

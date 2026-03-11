@@ -4,7 +4,7 @@ import { equipmentApi } from "../equipment.api";
 import { useEquipmentModels } from "../hooks/useEquipmentModels";
 import EquipmentNameForm from "../components/EquipmentNameForm";
 import EquipmentModelTable from "../components/EquipmentModelTable";
-import ConfirmDialog from "../../../components/ConfirmDialog";
+import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
 import type { EquipmentModelRead } from "../equipment.types";
 
 function mapApiError(e: any): string {

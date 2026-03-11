@@ -5,7 +5,7 @@ import { useClientsList } from "../hooks/useClientsList";
 import { clientsApi } from "../clients.api";
 import type { ClientRead } from "../clients.types";
 import { UserPlus } from "lucide-react";
-import ConfirmDialog from "../../../components/ConfirmDialog"; // ✅ adjust path if needed
+import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog"; // ✅ adjust path if needed
 
 export default function ClientsListPage() {
   const [phone, setPhone] = useState("");

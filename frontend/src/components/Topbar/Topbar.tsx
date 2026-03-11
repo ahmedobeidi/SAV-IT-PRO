@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
-import { authStore } from "../auth/auth.store";
-import { authService } from "../auth/auth.service";
+import { authStore } from "../../auth/auth.store";
+import { authService } from "../../auth/auth.service";
+import "./Topbar.css";
 
 export default function Topbar() {
   const navigate = useNavigate();
@@ -19,18 +20,7 @@ export default function Topbar() {
   }
 
   return (
-    <header
-      style={{
-        height: "var(--topbar-height)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 20px",
-        borderBottom: "1px solid var(--border)",
-        background: "rgba(43,43,43,0.7)",
-        backdropFilter: "blur(10px)",
-      }}
-    >
+    <header className="topbar">
       <div style={{ fontWeight: 600, letterSpacing: "0.2px" }}>
         {role ?? "Administration"}
       </div>
