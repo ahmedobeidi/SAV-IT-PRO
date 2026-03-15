@@ -19,6 +19,80 @@ function mapApiError(e: any): string {
   return "Erreur serveur.";
 }
 
+type BottomPaginationProps = {
+  page: number;
+  totalPages: number;
+  onChange: (page: number) => void;
+};
+
+function buildPageItems(page: number, totalPages: number): (number | "...")[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const items: (number | "...")[] = [1];
+  const start = Math.max(2, page - 1);
+  const end = Math.min(totalPages - 1, page + 1);
+
+  if (start > 2) items.push("...");
+  for (let p = start; p <= end; p++) items.push(p);
+  if (end < totalPages - 1) items.push("...");
+  items.push(totalPages);
+
+  return items;
+}
+
+function BottomPagination({
+  page,
+  totalPages,
+  onChange,
+}: BottomPaginationProps) {
+  if (totalPages <= 1) return null;
+
+  const items = buildPageItems(page, totalPages);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 8,
+        flexWrap: "wrap",
+        paddingTop: 6,
+      }}
+    >
+      {items.map((item, i) =>
+        item === "..." ? (
+          <span key={`dots-${i}`} className="small">
+            …
+          </span>
+        ) : (
+          <button
+            key={item}
+            className="btn"
+            onClick={() => onChange(item)}
+            aria-current={item === page ? "page" : undefined}
+            style={{
+              minWidth: 38,
+              fontWeight: item === page ? 700 : 400,
+              border:
+                item === page
+                  ? "1px solid var(--primary)"
+                  : "1px solid var(--border)",
+              background: item === page ? "var(--primary)" : "transparent",
+              color: item === page ? "#fff" : "inherit",
+              cursor: "pointer",
+            }}
+          >
+            {item}
+          </button>
+        )
+      )}
+    </div>
+  );
+}
+
 export default function EquipmentTypesPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -35,7 +109,6 @@ export default function EquipmentTypesPage() {
     return Math.max(1, Math.ceil(data.total / data.limit));
   }, [data]);
 
-  // flash
   const [flash, setFlash] = useState<{
     id: number;
     type: "success" | "error";
@@ -53,7 +126,7 @@ export default function EquipmentTypesPage() {
   const [creating, setCreating] = useState(false);
 
   async function create(name: string) {
-    setCreating(false); // close immediately
+    setCreating(false);
     try {
       await equipmentApi.createType({ name });
       showFlash("success", "Type créé avec succès.");
@@ -90,7 +163,6 @@ export default function EquipmentTypesPage() {
 
   return (
     <div style={{ display: "grid", gap: 12 }}>
-      {/* HEADER (same structure as Clients) */}
       <div
         style={{
           display: "flex",
@@ -108,7 +180,6 @@ export default function EquipmentTypesPage() {
         </button>
       </div>
 
-      {/* CARD (same structure as Clients) */}
       <div
         className="card"
         style={{
@@ -120,7 +191,6 @@ export default function EquipmentTypesPage() {
           gap: 10,
         }}
       >
-        {/* LEFT */}
         <div
           style={{
             display: "flex",
@@ -145,7 +215,6 @@ export default function EquipmentTypesPage() {
           </div>
         </div>
 
-        {/* RIGHT */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <button
             className="btn"
@@ -165,7 +234,6 @@ export default function EquipmentTypesPage() {
         </div>
       </div>
 
-      {/* flash below the card (like your clients loading/error area) */}
       {flash && (
         <div
           className="small"
@@ -184,11 +252,19 @@ export default function EquipmentTypesPage() {
       )}
 
       {data && (
-        <EquipmentTypeTable
-          items={data.items}
-          onEdit={(t) => setEditing(t)}
-          onDelete={(t) => setDeleting(t)}
-        />
+        <>
+          <EquipmentTypeTable
+            items={data.items}
+            onEdit={(t) => setEditing(t)}
+            onDelete={(t) => setDeleting(t)}
+          />
+
+          <BottomPagination
+            page={page}
+            totalPages={totalPages}
+            onChange={setPage}
+          />
+        </>
       )}
 
       {editing && (
@@ -245,7 +321,6 @@ export default function EquipmentTypesPage() {
         </div>
       )}
 
-      {/* CREATE MODAL (unchanged) */}
       {creating && (
         <div
           style={{

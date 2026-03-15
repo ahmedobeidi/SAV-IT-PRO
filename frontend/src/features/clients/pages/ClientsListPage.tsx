@@ -5,7 +5,91 @@ import { useClientsList } from "../hooks/useClientsList";
 import { clientsApi } from "../clients.api";
 import type { ClientRead } from "../clients.types";
 import { UserPlus } from "lucide-react";
-import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog"; // ✅ adjust path if needed
+import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
+
+type BottomPaginationProps = {
+  page: number;
+  totalPages: number;
+  onChange: (page: number) => void;
+};
+
+function buildPageItems(page: number, totalPages: number): (number | "...")[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const items: (number | "...")[] = [1];
+
+  const start = Math.max(2, page - 1);
+  const end = Math.min(totalPages - 1, page + 1);
+
+  if (start > 2) {
+    items.push("...");
+  }
+
+  for (let p = start; p <= end; p++) {
+    items.push(p);
+  }
+
+  if (end < totalPages - 1) {
+    items.push("...");
+  }
+
+  items.push(totalPages);
+
+  return items;
+}
+
+function BottomPagination({
+  page,
+  totalPages,
+  onChange,
+}: BottomPaginationProps) {
+  if (totalPages <= 1) return null;
+
+  const items = buildPageItems(page, totalPages);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 8,
+        flexWrap: "wrap",
+        paddingTop: 6,
+      }}
+    >
+      {items.map((item, i) =>
+        item === "..." ? (
+          <span key={`dots-${i}`} className="small">
+            …
+          </span>
+        ) : (
+          <button
+            key={item}
+            className="btn"
+            onClick={() => onChange(item)}
+            aria-current={item === page ? "page" : undefined}
+            style={{
+              minWidth: 38,
+              fontWeight: item === page ? 700 : 400,
+              border:
+                item === page
+                  ? "1px solid var(--primary)"
+                  : "1px solid var(--border)",
+              background: item === page ? "var(--primary)" : "transparent",
+              color: item === page ? "#fff" : "inherit",
+              cursor: "pointer",
+            }}
+          >
+            {item}
+          </button>
+        )
+      )}
+    </div>
+  );
+}
 
 export default function ClientsListPage() {
   const [phone, setPhone] = useState("");
@@ -19,19 +103,17 @@ export default function ClientsListPage() {
     return Math.max(1, Math.ceil(data.total / data.limit));
   }, [data]);
 
-  // ✅ anonymize confirm dialog state
   const [anonymizing, setAnonymizing] = useState<ClientRead | null>(null);
 
   async function anonymize() {
     if (!anonymizing) return;
     await clientsApi.anonymize(anonymizing.id);
     setAnonymizing(null);
-    window.location.reload(); // keep for now (later: refetch/refresh)
+    window.location.reload();
   }
 
   return (
     <div style={{ display: "grid", gap: 12 }}>
-      {/* HEADER */}
       <div
         style={{
           display: "flex",
@@ -56,7 +138,6 @@ export default function ClientsListPage() {
         </Link>
       </div>
 
-      {/* CARD */}
       <div
         className="card"
         style={{
@@ -68,8 +149,9 @@ export default function ClientsListPage() {
           gap: 10,
         }}
       >
-        {/* LEFT */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <div
+          style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}
+        >
           <input
             className="input"
             style={{ width: 260, flexShrink: 0 }}
@@ -86,13 +168,20 @@ export default function ClientsListPage() {
           </div>
         </div>
 
-        {/* RIGHT */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <button className="btn" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>
+          <button
+            className="btn"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+          >
             Précédent
           </button>
 
-          <button className="btn" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>
+          <button
+            className="btn"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages}
+          >
             Suivant
           </button>
         </div>
@@ -102,10 +191,18 @@ export default function ClientsListPage() {
       {error && <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>}
 
       {data && (
-        <ClientsTable
-          items={data.items}
-          onAnonymize={(c) => setAnonymizing(c)} // ✅ instead of confirm()
-        />
+        <>
+          <ClientsTable
+            items={data.items}
+            onAnonymize={(c) => setAnonymizing(c)}
+          />
+
+          <BottomPagination
+            page={page}
+            totalPages={totalPages}
+            onChange={setPage}
+          />
+        </>
       )}
 
       <ConfirmDialog

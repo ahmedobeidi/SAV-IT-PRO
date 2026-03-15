@@ -8,7 +8,91 @@ import UpdateStatusDialog from "../components/UpdateStatusDialog";
 import { repairsApi } from "../repairs.api";
 import { mapApiError } from "../repairs.validators";
 
-const STATUS: Array<RepairStatus | ""> = ["", "CREATED", "ASSIGNED", "IN_PROGRESS", "WAITING_PARTS", "DONE", "DELIVERED", "CANCELED"];
+const STATUS: Array<RepairStatus | ""> = [
+  "",
+  "CREATED",
+  "ASSIGNED",
+  "IN_PROGRESS",
+  "WAITING_PARTS",
+  "DONE",
+  "DELIVERED",
+  "CANCELED",
+];
+
+type BottomPaginationProps = {
+  page: number;
+  totalPages: number;
+  onChange: (page: number) => void;
+};
+
+function buildPageItems(page: number, totalPages: number): (number | "...")[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const items: (number | "...")[] = [1];
+
+  const start = Math.max(2, page - 1);
+  const end = Math.min(totalPages - 1, page + 1);
+
+  if (start > 2) items.push("...");
+  for (let p = start; p <= end; p++) items.push(p);
+  if (end < totalPages - 1) items.push("...");
+  items.push(totalPages);
+
+  return items;
+}
+
+function BottomPagination({
+  page,
+  totalPages,
+  onChange,
+}: BottomPaginationProps) {
+  if (totalPages <= 1) return null;
+
+  const items = buildPageItems(page, totalPages);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 8,
+        flexWrap: "wrap",
+        paddingTop: 6,
+      }}
+    >
+      {items.map((item, i) =>
+        item === "..." ? (
+          <span key={`dots-${i}`} className="small">
+            …
+          </span>
+        ) : (
+          <button
+            key={item}
+            className="btn"
+            onClick={() => onChange(item)}
+            aria-current={item === page ? "page" : undefined}
+            style={{
+              minWidth: 38,
+              fontWeight: item === page ? 700 : 400,
+              border:
+                item === page
+                  ? "1px solid var(--primary)"
+                  : "1px solid var(--border)",
+              background: item === page ? "var(--primary)" : "transparent",
+              color: item === page ? "#fff" : "inherit",
+              cursor: "pointer",
+            }}
+          >
+            {item}
+          </button>
+        )
+      )}
+    </div>
+  );
+}
 
 export default function RepairOrdersListPage() {
   const [search, setSearch] = useState("");
@@ -69,26 +153,56 @@ export default function RepairOrdersListPage() {
         </Link>
       </div>
 
-      <div className="card" style={{ padding: 12, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+      <div
+        className="card"
+        style={{ padding: 12, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}
+      >
         <input
           className="input"
           placeholder="Search client (nom / téléphone)"
           value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
           style={{ width: 300 }}
         />
 
-        <select className="input" value={status} onChange={(e) => { setStatus(e.target.value as any); setPage(1); }} style={{ width: 220 }}>
+        <select
+          className="input"
+          value={status}
+          onChange={(e) => {
+            setStatus(e.target.value as any);
+            setPage(1);
+          }}
+          style={{ width: 220 }}
+        >
           {STATUS.map((s) => (
-            <option key={s || "ALL"} value={s}>{s ? s : "Tous statuts"}</option>
+            <option key={s || "ALL"} value={s}>
+              {s ? s : "Tous statuts"}
+            </option>
           ))}
         </select>
 
         <div className="small" style={{ marginLeft: "auto" }}>
           Page {page}/{totalPages}
         </div>
-        <button className="btn" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>Précédent</button>
-        <button className="btn" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>Suivant</button>
+
+        <button
+          className="btn"
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page <= 1}
+        >
+          Précédent
+        </button>
+
+        <button
+          className="btn"
+          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          disabled={page >= totalPages}
+        >
+          Suivant
+        </button>
       </div>
 
       {toast && (
@@ -104,13 +218,21 @@ export default function RepairOrdersListPage() {
       {error && <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>}
 
       {data && (
-        <RepairOrdersTable
-          items={data.items}
-          mode="staff"
-          onAssign={(r) => setAssignTarget(r)}
-          onUpdateStatus={(r) => setStatusTarget(r)}
-          onRefresh={refresh}
-        />
+        <>
+          <RepairOrdersTable
+            items={data.items}
+            mode="staff"
+            onAssign={(r) => setAssignTarget(r)}
+            onUpdateStatus={(r) => setStatusTarget(r)}
+            onRefresh={refresh}
+          />
+
+          <BottomPagination
+            page={page}
+            totalPages={totalPages}
+            onChange={setPage}
+          />
+        </>
       )}
 
       <AssignTechnicianDialog

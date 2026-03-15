@@ -21,6 +21,90 @@ type FlashState = {
   error?: string;
 } | null;
 
+type BottomPaginationProps = {
+  page: number;
+  totalPages: number;
+  onChange: (page: number) => void;
+};
+
+function buildPageItems(page: number, totalPages: number): (number | "...")[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const items: (number | "...")[] = [1];
+
+  const start = Math.max(2, page - 1);
+  const end = Math.min(totalPages - 1, page + 1);
+
+  if (start > 2) {
+    items.push("...");
+  }
+
+  for (let p = start; p <= end; p++) {
+    items.push(p);
+  }
+
+  if (end < totalPages - 1) {
+    items.push("...");
+  }
+
+  items.push(totalPages);
+
+  return items;
+}
+
+function BottomPagination({
+  page,
+  totalPages,
+  onChange,
+}: BottomPaginationProps) {
+  if (totalPages <= 1) return null;
+
+  const items = buildPageItems(page, totalPages);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 8,
+        flexWrap: "wrap",
+        paddingTop: 6,
+      }}
+    >
+      {items.map((item, i) =>
+        item === "..." ? (
+          <span key={`dots-${i}`} className="small">
+            …
+          </span>
+        ) : (
+          <button
+            key={item}
+            className="btn"
+            onClick={() => onChange(item)}
+            aria-current={item === page ? "page" : undefined}
+            style={{
+              minWidth: 38,
+              fontWeight: item === page ? 700 : 400,
+              border:
+                item === page
+                  ? "1px solid var(--primary)"
+                  : "1px solid var(--border)",
+              background: item === page ? "var(--primary)" : "transparent",
+              color: item === page ? "#fff" : "inherit",
+              cursor: "pointer",
+            }}
+          >
+            {item}
+          </button>
+        )
+      )}
+    </div>
+  );
+}
+
 export default function UsersListPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -203,11 +287,19 @@ export default function UsersListPage() {
       )}
 
       {data && (
-        <UsersTable
-          items={data.items}
-          onToggleActive={(u) => setToggling(u)}
-          onAnonymize={(u) => setAnonymizing(u)}
-        />
+        <>
+          <UsersTable
+            items={data.items}
+            onToggleActive={(u) => setToggling(u)}
+            onAnonymize={(u) => setAnonymizing(u)}
+          />
+
+          <BottomPagination
+            page={page}
+            totalPages={totalPages}
+            onChange={setPage}
+          />
+        </>
       )}
 
       <ConfirmDialog

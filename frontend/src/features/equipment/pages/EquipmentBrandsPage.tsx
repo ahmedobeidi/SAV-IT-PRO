@@ -20,6 +20,90 @@ function mapApiError(e: any): string {
   return "Erreur serveur.";
 }
 
+type BottomPaginationProps = {
+  page: number;
+  totalPages: number;
+  onChange: (page: number) => void;
+};
+
+function buildPageItems(page: number, totalPages: number): (number | "...")[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const items: (number | "...")[] = [1];
+
+  const start = Math.max(2, page - 1);
+  const end = Math.min(totalPages - 1, page + 1);
+
+  if (start > 2) {
+    items.push("...");
+  }
+
+  for (let p = start; p <= end; p++) {
+    items.push(p);
+  }
+
+  if (end < totalPages - 1) {
+    items.push("...");
+  }
+
+  items.push(totalPages);
+
+  return items;
+}
+
+function BottomPagination({
+  page,
+  totalPages,
+  onChange,
+}: BottomPaginationProps) {
+  if (totalPages <= 1) return null;
+
+  const items = buildPageItems(page, totalPages);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 8,
+        flexWrap: "wrap",
+        paddingTop: 6,
+      }}
+    >
+      {items.map((item, i) =>
+        item === "..." ? (
+          <span key={`dots-${i}`} className="small">
+            …
+          </span>
+        ) : (
+          <button
+            key={item}
+            className="btn"
+            onClick={() => onChange(item)}
+            aria-current={item === page ? "page" : undefined}
+            style={{
+              minWidth: 38,
+              fontWeight: item === page ? 700 : 400,
+              border:
+                item === page
+                  ? "1px solid var(--primary)"
+                  : "1px solid var(--border)",
+              background: item === page ? "var(--primary)" : "transparent",
+              color: item === page ? "#fff" : "inherit",
+              cursor: "pointer",
+            }}
+          >
+            {item}
+          </button>
+        )
+      )}
+    </div>
+  );
+}
+
 export default function EquipmentBrandsPage() {
   const { typeId } = useParams();
   const tid = Number(typeId);
@@ -40,7 +124,6 @@ export default function EquipmentBrandsPage() {
     return Math.max(1, Math.ceil(data.total / data.limit));
   }, [data]);
 
-  // flash (7s)
   const [flash, setFlash] = useState<{
     id: number;
     type: "success" | "error";
@@ -95,7 +178,6 @@ export default function EquipmentBrandsPage() {
 
   return (
     <div style={{ display: "grid", gap: 12 }}>
-      {/* HEADER (clients style + retour beside create) */}
       <div
         style={{
           display: "flex",
@@ -108,7 +190,6 @@ export default function EquipmentBrandsPage() {
           <h2 style={{ margin: 0 }}>Marques</h2>
         </div>
 
-        {/* RIGHT SIDE */}
         <div style={{ display: "flex", gap: 10 }}>
           <Link className="btn" to="/admin/equipment/types">
             ← Retour
@@ -120,7 +201,6 @@ export default function EquipmentBrandsPage() {
         </div>
       </div>
 
-      {/* CARD (clients style) */}
       <div
         className="card"
         style={{
@@ -132,7 +212,6 @@ export default function EquipmentBrandsPage() {
           gap: 10,
         }}
       >
-        {/* LEFT */}
         <div
           style={{
             display: "flex",
@@ -157,7 +236,6 @@ export default function EquipmentBrandsPage() {
           </div>
         </div>
 
-        {/* RIGHT */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <button
             className="btn"
@@ -177,7 +255,6 @@ export default function EquipmentBrandsPage() {
         </div>
       </div>
 
-      {/* flash under card */}
       {flash && (
         <div
           className="small"
@@ -196,11 +273,19 @@ export default function EquipmentBrandsPage() {
       )}
 
       {data && (
-        <EquipmentBrandTable
-          items={data.items}
-          onEdit={setEditing}
-          onDelete={setDeleting}
-        />
+        <>
+          <EquipmentBrandTable
+            items={data.items}
+            onEdit={setEditing}
+            onDelete={setDeleting}
+          />
+
+          <BottomPagination
+            page={page}
+            totalPages={totalPages}
+            onChange={setPage}
+          />
+        </>
       )}
 
       {editing && (
@@ -257,7 +342,6 @@ export default function EquipmentBrandsPage() {
         </div>
       )}
 
-      {/* CREATE MODAL (unchanged) */}
       {creating && (
         <div
           style={{
