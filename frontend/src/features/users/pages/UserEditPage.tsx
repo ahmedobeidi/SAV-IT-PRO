@@ -64,7 +64,12 @@ export default function UserEditPage() {
           initial={user}
           onSubmit={async (payload) => {
             await usersApi.update(userId, payload as UpdateUserPayload);
-            navigate("/admin/users");
+
+            navigate("/admin/users", {
+              state: {
+                success: "Employé modifié avec succès.",
+              },
+            });
           }}
         />
       </div>
