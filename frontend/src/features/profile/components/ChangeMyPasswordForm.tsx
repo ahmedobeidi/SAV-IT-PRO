@@ -2,11 +2,16 @@ import { useState } from "react";
 import { profileApi } from "../profile.api";
 import type { ChangeMyPasswordPayload } from "../profile.types";
 import { validateChangeMyPassword } from "../profile.validators";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function ChangeMyPasswordForm() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
@@ -62,9 +67,14 @@ export default function ChangeMyPasswordForm() {
     try {
       const res = await profileApi.changeMyPassword(payload);
       setSuccess(res.message);
+
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
+
+      setShowCurrent(false);
+      setShowNew(false);
+      setShowConfirm(false);
     } catch (err: any) {
       applyBackendErrors(err);
     } finally {
@@ -76,19 +86,36 @@ export default function ChangeMyPasswordForm() {
     <form
       onSubmit={submit}
       className="card"
-      style={{ padding: 16, display: "grid", gap: 12, maxWidth: 720 }}
+      style={{ padding: 16, display: "grid", gap: 12 }}
     >
       <h3 style={{ margin: 0 }}>Changer mon mot de passe</h3>
 
+      {/* Current password */}
       <div>
         <label className="small label">Mot de passe actuel</label>
-        <input
-          className="input"
-          type="password"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          autoComplete="current-password"
-        />
+        <div className="password-wrapper">
+          <input
+            className="input"
+            type={showCurrent ? "text" : "password"}
+            value={currentPassword}
+            onChange={(e) => {
+              setCurrentPassword(e.target.value);
+              if (e.target.value.length === 0) setShowCurrent(false);
+            }}
+            autoComplete="current-password"
+          />
+
+          {currentPassword.length > 0 && (
+            <button
+              type="button"
+              className="eye-btn"
+              onClick={() => setShowCurrent(!showCurrent)}
+            >
+              {showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          )}
+        </div>
+
         {fieldErrors.currentPassword && (
           <div style={{ color: "var(--danger)", fontSize: 13 }}>
             {fieldErrors.currentPassword}
@@ -96,15 +123,32 @@ export default function ChangeMyPasswordForm() {
         )}
       </div>
 
+      {/* New password */}
       <div>
         <label className="small label">Nouveau mot de passe</label>
-        <input
-          className="input"
-          type="password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          autoComplete="new-password"
-        />
+        <div className="password-wrapper">
+          <input
+            className="input"
+            type={showNew ? "text" : "password"}
+            value={newPassword}
+            onChange={(e) => {
+              setNewPassword(e.target.value);
+              if (e.target.value.length === 0) setShowNew(false);
+            }}
+            autoComplete="new-password"
+          />
+
+          {newPassword.length > 0 && (
+            <button
+              type="button"
+              className="eye-btn"
+              onClick={() => setShowNew(!showNew)}
+            >
+              {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          )}
+        </div>
+
         {fieldErrors.newPassword && (
           <div style={{ color: "var(--danger)", fontSize: 13 }}>
             {fieldErrors.newPassword}
@@ -112,15 +156,32 @@ export default function ChangeMyPasswordForm() {
         )}
       </div>
 
+      {/* Confirm password */}
       <div>
         <label className="small label">Confirmer le nouveau mot de passe</label>
-        <input
-          className="input"
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          autoComplete="new-password"
-        />
+        <div className="password-wrapper">
+          <input
+            className="input"
+            type={showConfirm ? "text" : "password"}
+            value={confirmPassword}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              if (e.target.value.length === 0) setShowConfirm(false);
+            }}
+            autoComplete="new-password"
+          />
+
+          {confirmPassword.length > 0 && (
+            <button
+              type="button"
+              className="eye-btn"
+              onClick={() => setShowConfirm(!showConfirm)}
+            >
+              {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          )}
+        </div>
+
         {fieldErrors.confirmPassword && (
           <div style={{ color: "var(--danger)", fontSize: 13 }}>
             {fieldErrors.confirmPassword}

@@ -4,6 +4,7 @@ namespace App\DTO\User;
 
 use App\Validator\PasswordRules;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class ChangeMyPasswordRequest
 {
@@ -19,9 +20,15 @@ class ChangeMyPasswordRequest
     public ?string $newPassword = null;
 
     #[Assert\NotBlank(message: 'La confirmation du mot de passe est obligatoire.')]
-    #[Assert\Expression(
-        'this.newPassword === this.confirmPassword',
-        message: 'La confirmation du mot de passe ne correspond pas.'
-    )]
     public ?string $confirmPassword = null;
+
+    #[Assert\Callback]
+    public function validate(ExecutionContextInterface $context): void
+    {
+        if ($this->newPassword !== $this->confirmPassword) {
+            $context->buildViolation('La confirmation du mot de passe ne correspond pas.')
+                ->atPath('confirmPassword')
+                ->addViolation();
+        }
+    }
 }
