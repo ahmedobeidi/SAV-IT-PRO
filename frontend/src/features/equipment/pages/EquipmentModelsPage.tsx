@@ -89,7 +89,7 @@ function BottomPagination({
           >
             {item}
           </button>
-        )
+        ),
       )}
     </div>
   );
@@ -125,7 +125,7 @@ export default function EquipmentModelsPage() {
   function showFlash(type: "success" | "error", text: string) {
     const id = Date.now();
     setFlash({ id, type, text });
-    setTimeout(() => setFlash((cur) => (cur?.id === id ? null : cur)), 7000);
+    setTimeout(() => setFlash((cur) => (cur?.id === id ? null : cur)), 5000);
   }
 
   const [creating, setCreating] = useState(false);
@@ -145,9 +145,12 @@ export default function EquipmentModelsPage() {
 
   async function rename(name: string) {
     if (!editing) return;
+
+    const current = editing;
+    setEditing(null);
+
     try {
-      await equipmentApi.updateModel(editing.id, { name });
-      setEditing(null);
+      await equipmentApi.updateModel(current.id, { name });
       showFlash("success", "Modèle mis à jour.");
       refresh();
     } catch (e: any) {
@@ -157,13 +160,15 @@ export default function EquipmentModelsPage() {
 
   async function remove() {
     if (!deleting) return;
+
+    const current = deleting;
+    setDeleting(null);
+
     try {
-      await equipmentApi.deleteModel(deleting.id);
-      setDeleting(null);
+      await equipmentApi.deleteModel(current.id);
       showFlash("success", "Modèle supprimé.");
       refresh();
     } catch (e: any) {
-      setDeleting(null);
       showFlash("error", mapApiError(e));
     }
   }

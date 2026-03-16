@@ -57,7 +57,7 @@ export default function EquipmentModelTable({
                 }}
                 title={m.name}
               >
-                <span style={{ fontWeight: 600 }}>{m.name}</span>
+                <span style={{ color: "var(--primary)", cursor: "pointer" }} onClick={() => onEdit(m)}>{m.name}</span>
               </td>
 
               {/* Actions */}

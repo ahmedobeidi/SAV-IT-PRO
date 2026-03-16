@@ -87,7 +87,7 @@ function BottomPagination({
           >
             {item}
           </button>
-        )
+        ),
       )}
     </div>
   );
@@ -118,7 +118,7 @@ export default function EquipmentTypesPage() {
   function showFlash(type: "success" | "error", text: string) {
     const id = Date.now();
     setFlash({ id, type, text });
-    setTimeout(() => setFlash((cur) => (cur?.id === id ? null : cur)), 7000);
+    setTimeout(() => setFlash((cur) => (cur?.id === id ? null : cur)), 5000);
   }
 
   const [editing, setEditing] = useState<EquipmentTypeRead | null>(null);
@@ -138,9 +138,12 @@ export default function EquipmentTypesPage() {
 
   async function rename(name: string) {
     if (!editing) return;
+
+    const current = editing;
+    setEditing(null);
+
     try {
-      await equipmentApi.updateType(editing.id, { name });
-      setEditing(null);
+      await equipmentApi.updateType(current.id, { name });
       showFlash("success", "Type mis à jour.");
       refresh();
     } catch (e: any) {
@@ -150,13 +153,15 @@ export default function EquipmentTypesPage() {
 
   async function remove() {
     if (!deleting) return;
+
+    const current = deleting;
+    setDeleting(null);
+
     try {
-      await equipmentApi.deleteType(deleting.id);
-      setDeleting(null);
+      await equipmentApi.deleteType(current.id);
       showFlash("success", "Type supprimé.");
       refresh();
     } catch (e: any) {
-      setDeleting(null);
       showFlash("error", mapApiError(e));
     }
   }
