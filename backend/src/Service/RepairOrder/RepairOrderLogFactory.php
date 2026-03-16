@@ -10,6 +10,7 @@ class RepairOrderLogFactory
     {
         return [
             'id' => $r->getId(),
+            'reference' => $r->getReference(),
             'status' => $r->getStatus()->value,
             'assignedTo' => $r->getAssignedTo()?->getId(),
             'price' => $r->getPrice(),

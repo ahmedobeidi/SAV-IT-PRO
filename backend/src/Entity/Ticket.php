@@ -3,28 +3,37 @@
 namespace App\Entity;
 
 use App\Repository\TicketRepository;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
 class Ticket
 {
+    #[Groups(['ticket:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    // If you store file content in DB:
-    #[ORM\Column(type: 'blob')]
-    private $content;
+    #[Groups(['ticket:read'])]
+    #[ORM\Column(length: 255)]
+    private string $storagePath;
 
+    #[Groups(['ticket:read'])]
     #[ORM\Column(length: 255)]
     private string $filename;
 
+    #[Groups(['ticket:read'])]
     #[ORM\Column(length: 100)]
     private string $mimeType;
 
+    #[Groups(['ticket:read'])]
     #[ORM\Column]
     private int $size;
+
+    #[Groups(['ticket:read'])]
+    #[ORM\Column]
+    private int $version = 1;
 
     #[ORM\ManyToOne(inversedBy: 'tickets')]
     #[ORM\JoinColumn(nullable: false)]
@@ -34,40 +43,38 @@ class Ticket
     #[ORM\JoinColumn(nullable: false)]
     private User $generatedBy;
 
+    #[Groups(['ticket:read'])]
     #[ORM\Column]
     private \DateTimeImmutable $generatedAt;
 
+    #[Groups(['ticket:read'])]
     #[ORM\Column(options: ['default' => false])]
     private bool $isSent = false;
+
+    #[Groups(['ticket:read'])]
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $sentAt = null;
 
     public function __construct()
     {
         $this->generatedAt = new \DateTimeImmutable();
     }
 
-    // =====================
-    // Getters / Setters
-    // =====================
-
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    // ---- content (BLOB) ----
-
-    public function getContent()
+    public function getStoragePath(): string
     {
-        return $this->content;
+        return $this->storagePath;
     }
 
-    public function setContent($content): self
+    public function setStoragePath(string $storagePath): self
     {
-        $this->content = $content;
+        $this->storagePath = $storagePath;
         return $this;
     }
-
-    // ---- file info ----
 
     public function getFilename(): string
     {
@@ -102,7 +109,16 @@ class Ticket
         return $this;
     }
 
-    // ---- repairOrder ----
+    public function getVersion(): int
+    {
+        return $this->version;
+    }
+
+    public function setVersion(int $version): self
+    {
+        $this->version = $version;
+        return $this;
+    }
 
     public function getRepairOrder(): RepairOrder
     {
@@ -115,8 +131,6 @@ class Ticket
         return $this;
     }
 
-    // ---- generatedBy ----
-
     public function getGeneratedBy(): User
     {
         return $this->generatedBy;
@@ -127,8 +141,6 @@ class Ticket
         $this->generatedBy = $generatedBy;
         return $this;
     }
-
-    // ---- timestamps / flags ----
 
     public function getGeneratedAt(): \DateTimeImmutable
     {
@@ -149,6 +161,17 @@ class Ticket
     public function setIsSent(bool $isSent): self
     {
         $this->isSent = $isSent;
+        return $this;
+    }
+
+    public function getSentAt(): ?\DateTimeImmutable
+    {
+        return $this->sentAt;
+    }
+
+    public function setSentAt(?\DateTimeImmutable $sentAt): self
+    {
+        $this->sentAt = $sentAt;
         return $this;
     }
 }

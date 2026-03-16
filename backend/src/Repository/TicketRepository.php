@@ -2,13 +2,11 @@
 
 namespace App\Repository;
 
+use App\Entity\RepairOrder;
 use App\Entity\Ticket;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Ticket>
- */
 class TicketRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -16,28 +14,39 @@ class TicketRepository extends ServiceEntityRepository
         parent::__construct($registry, Ticket::class);
     }
 
-    //    /**
-    //     * @return Ticket[] Returns an array of Ticket objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('t.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function nextVersionForRepairOrder(RepairOrder $repairOrder): int
+    {
+        $max = $this->createQueryBuilder('t')
+            ->select('MAX(t.version)')
+            ->andWhere('t.repairOrder = :repair')
+            ->setParameter('repair', $repairOrder)
+            ->getQuery()
+            ->getSingleScalarResult();
 
-    //    public function findOneBySomeField($value): ?Ticket
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        return ((int) $max) + 1;
+    }
+
+    /**
+     * @return Ticket[]
+     */
+    public function findByRepairOrderNewestFirst(RepairOrder $repairOrder): array
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.repairOrder = :repair')
+            ->setParameter('repair', $repairOrder)
+            ->orderBy('t.generatedAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findLatestByRepairOrder(RepairOrder $repairOrder): ?Ticket
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.repairOrder = :repair')
+            ->setParameter('repair', $repairOrder)
+            ->orderBy('t.generatedAt', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

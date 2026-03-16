@@ -8,9 +8,6 @@ use App\Enum\RepairOrderStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<RepairOrder>
- */
 class RepairOrderRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -33,14 +30,24 @@ class RepairOrderRepository extends ServiceEntityRepository
         }
 
         if ($search) {
-            $q = '%' . mb_strtolower(trim($search)) . '%';
-            $qb->andWhere('LOWER(c.firstName) LIKE :q OR LOWER(c.lastName) LIKE :q OR c.phone LIKE :q2')
-                ->setParameter('q', $q)
-                ->setParameter('q2', trim($search));
+            $search = trim($search);
+            $q = '%' . mb_strtolower($search) . '%';
+            $phoneQ = '%' . preg_replace('/\s+/', '', $search) . '%';
+
+            $qb->andWhere(
+                'LOWER(c.firstName) LIKE :q
+                 OR LOWER(c.lastName) LIKE :q
+                 OR LOWER(CONCAT(c.firstName, \' \', c.lastName)) LIKE :q
+                 OR LOWER(CONCAT(c.lastName, \' \', c.firstName)) LIKE :q
+                 OR REPLACE(c.phone, \' \', \'\') LIKE :phoneQ
+                 OR LOWER(r.reference) LIKE :q'
+            )
+            ->setParameter('q', $q)
+            ->setParameter('phoneQ', $phoneQ);
         }
 
         $countQb = clone $qb;
-        $total = (int) $countQb->select('COUNT(r.id)')->getQuery()->getSingleScalarResult();
+        $total = (int) $countQb->select('COUNT(DISTINCT r.id)')->getQuery()->getSingleScalarResult();
 
         $items = $qb->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
@@ -65,7 +72,7 @@ class RepairOrderRepository extends ServiceEntityRepository
         }
 
         $countQb = clone $qb;
-        $total = (int) $countQb->select('COUNT(r.id)')->getQuery()->getSingleScalarResult();
+        $total = (int) $countQb->select('COUNT(DISTINCT r.id)')->getQuery()->getSingleScalarResult();
 
         $items = $qb->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
@@ -74,29 +81,4 @@ class RepairOrderRepository extends ServiceEntityRepository
 
         return ['items' => $items, 'total' => $total];
     }
-
-    //    /**
-    //     * @return RepairOrder[] Returns an array of RepairOrder objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('r.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?RepairOrder
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
 }

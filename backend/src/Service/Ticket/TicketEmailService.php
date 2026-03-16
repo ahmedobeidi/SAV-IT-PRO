@@ -9,7 +9,10 @@ use Symfony\Component\Mime\Email;
 
 class TicketEmailService
 {
-    public function __construct(private MailerInterface $mailer) {}
+    public function __construct(
+        private MailerInterface $mailer,
+        private TicketStorageService $storageService,
+    ) {}
 
     public function sendTicketToClient(Client $client, Ticket $ticket, string $fromEmail): void
     {
@@ -17,12 +20,18 @@ class TicketEmailService
             throw new \DomainException('Le client n’a pas d’email.');
         }
 
+        $absolutePath = $this->storageService->absolutePath($ticket->getStoragePath());
+
+        if (!is_file($absolutePath)) {
+            throw new \DomainException('Le fichier PDF du ticket est introuvable.');
+        }
+
         $email = (new Email())
             ->from($fromEmail)
             ->to($client->getEmail())
             ->subject('Votre ticket de réparation')
             ->text("Bonjour,\n\nVeuillez trouver en pièce jointe votre ticket de réparation.\n")
-            ->attach($ticket->getContent(), $ticket->getFilename(), $ticket->getMimeType());
+            ->attachFromPath($absolutePath, $ticket->getFilename(), $ticket->getMimeType());
 
         $this->mailer->send($email);
     }

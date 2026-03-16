@@ -30,3 +30,11 @@ services:
     arguments:
       $apiLimiter: '@limiter.api'
       $loginLimiter: '@limiter.login'
+
+  App\Service\Ticket\TicketStorageService:
+    arguments:
+      $projectDir: '%kernel.project_dir%'
+  
+  App\Service\Ticket\TicketPdfService:
+    arguments:
+      $projectDir: '%kernel.project_dir%'

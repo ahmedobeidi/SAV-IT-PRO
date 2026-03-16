@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<meta charset="UTF-8">
+		<title>Ticket de réparation {{ repair.reference }}</title>
+
+		<style>
+			@page {
+				margin: 28px 24px 24px 24px;
+			}
+
+			body {
+				font-family: DejaVu Sans, sans-serif;
+				font-size: 12px;
+				color: #1f2937;
+				margin: 0;
+				padding: 0;
+				line-height: 1.45;
+			}
+
+			.wrapper {
+				width: 100%;
+			}
+
+			.header {
+				width: 100%;
+				margin-bottom: 18px;
+				border-bottom: 2px solid #0d6efd;
+				padding-bottom: 14px;
+			}
+
+			.header-table {
+				width: 100%;
+				border-collapse: collapse;
+			}
+
+			.header-left {
+				width: 65%;
+				vertical-align: top;
+			}
+
+			.header-right {
+				width: 35%;
+				text-align: right;
+				vertical-align: top;
+			}
+
+			.logo {
+				height: 56px;
+				margin-bottom: 8px;
+			}
+
+			.company-name {
+				font-size: 22px;
+				font-weight: bold;
+				color: #111827;
+				margin: 0 0 4px 0;
+			}
+
+			.company-meta {
+				font-size: 11px;
+				color: #4b5563;
+				margin: 0;
+			}
+
+			.document-title {
+				font-size: 20px;
+				font-weight: bold;
+				color: #111827;
+				margin: 0 0 8px 0;
+			}
+
+			.reference-box {
+				display: inline-block;
+				background: #eff6ff;
+				border: 1px solid #bfdbfe;
+				color: #1d4ed8;
+				font-size: 12px;
+				font-weight: bold;
+				padding: 6px 10px;
+				border-radius: 6px;
+			}
+
+			.meta {
+				margin-top: 10px;
+				font-size: 11px;
+				color: #6b7280;
+			}
+
+			.section {
+				margin-bottom: 16px;
+			}
+
+			.section-title {
+				font-size: 13px;
+				font-weight: bold;
+				color: #111827;
+				background: #f3f4f6;
+				border: 1px solid #e5e7eb;
+				padding: 8px 10px;
+				margin-bottom: 8px;
+			}
+
+			.info-table {
+				width: 100%;
+				border-collapse: collapse;
+			}
+
+			.info-table td {
+				vertical-align: top;
+				padding: 6px 8px;
+				border: 1px solid #e5e7eb;
+			}
+
+			.label {
+				width: 32%;
+				font-weight: bold;
+				background: #f9fafb;
+				color: #374151;
+			}
+
+			.value {
+				width: 68%;
+				color: #111827;
+			}
+
+			.two-cols {
+				width: 100%;
+				border-collapse: separate;
+				border-spacing: 10px 0;
+				margin: 0 -10px;
+			}
+
+			.col {
+				width: 50%;
+				vertical-align: top;
+			}
+
+			.status-badge {
+				display: inline-block;
+				padding: 4px 8px;
+				border-radius: 999px;
+				font-size: 11px;
+				font-weight: bold;
+				border: 1px solid #d1d5db;
+				background: #f9fafb;
+				color: #111827;
+			}
+
+			.price-table {
+				width: 100%;
+				border-collapse: collapse;
+				margin-top: 4px;
+			}
+
+			.price-table th,
+			.price-table td {
+				border: 1px solid #d1d5db;
+				padding: 10px;
+				text-align: left;
+			}
+
+			.price-table th {
+				background: #f3f4f6;
+				font-size: 12px;
+				color: #374151;
+			}
+
+			.price-table td {
+				font-size: 13px;
+				color: #111827;
+				font-weight: bold;
+			}
+
+			.description-box {
+				border: 1px solid #d1d5db;
+				background: #fcfcfd;
+				padding: 12px;
+				min-height: 70px;
+				white-space: pre-wrap;
+				word-wrap: break-word;
+			}
+
+			.footer {
+				margin-top: 28px;
+				padding-top: 12px;
+				border-top: 1px solid #d1d5db;
+				font-size: 10px;
+				color: #6b7280;
+				text-align: center;
+			}
+
+			.small-note {
+				font-size: 10px;
+				color: #6b7280;
+				margin-top: 8px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="wrapper">
+
+			<div class="header">
+				<table class="header-table">
+					<tr>
+						<td class="header-left">
+							{% if logoPath %}
+								<img src="{{ logoPath }}" alt="IT-PRO" class="logo">
+							{% endif %}
+
+							<div class="company-name">IT-PRO</div>
+							<p class="company-meta">Ticket SAV — Prise en charge réparation</p>
+							<p class="company-meta">Document généré automatiquement</p>
+						</td>
+
+						<td class="header-right">
+							<div class="document-title">Ticket de réparation</div>
+							<div class="reference-box">{{ repair.reference }}</div>
+
+							<div class="meta">
+								Date de création :
+								{{ repair.createdAt|date('d/m/Y H:i') }}<br>
+								Généré le :
+								{{ generatedAt|date('d/m/Y H:i') }}
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+
+			<table class="two-cols">
+				<tr>
+					<td class="col">
+						<div class="section">
+							<div class="section-title">Informations client</div>
+
+							<table class="info-table">
+								<tr>
+									<td class="label">Nom complet</td>
+									<td class="value">
+										{{ repair.createdFor.firstName }}
+										{{ repair.createdFor.lastName }}
+									</td>
+								</tr>
+								<tr>
+									<td class="label">Téléphone</td>
+									<td class="value">{{ repair.createdFor.phone ?: '-' }}</td>
+								</tr>
+								<tr>
+									<td class="label">Email</td>
+									<td class="value">{{ repair.createdFor.email ?: '-' }}</td>
+								</tr>
+							</table>
+						</div>
+					</td>
+
+					<td class="col">
+						<div class="section">
+							<div class="section-title">Informations dossier</div>
+
+							<table class="info-table">
+								<tr>
+									<td class="label">Statut</td>
+									<td class="value">
+										<span class="status-badge">
+											{% if repair.status.value == 'CREATED' %}
+												Créé
+											{% elseif repair.status.value == 'ASSIGNED' %}
+												Assigné
+											{% elseif repair.status.value == 'IN_PROGRESS' %}
+												En cours
+											{% elseif repair.status.value == 'WAITING_PARTS' %}
+												Attente pièces
+											{% elseif repair.status.value == 'DONE' %}
+												Terminé
+											{% elseif repair.status.value == 'DELIVERED' %}
+												Livré
+											{% elseif repair.status.value == 'CANCELED' %}
+												Annulé
+											{% else %}
+												{{ repair.status.value }}
+											{% endif %}
+										</span>
+									</td>
+								</tr>
+								<tr>
+									<td class="label">Créé par</td>
+									<td class="value">
+										{{ repair.createdBy.firstName }}
+										{{ repair.createdBy.lastName }}
+									</td>
+								</tr>
+								<tr>
+									<td class="label">Technicien</td>
+									<td class="value">
+										{% if repair.assignedTo %}
+											{{ repair.assignedTo.firstName }}
+											{{ repair.assignedTo.lastName }}
+										{% else %}
+											-
+										{% endif %}
+									</td>
+								</tr>
+							</table>
+						</div>
+					</td>
+				</tr>
+			</table>
+
+			<div class="section">
+				<div class="section-title">Équipement et panne déclarée</div>
+
+				<table class="info-table">
+					<tr>
+						<td class="label">Équipement / modèle</td>
+						<td class="value">{{ repair.equipmentModel.name ?: '-' }}</td>
+					</tr>
+					<tr>
+						<td class="label">Panne déclarée</td>
+						<td class="value">{{ repair.issue.name ?: '-' }}</td>
+					</tr>
+				</table>
+			</div>
+
+			<div class="section">
+				<div class="section-title">Informations financières</div>
+
+				<table class="price-table">
+					<tr>
+						<th>Prix estimé</th>
+						<th>Acompte</th>
+						<th>Reste estimé</th>
+					</tr>
+					<tr>
+						<td>{{ repair.price|number_format(2, ',', ' ') }} €</td>
+						<td>
+							{% if repair.deposit is not null %}
+								{{ repair.deposit|number_format(2, ',', ' ') }} €
+							{% else %}
+								0,00 €
+							{% endif %}
+						</td>
+						<td>
+							{% set depositValue = repair.deposit is not null ? repair.deposit : 0 %}
+							{{ (repair.price - depositValue)|number_format(2, ',', ' ') }} €
+						</td>
+					</tr>
+				</table>
+			</div>
+
+			<div class="section">
+				<div class="section-title">Description / observations</div>
+
+				<div class="description-box">
+					{{ repair.description ?: 'Aucune description fournie.' }}
+				</div>
+
+				<div class="small-note">
+					Le présent document constitue un justificatif de prise en charge. Les informations peuvent être mises à jour au cours du traitement du dossier.
+				</div>
+			</div>
+
+			<div class="footer">
+				© {{ "now"|date("Y") }} SAV-IT-PRO — IT-PRO<br>
+				Référence dossier :
+				<strong>{{ repair.reference }}</strong>
+			</div>
+
+		</div>
+	</body>
+</html>

@@ -4,7 +4,6 @@ namespace App\Service\RepairOrder;
 
 use App\DTO\RepairOrder\AssignTechnicianRequest;
 use App\DTO\RepairOrder\CreateRepairOrderRequest;
-use App\DTO\RepairOrder\UpdateRepairOrderStatusRequest;
 use App\Entity\Client;
 use App\Entity\Issue;
 use App\Entity\RepairOrder;
@@ -22,6 +21,7 @@ class RepairOrderService
         private EntityManagerInterface $em,
         private EquipmentModelRepository $equipmentModelRepo,
         private RepairOrderLogFactory $logFactory,
+        private RepairOrderReferenceGenerator $referenceGenerator,
     ) {}
 
     public function create(User $actor, CreateRepairOrderRequest $dto): RepairOrder
@@ -32,12 +32,17 @@ class RepairOrderService
         }
 
         $model = $this->equipmentModelRepo->find($dto->equipmentModelId);
-        if (!$model) throw new \DomainException('Modèle introuvable.');
+        if (!$model) {
+            throw new \DomainException('Modèle introuvable.');
+        }
 
         $issue = $this->em->getRepository(Issue::class)->find($dto->issueId);
-        if (!$issue) throw new \DomainException('Panne introuvable.');
+        if (!$issue) {
+            throw new \DomainException('Panne introuvable.');
+        }
 
         $r = new RepairOrder();
+        $r->setReference($this->referenceGenerator->next());
         $r->setCreatedBy($actor);
         $r->setCreatedFor($client);
         $r->setEquipmentModel($model);
@@ -64,10 +69,11 @@ class RepairOrderService
         }
 
         $r->setAssignedTo($tech);
-        // Option métier: quand on assigne → status ASSIGNED (si pas déjà “plus avancé”)
+
         if (in_array($r->getStatus(), [RepairOrderStatus::CREATED, RepairOrderStatus::CANCELED], true)) {
             $r->setStatus(RepairOrderStatus::ASSIGNED);
         }
+
         $r->setUpdatedAt(new \DateTimeImmutable());
 
         $this->addLog($r, $actor, RepairOrderLogAction::ASSIGNED);
@@ -89,13 +95,10 @@ class RepairOrderService
 
     public function updateStatusByTechnician(User $actor, RepairOrder $r, RepairOrderStatus $newStatus): RepairOrder
     {
-        // sécurité supplémentaire (en plus du voter)
         if ($r->getAssignedTo()?->getId() !== $actor->getId()) {
             throw new \DomainException('Ordre non assigné à ce technicien.');
         }
 
-        // Option métier: un tech ne peut pas “DELIVERED” (souvent côté accueil)
-        // Tu peux autoriser si tu veux. Ici: on bloque DELIVERED.
         if ($newStatus === RepairOrderStatus::DELIVERED) {
             throw new \DomainException('Le technicien ne peut pas marquer livré.');
         }
@@ -109,7 +112,7 @@ class RepairOrderService
         return $r;
     }
 
-    private function addLog(RepairOrder $r, User $actor, RepairOrderLogAction $action): void
+    private function addLog(RepairOrder $r, User $actor, \App\Enum\RepairOrderLogAction $action): void
     {
         $log = new RepairOrderLog();
         $log->setRepairOrder($r);

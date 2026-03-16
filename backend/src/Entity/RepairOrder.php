@@ -10,6 +10,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RepairOrderRepository::class)]
+#[ORM\Table(name: 'repair_order')]
+#[ORM\UniqueConstraint(name: 'uniq_repair_order_reference', columns: ['reference'])]
 class RepairOrder
 {
     #[Groups(['repair:read'])]
@@ -18,31 +20,30 @@ class RepairOrder
     #[ORM\Column]
     private ?int $id = null;
 
-    // createdBy (User 1 — 0..*)
+    #[Groups(['repair:read'])]
+    #[ORM\Column(length: 30, unique: true)]
+    private string $reference;
+
     #[Groups(['repair:read'])]
     #[ORM\ManyToOne(inversedBy: 'createdRepairOrders')]
     #[ORM\JoinColumn(nullable: false)]
     private User $createdBy;
 
-    // createdFor (Client 1 — 0..*)
     #[Groups(['repair:read'])]
     #[ORM\ManyToOne(inversedBy: 'repairOrders')]
     #[ORM\JoinColumn(nullable: false)]
     private Client $createdFor;
 
-    // equipmentModel (EquipmentModel 1 — 0..*)
     #[Groups(['repair:read'])]
     #[ORM\ManyToOne(inversedBy: 'repairOrders')]
     #[ORM\JoinColumn(nullable: false)]
     private EquipmentModel $equipmentModel;
 
-    // issue (Issue 1 — 0..*)
     #[Groups(['repair:read'])]
     #[ORM\ManyToOne(inversedBy: 'repairOrders')]
     #[ORM\JoinColumn(nullable: false)]
     private Issue $issue;
 
-    // assignedTo (User 0..* — 0..1)
     #[Groups(['repair:read'])]
     #[ORM\ManyToOne(inversedBy: 'assignedRepairOrders')]
     #[ORM\JoinColumn(nullable: true)]
@@ -88,16 +89,21 @@ class RepairOrder
         $this->logs = new ArrayCollection();
     }
 
-    // =====================
-    // Getters / Setters
-    // =====================
-
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    // ---- createdBy ----
+    public function getReference(): string
+    {
+        return $this->reference;
+    }
+
+    public function setReference(string $reference): self
+    {
+        $this->reference = $reference;
+        return $this;
+    }
 
     public function getCreatedBy(): User
     {
@@ -110,8 +116,6 @@ class RepairOrder
         return $this;
     }
 
-    // ---- createdFor ----
-
     public function getCreatedFor(): Client
     {
         return $this->createdFor;
@@ -122,8 +126,6 @@ class RepairOrder
         $this->createdFor = $createdFor;
         return $this;
     }
-
-    // ---- equipmentModel ----
 
     public function getEquipmentModel(): EquipmentModel
     {
@@ -136,8 +138,6 @@ class RepairOrder
         return $this;
     }
 
-    // ---- issue ----
-
     public function getIssue(): Issue
     {
         return $this->issue;
@@ -149,8 +149,6 @@ class RepairOrder
         return $this;
     }
 
-    // ---- assignedTo ----
-
     public function getAssignedTo(): ?User
     {
         return $this->assignedTo;
@@ -161,8 +159,6 @@ class RepairOrder
         $this->assignedTo = $assignedTo;
         return $this;
     }
-
-    // ---- price / deposit ----
 
     public function getPrice(): float
     {
@@ -186,8 +182,6 @@ class RepairOrder
         return $this;
     }
 
-    // ---- description ----
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -199,8 +193,6 @@ class RepairOrder
         return $this;
     }
 
-    // ---- status ----
-
     public function getStatus(): RepairOrderStatus
     {
         return $this->status;
@@ -211,8 +203,6 @@ class RepairOrder
         $this->status = $status;
         return $this;
     }
-
-    // ---- timestamps ----
 
     public function getCreatedAt(): \DateTimeImmutable
     {
@@ -236,12 +226,6 @@ class RepairOrder
         return $this;
     }
 
-    // =====================
-    // Relations
-    // =====================
-
-    // ---- Tickets ----
-
     /**
      * @return Collection<int, Ticket>
      */
@@ -259,8 +243,6 @@ class RepairOrder
 
         return $this;
     }
-
-    // ---- Logs ----
 
     /**
      * @return Collection<int, RepairOrderLog>
