@@ -61,9 +61,10 @@ export default function UsersTable({
                 }}
                 title={`${u.lastName} ${u.firstName}`}
               >
-                <div style={{ color: "var(--primary)" }}>
+                <Link
+                  to={`/admin/users/${u.id}/edit`} style={{ color: "var(--primary)" }}>
                   {u.lastName} {u.firstName}
-                </div>
+                </Link>
                 {u.isAnonymized && <span className="small"> — anonymisé</span>}
               </td>
 
@@ -90,8 +91,8 @@ export default function UsersTable({
                 </span>
               </td>
 
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top" }}>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top", textAlign: "center", }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", }}>
                   {/* Edit */}
                   <Link className="btn" to={`/admin/users/${u.id}/edit`} title="Modifier" aria-label="Modifier">
                     <Pencil size={18} />

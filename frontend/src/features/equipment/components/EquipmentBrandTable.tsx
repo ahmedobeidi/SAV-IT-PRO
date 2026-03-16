@@ -4,10 +4,12 @@ import { Pencil, List, Trash2 } from "lucide-react";
 
 export default function EquipmentBrandTable({
   items,
+  typeId,
   onEdit,
   onDelete,
 }: {
   items: EquipmentBrandRead[];
+  typeId: number;
   onEdit: (b: EquipmentBrandRead) => void;
   onDelete: (b: EquipmentBrandRead) => void;
 }) {
@@ -20,10 +22,9 @@ export default function EquipmentBrandTable({
           tableLayout: "fixed",
         }}
       >
-        {/* ✅ fixed widths like ClientsTable */}
         <colgroup>
-          <col style={{ width: "70%" }} />
-          <col style={{ width: "30%" }} />
+          <col style={{ width: "85%" }} />
+          <col style={{ width: "15%" }} />
         </colgroup>
 
         <thead>
@@ -34,7 +35,7 @@ export default function EquipmentBrandTable({
                 style={{
                   padding: "10px 8px",
                   borderBottom: "1px solid var(--border)",
-                  textAlign: h === "Actions" ? "right" : "left",
+                  textAlign: h === "Actions" ? "center" : "left",
                 }}
               >
                 <span className="small">{h}</span>
@@ -46,7 +47,6 @@ export default function EquipmentBrandTable({
         <tbody>
           {items.map((b) => (
             <tr key={b.id}>
-              {/* Nom */}
               <td
                 style={{
                   padding: "10px 8px",
@@ -58,38 +58,41 @@ export default function EquipmentBrandTable({
                 }}
                 title={b.name}
               >
-                {/* same “link feel” as clients */}
                 <Link
-                  to={`/admin/equipment/brands/${b.id}/models`}
+                  to={`/admin/equipment/types/${typeId}/brands/${b.id}/models`}
                   style={{ color: "var(--primary)" }}
                 >
                   {b.name}
                 </Link>
               </td>
 
-              {/* Actions */}
               <td
                 style={{
                   padding: "10px 8px",
                   borderBottom: "1px solid var(--border)",
                   verticalAlign: "top",
-                  textAlign: "right",
+                  textAlign: "center",
                 }}
               >
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "right", }}>
-                  {/* Models */}
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 8,
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                  }}
+                >
                   <Link
                     className="btn"
-                    to={`/admin/equipment/brands/${b.id}/models`}
+                    to={`/admin/equipment/types/${typeId}/brands/${b.id}/models`}
                     title="Modèles"
                     aria-label="Modèles"
                   >
                     <List size={18} />
                   </Link>
 
-                  {/* Rename */}
                   <button
-                    className="btn btn-warning"
+                    className="btn"
                     onClick={() => onEdit(b)}
                     title="Renommer"
                     aria-label="Renommer"
@@ -97,9 +100,8 @@ export default function EquipmentBrandTable({
                     <Pencil size={18} />
                   </button>
 
-                  {/* Delete */}
                   <button
-                    className="btn btn-danger"
+                    className="btn"
                     onClick={() => onDelete(b)}
                     title="Supprimer"
                     aria-label="Supprimer"

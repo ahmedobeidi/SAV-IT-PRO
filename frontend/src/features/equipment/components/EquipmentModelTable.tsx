@@ -21,8 +21,8 @@ export default function EquipmentModelTable({
       >
         {/* ✅ fixed widths like ClientsTable */}
         <colgroup>
-          <col style={{ width: "70%" }} />
-          <col style={{ width: "30%" }} />
+          <col style={{ width: "85%" }} />
+          <col style={{ width: "15%" }} />
         </colgroup>
 
         <thead>
@@ -33,7 +33,7 @@ export default function EquipmentModelTable({
                 style={{
                   padding: "10px 8px",
                   borderBottom: "1px solid var(--border)",
-                  textAlign: h === "Actions" ? "right" : "left",
+                  textAlign: h === "Actions" ? "center" : "left",
                 }}
               >
                 <span className="small">{h}</span>
@@ -66,13 +66,13 @@ export default function EquipmentModelTable({
                   padding: "10px 8px",
                   borderBottom: "1px solid var(--border)",
                   verticalAlign: "top",
-                  textAlign: "right",
+                  textAlign: "center",
                 }}
               >
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "right", }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", }}>
                   {/* Rename */}
                   <button
-                    className="btn btn-warning"
+                    className="btn"
                     onClick={() => onEdit(m)}
                     title="Renommer"
                     aria-label="Renommer"
@@ -82,7 +82,7 @@ export default function EquipmentModelTable({
 
                   {/* Delete */}
                   <button
-                    className="btn btn-danger"
+                    className="btn"
                     onClick={() => onDelete(m)}
                     title="Supprimer"
                     aria-label="Supprimer"

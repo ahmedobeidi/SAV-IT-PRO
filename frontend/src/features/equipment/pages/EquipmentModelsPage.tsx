@@ -36,18 +36,9 @@ function buildPageItems(page: number, totalPages: number): (number | "...")[] {
   const start = Math.max(2, page - 1);
   const end = Math.min(totalPages - 1, page + 1);
 
-  if (start > 2) {
-    items.push("...");
-  }
-
-  for (let p = start; p <= end; p++) {
-    items.push(p);
-  }
-
-  if (end < totalPages - 1) {
-    items.push("...");
-  }
-
+  if (start > 2) items.push("...");
+  for (let p = start; p <= end; p++) items.push(p);
+  if (end < totalPages - 1) items.push("...");
   items.push(totalPages);
 
   return items;
@@ -105,7 +96,8 @@ function BottomPagination({
 }
 
 export default function EquipmentModelsPage() {
-  const { brandId } = useParams();
+  const { typeId, brandId } = useParams();
+  const tid = Number(typeId);
   const bid = Number(brandId);
 
   const [search, setSearch] = useState("");
@@ -191,7 +183,7 @@ export default function EquipmentModelsPage() {
         </div>
 
         <div style={{ display: "flex", gap: 10 }}>
-          <Link className="btn" to="/admin/equipment/types">
+          <Link className="btn" to={`/admin/equipment/types/${tid}/brands`}>
             ← Retour
           </Link>
 

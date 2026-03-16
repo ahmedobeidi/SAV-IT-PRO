@@ -36,7 +36,6 @@ export default function App() {
       <GlobalLoadingOverlay />
 
       <Routes>
-        {/* Public/auth pages */}
         <Route
           element={
             <GuestGuard>
@@ -49,7 +48,6 @@ export default function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
 
-        {/* Protected admin pages */}
         <Route
           path="/admin"
           element={
@@ -63,18 +61,20 @@ export default function App() {
           <Route path="users" element={<UsersListPage />} />
           <Route path="users/new" element={<UserCreatePage />} />
           <Route path="users/:id/edit" element={<UserEditPage />} />
+          
           <Route path="clients" element={<ClientsListPage />} />
           <Route path="clients/new" element={<ClientCreatePage />} />
           <Route path="clients/:id/edit" element={<ClientEditPage />} />
+
           <Route path="equipment/types" element={<EquipmentTypesPage />} />
           <Route path="equipment/types/:typeId/brands" element={<EquipmentBrandsPage />} />
-          <Route path="equipment/brands/:brandId/models" element={<EquipmentModelsPage />} />
+          <Route path="equipment/types/:typeId/brands/:brandId/models" element={<EquipmentModelsPage />} />
+
           <Route path="repair-orders" element={<RepairOrdersListPage />} />
           <Route path="repair-orders/new" element={<RepairOrderCreatePage />} />
           <Route path="technician/repair-orders" element={<TechnicianRepairOrdersPage />} />
         </Route>
 
-        {/* Default */}
         <Route path="/" element={<Navigate to="/admin" replace />} />
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>

@@ -22,8 +22,8 @@ export default function EquipmentTypeTable({
       >
         {/* ✅ fixed widths like ClientsTable */}
         <colgroup>
-          <col style={{ width: "70%" }} />
-          <col style={{ width: "30%" }} />
+          <col style={{ width: "85%" }} />
+          <col style={{ width: "15%" }} />
         </colgroup>
 
         <thead>
@@ -34,7 +34,7 @@ export default function EquipmentTypeTable({
                 style={{
                   padding: "10px 8px",
                   borderBottom: "1px solid var(--border)",
-                  textAlign: h === "Actions" ? "right" : "left",
+                  textAlign: h === "Actions" ? "center" : "left",
                 }}
               >
                 <span className="small">{h}</span>
@@ -73,10 +73,10 @@ export default function EquipmentTypeTable({
                   padding: "10px 8px",
                   borderBottom: "1px solid var(--border)",
                   verticalAlign: "top",
-                  textAlign: "right",
+                  textAlign: "center",
                 }}
               >
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "right", }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", }}>
                   {/* Brands */}
                   <Link
                     className="btn"
@@ -89,7 +89,7 @@ export default function EquipmentTypeTable({
 
                   {/* Rename */}
                   <button
-                    className="btn btn-warning"
+                    className="btn"
                     onClick={() => onEdit(t)}
                     title="Renommer"
                     aria-label="Renommer"
@@ -99,7 +99,7 @@ export default function EquipmentTypeTable({
 
                   {/* Delete */}
                   <button
-                    className="btn btn-danger"
+                    className="btn"
                     onClick={() => onDelete(t)}
                     title="Supprimer"
                     aria-label="Supprimer"

@@ -36,18 +36,9 @@ function buildPageItems(page: number, totalPages: number): (number | "...")[] {
   const start = Math.max(2, page - 1);
   const end = Math.min(totalPages - 1, page + 1);
 
-  if (start > 2) {
-    items.push("...");
-  }
-
-  for (let p = start; p <= end; p++) {
-    items.push(p);
-  }
-
-  if (end < totalPages - 1) {
-    items.push("...");
-  }
-
+  if (start > 2) items.push("...");
+  for (let p = start; p <= end; p++) items.push(p);
+  if (end < totalPages - 1) items.push("...");
   items.push(totalPages);
 
   return items;
@@ -276,6 +267,7 @@ export default function EquipmentBrandsPage() {
         <>
           <EquipmentBrandTable
             items={data.items}
+            typeId={tid}
             onEdit={setEditing}
             onDelete={setDeleting}
           />
