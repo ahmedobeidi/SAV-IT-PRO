@@ -159,7 +159,7 @@ export default function RepairOrdersListPage() {
       >
         <input
           className="input"
-          placeholder="Search client (nom / téléphone)"
+          placeholder="Rechercher par nom, téléphone ou référence SAV-2026-000123"
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);

@@ -25,7 +25,8 @@ export type EquipmentModelLight = { id: number; name: string };
 export type IssueLight = { id: number; name: string };
 
 export type RepairOrderRead = {
-  id: number;
+  id: number; // internal only
+  reference: string; // display this to users
   status: RepairStatus;
   price: number;
   deposit?: number | null;
@@ -66,4 +67,18 @@ export type TicketResponse = {
   mimeType: string;
   size: number;
   isSent: boolean;
+  version: number;
+};
+
+export type TicketRead = {
+  id: number;
+  filename: string;
+  mimeType: string;
+  size: number;
+  version: number;
+  generatedAt: string;
+  isSent: boolean;
+  sentAt?: string | null;
+  viewUrl: string;
+  downloadUrl: string;
 };

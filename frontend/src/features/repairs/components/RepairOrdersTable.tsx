@@ -11,8 +11,8 @@ export default function RepairOrdersTable({
 }: {
   items: RepairOrderRead[];
   mode: "staff" | "tech";
-  onAssign: (repair: RepairOrderRead) => void; // staff only
-  onUpdateStatus: (repair: RepairOrderRead) => void; // both
+  onAssign: (repair: RepairOrderRead) => void;
+  onUpdateStatus: (repair: RepairOrderRead) => void;
   onRefresh: () => void;
 }) {
   return (
@@ -20,7 +20,7 @@ export default function RepairOrdersTable({
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr style={{ textAlign: "left" }}>
-            {["#", "Client", "Équipement", "Panne", "Statut", "Technicien", "Actions"].map((h) => (
+            {["Référence", "Client", "Équipement", "Panne", "Statut", "Technicien", "Actions"].map((h) => (
               <th key={h} style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
                 <span className="small">{h}</span>
               </th>
@@ -32,16 +32,16 @@ export default function RepairOrdersTable({
           {items.map((r) => (
             <tr key={r.id}>
               <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
-                <div style={{ fontWeight: 700 }}>#{r.id}</div>
+                <div style={{ fontWeight: 700 }}>{r.reference}</div>
                 <div className="small">
-                  {r.createdAt
-                    ? new Date(r.createdAt).toLocaleString("fr-FR")
-                    : ""}
+                  {r.createdAt ? new Date(r.createdAt).toLocaleString("fr-FR") : ""}
                 </div>
               </td>
 
               <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
-                <div style={{ fontWeight: 600 }}>{r.createdFor.lastName} {r.createdFor.firstName}</div>
+                <div style={{ fontWeight: 600 }}>
+                  {r.createdFor.lastName} {r.createdFor.firstName}
+                </div>
                 <div className="small">{r.createdFor.phone}</div>
               </td>
 
@@ -86,7 +86,11 @@ export default function RepairOrdersTable({
         </tbody>
       </table>
 
-      {items.length === 0 && <div className="small" style={{ padding: 12 }}>Aucune réparation.</div>}
+      {items.length === 0 && (
+        <div className="small" style={{ padding: 12 }}>
+          Aucune réparation.
+        </div>
+      )}
     </div>
   );
 }

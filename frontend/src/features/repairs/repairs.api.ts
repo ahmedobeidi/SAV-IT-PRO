@@ -7,10 +7,10 @@ import type {
   UpdateStatusPayload,
   TicketResponse,
   RepairStatus,
+  TicketRead,
 } from "./repairs.types";
 
 export const repairsApi = {
-  // STAFF (admin/reception)
   async create(payload: CreateRepairOrderPayload): Promise<RepairOrderRead> {
     const res = await http.post("/api/repair-orders", payload);
     return res.data;
@@ -26,7 +26,6 @@ export const repairsApi = {
     return res.data;
   },
 
-  // ✅ same return type, but no GlobalLoadingOverlay
   async listSilent(params: {
     page?: number;
     limit?: number;
@@ -50,7 +49,6 @@ export const repairsApi = {
     return res.data;
   },
 
-  // TECHNICIAN
   async technicianList(params: {
     page?: number;
     limit?: number;
@@ -60,14 +58,11 @@ export const repairsApi = {
     return res.data;
   },
 
-  // (optional) also add technicianListSilent if you have a search box there later
-
   async technicianUpdateStatus(id: number, payload: UpdateStatusPayload): Promise<RepairOrderRead> {
     const res = await http.patch(`/api/technician/repair-orders/${id}/status`, payload);
     return res.data;
   },
 
-  // EPIC 6
   async generateTicket(id: number): Promise<TicketResponse> {
     const res = await http.post(`/api/repair-orders/${id}/ticket`);
     return res.data;
@@ -75,6 +70,29 @@ export const repairsApi = {
 
   async sendTicket(id: number): Promise<{ message: string }> {
     const res = await http.post(`/api/repair-orders/${id}/ticket/send`);
+    return res.data;
+  },
+
+  async listTickets(id: number): Promise<TicketRead[]> {
+    const res = await http.get(`/api/repair-orders/${id}/tickets`, {
+      meta: { skipLoading: true },
+    } as any);
+    return res.data;
+  },
+
+  async viewTicketBlob(ticketId: number): Promise<Blob> {
+    const res = await http.get(`/api/tickets/${ticketId}/view`, {
+      responseType: "blob",
+      meta: { skipLoading: true },
+    } as any);
+    return res.data;
+  },
+
+  async downloadTicketBlob(ticketId: number): Promise<Blob> {
+    const res = await http.get(`/api/tickets/${ticketId}/download`, {
+      responseType: "blob",
+      meta: { skipLoading: true },
+    } as any);
     return res.data;
   },
 };
