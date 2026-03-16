@@ -20,7 +20,6 @@ import MyProfilePage from "./features/profile/pages/MyProfilePage";
 
 import ClientsListPage from "./features/clients/pages/ClientsListPage";
 import ClientCreatePage from "./features/clients/pages/ClientCreatePage";
-import ClientShowPage from "./features/clients/pages/ClientShowPage";
 import ClientEditPage from "./features/clients/pages/ClientEditPage";
 
 import EquipmentTypesPage from "./features/equipment/pages/EquipmentTypesPage";
@@ -66,7 +65,6 @@ export default function App() {
           <Route path="users/:id/edit" element={<UserEditPage />} />
           <Route path="clients" element={<ClientsListPage />} />
           <Route path="clients/new" element={<ClientCreatePage />} />
-          <Route path="clients/:id" element={<ClientShowPage />} />
           <Route path="clients/:id/edit" element={<ClientEditPage />} />
           <Route path="equipment/types" element={<EquipmentTypesPage />} />
           <Route path="equipment/types/:typeId/brands" element={<EquipmentBrandsPage />} />

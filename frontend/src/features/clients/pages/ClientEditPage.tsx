@@ -35,7 +35,6 @@ export default function ClientEditPage() {
       }}
     >
       <div style={{ width: "100%", maxWidth: 720 }}>
-        {/* Header with Retour */}
         <div
           style={{
             display: "flex",
@@ -57,7 +56,6 @@ export default function ClientEditPage() {
             <h2 style={{ margin: 0 }}>Modifier le client</h2>
           </div>
 
-          {/* spacer to keep title centered */}
           <div style={{ width: 80 }} />
         </div>
 
@@ -65,11 +63,12 @@ export default function ClientEditPage() {
           mode="edit"
           initial={client}
           onSubmit={async (payload) => {
-            const updated = await clientsApi.update(
-              clientId,
-              payload as UpdateClientPayload,
-            );
-            navigate(`/admin/clients/${updated.id}`);
+            await clientsApi.update(clientId, payload as UpdateClientPayload);
+            navigate("/admin/clients", {
+              state: {
+                success: "Client modifié avec succès.",
+              },
+            });
           }}
         />
       </div>

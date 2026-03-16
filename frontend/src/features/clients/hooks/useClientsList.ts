@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { clientsApi } from "../clients.api";
 import type { ClientsListResponse } from "../clients.types";
 
@@ -7,32 +7,40 @@ export function useClientsList(phone: string, page: number, limit: number) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const key = useMemo(() => `${phone}|${page}|${limit}`, [phone, page, limit]);
+  const [nonce, setNonce] = useState(0);
+  const reqId = useRef(0);
+
+  const key = useMemo(
+    () => `${phone}|${page}|${limit}|${nonce}`,
+    [phone, page, limit, nonce]
+  );
 
   useEffect(() => {
-    let alive = true;
+    const current = ++reqId.current;
+
     setLoading(true);
     setError(null);
 
     clientsApi
       .listSilent({ phone: phone || undefined, page, limit })
       .then((res) => {
-        if (!alive) return;
+        if (current !== reqId.current) return;
         setData(res);
       })
       .catch(() => {
-        if (!alive) return;
+        if (current !== reqId.current) return;
         setError("Impossible de charger la liste des clients.");
       })
       .finally(() => {
-        if (!alive) return;
-        setLoading(false);
+        if (current === reqId.current) setLoading(false);
       });
-
-    return () => {
-      alive = false;
-    };
   }, [key]);
 
-  return { data, loading, error, refresh: () => setData(null) };
+  return {
+    data,
+    loading,
+    error,
+    refresh: () => setNonce((n) => n + 1),
+    setData,
+  };
 }

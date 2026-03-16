@@ -1,11 +1,26 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import ClientsTable from "../components/ClientsTable";
 import { useClientsList } from "../hooks/useClientsList";
 import { clientsApi } from "../clients.api";
 import type { ClientRead } from "../clients.types";
 import { UserPlus } from "lucide-react";
 import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
+
+function mapApiError(e: any): string {
+  const s = e?.response?.status;
+  if (s === 401) return "Session expirée. Reconnecte-toi.";
+  if (s === 403) return "Accès interdit (droits insuffisants).";
+  if (s === 404) return "Client introuvable.";
+  if (s === 409) return e?.response?.data?.message ?? "Conflit.";
+  if (s === 422) return "Validation échouée.";
+  return "Erreur serveur.";
+}
+
+type FlashState = {
+  success?: string;
+  error?: string;
+} | null;
 
 type BottomPaginationProps = {
   page: number;
@@ -92,24 +107,65 @@ function BottomPagination({
 }
 
 export default function ClientsListPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [phone, setPhone] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const { data, loading, error } = useClientsList(phone, page, limit);
+  const { data, loading, error, refresh } = useClientsList(phone, page, limit);
 
   const totalPages = useMemo(() => {
     if (!data) return 1;
     return Math.max(1, Math.ceil(data.total / data.limit));
   }, [data]);
 
+  const [flash, setFlash] = useState<{
+    id: number;
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  function showFlash(type: "success" | "error", text: string) {
+    const id = Date.now();
+    setFlash({ id, type, text });
+    setTimeout(() => {
+      setFlash((cur) => (cur?.id === id ? null : cur));
+    }, 5000);
+  }
+
+  useEffect(() => {
+    const state = location.state as FlashState;
+
+    if (state?.success) {
+      showFlash("success", state.success);
+      navigate(location.pathname, { replace: true });
+      return;
+    }
+
+    if (state?.error) {
+      showFlash("error", state.error);
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.state, location.pathname, navigate]);
+
   const [anonymizing, setAnonymizing] = useState<ClientRead | null>(null);
 
   async function anonymize() {
     if (!anonymizing) return;
-    await clientsApi.anonymize(anonymizing.id);
+
+    const client = anonymizing;
     setAnonymizing(null);
-    window.location.reload();
+
+    try {
+      await clientsApi.anonymize(client.id);
+      showFlash("success", "Client anonymisé (RGPD).");
+      refresh();
+    } catch (e: any) {
+      showFlash("error", mapApiError(e));
+      refresh();
+    }
   }
 
   return (
@@ -150,7 +206,12 @@ export default function ClientsListPage() {
         }}
       >
         <div
-          style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexWrap: "wrap",
+          }}
         >
           <input
             className="input"
@@ -187,8 +248,24 @@ export default function ClientsListPage() {
         </div>
       </div>
 
+      {flash && (
+        <div
+          className="small"
+          style={{
+            color:
+              flash.type === "success"
+                ? "var(--success)"
+                : "var(--danger)",
+          }}
+        >
+          {flash.text}
+        </div>
+      )}
+
       {loading && <div className="small">Chargement...</div>}
-      {error && <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>}
+      {error && (
+        <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>
+      )}
 
       {data && (
         <>

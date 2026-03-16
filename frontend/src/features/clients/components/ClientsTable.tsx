@@ -59,9 +59,9 @@ export default function ClientsTable({
                 }}
                 title={`${c.lastName} ${c.firstName}`}
               >
-                <Link to={`/admin/clients/${c.id}`} style={{ color: "var(--primary)" }}>
+                <div style={{ color: "var(--primary)" }}>
                   {c.lastName} {c.firstName}
-                </Link>
+                </div>
                 {c.isAnonymized && <span className="small"> — anonymisé</span>}
               </td>
 

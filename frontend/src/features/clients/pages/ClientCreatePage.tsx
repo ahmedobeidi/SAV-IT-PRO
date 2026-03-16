@@ -19,7 +19,6 @@ export default function ClientCreatePage() {
       }}
     >
       <div style={{ width: "100%", maxWidth: 720 }}>
-        {/* Header with Retour */}
         <div
           style={{
             display: "flex",
@@ -41,15 +40,18 @@ export default function ClientCreatePage() {
             <h2 style={{ margin: 0 }}>Créer un client</h2>
           </div>
 
-          {/* spacer to keep title centered */}
           <div style={{ width: 80 }} />
         </div>
 
         <ClientForm
           mode="create"
           onSubmit={async (payload) => {
-            const created = await clientsApi.create(payload as CreateClientPayload);
-            navigate(`/admin/clients/${created.id}`);
+            await clientsApi.create(payload as CreateClientPayload);
+            navigate("/admin/clients", {
+              state: {
+                success: "Client créé avec succès.",
+              },
+            });
           }}
         />
       </div>
