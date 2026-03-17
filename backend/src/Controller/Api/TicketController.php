@@ -26,10 +26,13 @@ class TicketController extends AbstractController
     #[Route('/repair-orders/{id}/ticket', methods: ['POST'])]
     public function generate(RepairOrder $repairOrder): JsonResponse
     {
-        /** @var User $actor */
-        $actor = $this->getUser();
+        // This endpoint is deprecated - tickets are now generated automatically
+        // Return the existing ticket if it exists
+        $ticket = $this->ticketService->getForRepairOrder($repairOrder);
 
-        $ticket = $this->ticketService->generateTicket($actor, $repairOrder);
+        if (!$ticket) {
+            return $this->json(['message' => 'Aucun ticket n\'a p\u00fb \u00eatre g\u00e9n\u00e9r\u00e9.'], 500);
+        }
 
         return $this->json([
             'ticketId' => $ticket->getId(),
@@ -47,9 +50,9 @@ class TicketController extends AbstractController
         /** @var User $actor */
         $actor = $this->getUser();
 
-        $ticket = $this->ticketService->latestForRepairOrder($repairOrder);
+        $ticket = $this->ticketService->getForRepairOrder($repairOrder);
         if (!$ticket) {
-            return $this->json(['message' => 'Aucun ticket généré pour cet ordre.'], 404);
+            return $this->json(['message' => 'Aucun ticket g\u00e9n\u00e9r\u00e9 pour cet ordre.'], 404);
         }
 
         $this->ticketEmailService->sendTicketToClient(
@@ -60,30 +63,32 @@ class TicketController extends AbstractController
 
         $this->ticketService->markAsSent($actor, $repairOrder, $ticket);
 
-        return $this->json(['message' => 'Ticket envoyé au client.']);
+        return $this->json(['message' => 'Ticket envoy\u00e9 au client.']);
     }
 
     #[Route('/repair-orders/{id}/tickets', methods: ['GET'])]
     public function listForRepairOrder(RepairOrder $repairOrder): JsonResponse
     {
-        $tickets = $this->ticketService->listForRepairOrder($repairOrder);
+        $ticket = $this->ticketService->getForRepairOrder($repairOrder);
 
-        $items = array_map(static function (Ticket $t) {
-            return [
-                'id' => $t->getId(),
-                'filename' => $t->getFilename(),
-                'mimeType' => $t->getMimeType(),
-                'size' => $t->getSize(),
-                'version' => $t->getVersion(),
-                'generatedAt' => $t->getGeneratedAt()->format(DATE_ATOM),
-                'isSent' => $t->isSent(),
-                'sentAt' => $t->getSentAt()?->format(DATE_ATOM),
-                'viewUrl' => '/api/tickets/' . $t->getId() . '/view',
-                'downloadUrl' => '/api/tickets/' . $t->getId() . '/download',
-            ];
-        }, $tickets);
+        if (!$ticket) {
+            return $this->json([]);
+        }
 
-        return $this->json($items);
+        $item = [
+            'id' => $ticket->getId(),
+            'filename' => $ticket->getFilename(),
+            'mimeType' => $ticket->getMimeType(),
+            'size' => $ticket->getSize(),
+            'version' => $ticket->getVersion(),
+            'generatedAt' => $ticket->getGeneratedAt()->format(DATE_ATOM),
+            'isSent' => $ticket->isSent(),
+            'sentAt' => $ticket->getSentAt()?->format(DATE_ATOM),
+            'viewUrl' => '/api/tickets/' . $ticket->getId() . '/view',
+            'downloadUrl' => '/api/tickets/' . $ticket->getId() . '/download',
+        ];
+
+        return $this->json([$item]);
     }
 
     #[Route('/tickets/{id}/view', methods: ['GET'])]

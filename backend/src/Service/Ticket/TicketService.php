@@ -23,8 +23,12 @@ class TicketService
 
     public function generateTicket(User $actor, RepairOrder $repairOrder): Ticket
     {
-        $version = $this->ticketRepository->nextVersionForRepairOrder($repairOrder);
-        $pdf = $this->pdfService->generatePdf($repairOrder, $version);
+        // Prevent ticket regeneration - only one ticket per repair order
+        if ($this->ticketRepository->existsForRepairOrder($repairOrder)) {
+            throw new \DomainException('Un ticket existe déjà pour cet ordre de réparation.');
+        }
+
+        $pdf = $this->pdfService->generatePdf($repairOrder, 1);
         $stored = $this->storageService->save($pdf['filename'], $pdf['content']);
 
         $ticket = new Ticket();
@@ -34,7 +38,7 @@ class TicketService
         $ticket->setMimeType($pdf['mime']);
         $ticket->setSize($stored['size']);
         $ticket->setStoragePath($stored['storagePath']);
-        $ticket->setVersion($version);
+        $ticket->setVersion(1);
         $ticket->setIsSent(false);
 
         $this->em->persist($ticket);
@@ -65,16 +69,8 @@ class TicketService
         $this->em->flush();
     }
 
-    /**
-     * @return Ticket[]
-     */
-    public function listForRepairOrder(RepairOrder $repairOrder): array
+    public function getForRepairOrder(RepairOrder $repairOrder): ?Ticket
     {
-        return $this->ticketRepository->findByRepairOrderNewestFirst($repairOrder);
-    }
-
-    public function latestForRepairOrder(RepairOrder $repairOrder): ?Ticket
-    {
-        return $this->ticketRepository->findLatestByRepairOrder($repairOrder);
+        return $this->ticketRepository->findByRepairOrder($repairOrder);
     }
 }

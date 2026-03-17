@@ -1,6 +1,153 @@
 import RepairStatusBadge from "./RepairStatusBadge";
-import TicketActions from "./TicketActions";
 import type { RepairOrderRead } from "../repairs.types";
+import { Eye, Send, UserPlus, RefreshCw } from "lucide-react";
+import { useTicketActions } from "../hooks/useTicketActions";
+
+const headCellStyle: React.CSSProperties = {
+  padding: "16px 12px",
+  borderBottom: "1px solid var(--border)",
+  textAlign: "left",
+};
+
+const cellStyle: React.CSSProperties = {
+  padding: "20px 12px",
+  borderBottom: "1px solid var(--border)",
+  verticalAlign: "middle",
+};
+
+function RepairRow({
+  r,
+  mode,
+  onAssign,
+  onUpdateStatus,
+  onRefresh,
+}: {
+  r: RepairOrderRead;
+  mode: "staff" | "tech";
+  onAssign: (repair: RepairOrderRead) => void;
+  onUpdateStatus: (repair: RepairOrderRead) => void;
+  onRefresh: () => void;
+}) {
+  const { ticket, loadingTicket, msg, openTicket, send } = useTicketActions(
+    r.id,
+    onRefresh
+  );
+
+  return (
+    <tr>
+      <td style={cellStyle}>
+        <div style={{ color: "var(--primary)" }}>{r.reference}</div>
+        <div className="small">
+          {r.createdAt ? new Date(r.createdAt).toLocaleString("fr-FR") : ""}
+        </div>
+      </td>
+
+      <td style={cellStyle}>
+        <div>
+          {r.createdFor.lastName} {r.createdFor.firstName}
+        </div>
+        <div className="small">{r.createdFor.phone}</div>
+      </td>
+
+      <td style={cellStyle}>
+        <div className="small">{r.equipmentModel?.name ?? "-"}</div>
+      </td>
+
+      <td style={cellStyle}>
+        <div className="small">{r.issue?.name ?? "-"}</div>
+      </td>
+
+      <td style={cellStyle}>
+        <RepairStatusBadge status={r.status} />
+      </td>
+
+      <td style={cellStyle}>
+        <span className="small">
+          {r.assignedTo
+            ? `${r.assignedTo.lastName ?? ""} ${r.assignedTo.firstName}`
+            : "-"}
+        </span>
+      </td>
+
+      <td style={cellStyle}>
+        {loadingTicket ? (
+          <span className="small">Chargement...</span>
+        ) : ticket ? (
+          <span className="small" style={{ fontWeight: 600 }}>
+            {ticket.isSent ? "Envoyé" : "Non envoyé"}
+          </span>
+        ) : (
+          <span className="small">Aucun ticket</span>
+        )}
+
+        {msg && (
+          <div className="small" style={{ marginTop: 6 }}>
+            {msg}
+          </div>
+        )}
+      </td>
+
+      <td
+        style={{
+          ...cellStyle,
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <button
+            className="btn"
+            onClick={openTicket}
+            disabled={!ticket}
+            title="Ouvrir"
+            aria-label="Ouvrir"
+          >
+            <Eye size={18} />
+          </button>
+
+          {mode === "staff" && (
+            <button
+              className="btn"
+              onClick={() => onAssign(r)}
+              title="Affecter"
+              aria-label="Affecter"
+            >
+              <UserPlus size={18} />
+            </button>
+          )}
+
+          <button
+            className="btn"
+            onClick={() => onUpdateStatus(r)}
+            title="Statut"
+            aria-label="Statut"
+          >
+            <RefreshCw size={18} />
+          </button>
+
+          {mode === "staff" && (
+            <button
+              className="btn"
+              onClick={send}
+              disabled={!ticket || ticket.isSent}
+              title="Envoyer au client"
+              aria-label="Envoyer au client"
+            >
+              <Send size={18} />
+            </button>
+          )}
+        </div>
+      </td>
+    </tr>
+  );
+}
 
 export default function RepairOrdersTable({
   items,
@@ -19,9 +166,24 @@ export default function RepairOrdersTable({
     <div className="card" style={{ padding: 12, overflowX: "auto" }}>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
-          <tr style={{ textAlign: "left" }}>
-            {["Référence", "Client", "Équipement", "Panne", "Statut", "Technicien", "Actions"].map((h) => (
-              <th key={h} style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
+          <tr>
+            {[
+              "Référence",
+              "Client",
+              "Équipement",
+              "Panne",
+              "Statut",
+              "Technicien",
+              "Ticket",
+              "Actions",
+            ].map((h) => (
+              <th
+                key={h}
+                style={{
+                  ...headCellStyle,
+                  textAlign: h === "Actions" ? "center" : "left",
+                }}
+              >
                 <span className="small">{h}</span>
               </th>
             ))}
@@ -30,58 +192,14 @@ export default function RepairOrdersTable({
 
         <tbody>
           {items.map((r) => (
-            <tr key={r.id}>
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
-                <div style={{ fontWeight: 700 }}>{r.reference}</div>
-                <div className="small">
-                  {r.createdAt ? new Date(r.createdAt).toLocaleString("fr-FR") : ""}
-                </div>
-              </td>
-
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
-                <div style={{ fontWeight: 600 }}>
-                  {r.createdFor.lastName} {r.createdFor.firstName}
-                </div>
-                <div className="small">{r.createdFor.phone}</div>
-              </td>
-
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
-                <div style={{ fontWeight: 600 }}>{r.equipmentModel?.name ?? "-"}</div>
-              </td>
-
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
-                <div className="small">{r.issue?.name ?? "-"}</div>
-              </td>
-
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
-                <RepairStatusBadge status={r.status} />
-              </td>
-
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
-                <span className="small">
-                  {r.assignedTo ? `${r.assignedTo.lastName ?? ""} ${r.assignedTo.firstName}` : "-"}
-                </span>
-              </td>
-
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)" }}>
-                <div style={{ display: "grid", gap: 10 }}>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    {mode === "staff" && (
-                      <button className="btn" onClick={() => onAssign(r)}>
-                        Affecter
-                      </button>
-                    )}
-                    <button className="btn" onClick={() => onUpdateStatus(r)}>
-                      Statut
-                    </button>
-                  </div>
-
-                  {mode === "staff" && (
-                    <TicketActions repairId={r.id} onDone={onRefresh} />
-                  )}
-                </div>
-              </td>
-            </tr>
+            <RepairRow
+              key={r.id}
+              r={r}
+              mode={mode}
+              onAssign={onAssign}
+              onUpdateStatus={onUpdateStatus}
+              onRefresh={onRefresh}
+            />
           ))}
         </tbody>
       </table>

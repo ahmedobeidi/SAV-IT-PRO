@@ -39,14 +39,24 @@ class TicketRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findLatestByRepairOrder(RepairOrder $repairOrder): ?Ticket
+    public function findByRepairOrder(RepairOrder $repairOrder): ?Ticket
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.repairOrder = :repair')
             ->setParameter('repair', $repairOrder)
-            ->orderBy('t.generatedAt', 'DESC')
-            ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    public function existsForRepairOrder(RepairOrder $repairOrder): bool
+    {
+        $result = $this->createQueryBuilder('t')
+            ->select('COUNT(t.id)')
+            ->andWhere('t.repairOrder = :repair')
+            ->setParameter('repair', $repairOrder)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int)$result > 0;
     }
 }

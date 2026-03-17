@@ -13,6 +13,7 @@ use App\Enum\RepairOrderLogAction;
 use App\Enum\RepairOrderStatus;
 use App\Enum\UserRole;
 use App\Repository\EquipmentModelRepository;
+use App\Service\Ticket\TicketService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class RepairOrderService
@@ -22,6 +23,7 @@ class RepairOrderService
         private EquipmentModelRepository $equipmentModelRepo,
         private RepairOrderLogFactory $logFactory,
         private RepairOrderReferenceGenerator $referenceGenerator,
+        private TicketService $ticketService,
     ) {}
 
     public function create(User $actor, CreateRepairOrderRequest $dto): RepairOrder
@@ -58,6 +60,15 @@ class RepairOrderService
         $this->addLog($r, $actor, RepairOrderLogAction::CREATED);
 
         $this->em->flush();
+
+        // Automatically generate ticket for the new repair order
+        try {
+            $this->ticketService->generateTicket($actor, $r);
+        } catch (\DomainException $e) {
+            // If ticket generation fails, log the error but don't fail the repair order creation
+            error_log('Ticket generation failed for repair order ' . $r->getId() . ': ' . $e->getMessage());
+        }
+
         return $r;
     }
 
