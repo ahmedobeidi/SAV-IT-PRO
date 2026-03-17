@@ -32,18 +32,16 @@ class RepairOrderRepository extends ServiceEntityRepository
         if ($search) {
             $search = trim($search);
             $q = '%' . mb_strtolower($search) . '%';
-            $phoneQ = '%' . preg_replace('/\s+/', '', $search) . '%';
 
             $qb->andWhere(
                 'LOWER(c.firstName) LIKE :q
                  OR LOWER(c.lastName) LIKE :q
                  OR LOWER(CONCAT(c.firstName, \' \', c.lastName)) LIKE :q
                  OR LOWER(CONCAT(c.lastName, \' \', c.firstName)) LIKE :q
-                 OR REPLACE(c.phone, \' \', \'\') LIKE :phoneQ
+                 OR c.phone LIKE :q
                  OR LOWER(r.reference) LIKE :q'
             )
-            ->setParameter('q', $q)
-            ->setParameter('phoneQ', $phoneQ);
+            ->setParameter('q', $q);
         }
 
         $countQb = clone $qb;
