@@ -1,14 +1,8 @@
 import type { RepairStatus } from "../repairs.types";
+import { getStatusLabel } from "../utils/statusTranslations";
 
 export default function RepairStatusBadge({ status }: { status: RepairStatus }) {
-  const label =
-    status === "CREATED" ? "Créé" :
-    status === "ASSIGNED" ? "Assigné" :
-    status === "IN_PROGRESS" ? "En cours" :
-    status === "WAITING_PARTS" ? "Attente pièces" :
-    status === "DONE" ? "Terminé" :
-    status === "DELIVERED" ? "Livré" :
-    "Annulé";
+  const label = getStatusLabel(status);
 
   return (
     <span

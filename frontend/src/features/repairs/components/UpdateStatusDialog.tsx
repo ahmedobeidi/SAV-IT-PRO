@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { RepairStatus } from "../repairs.types";
+import { getStatusLabel } from "../utils/statusTranslations";
 
 const ALL: RepairStatus[] = [
   "CREATED","ASSIGNED","IN_PROGRESS","WAITING_PARTS","DONE","DELIVERED","CANCELED"
@@ -42,7 +43,7 @@ export default function UpdateStatusDialog({
 
         <select className="input" value={status} onChange={(e) => setStatus(e.target.value as RepairStatus)}>
           {options.map((s) => (
-            <option key={s} value={s}>{s}</option>
+            <option key={s} value={s}>{getStatusLabel(s)}</option>
           ))}
         </select>
 

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useUsersList } from "../../users/hooks/useUsersList";
 
 export default function AssignTechnicianDialog({
   open,
@@ -11,6 +12,17 @@ export default function AssignTechnicianDialog({
 }) {
   const [technicianId, setTechnicianId] = useState("");
   const [loading, setLoading] = useState(false);
+  
+  // Fetch all technicians
+  const { data: usersData, loading: usersLoading } = useUsersList("", 1, 1000);
+  const technicians = usersData?.items.filter(u => u.role === "ROLE_TECHNICIAN") || [];
+
+  // Reset selection when dialog opens
+  useEffect(() => {
+    if (open) {
+      setTechnicianId("");
+    }
+  }, [open]);
 
   if (!open) return null;
 
@@ -29,21 +41,28 @@ export default function AssignTechnicianDialog({
       <div className="card" style={{ width: "100%", maxWidth: 520, padding: 16 }}>
         <div style={{ fontWeight: 700, marginBottom: 6 }}>Affecter un technicien</div>
         <div className="small" style={{ marginBottom: 10 }}>
-          Temporaire: saisis l’ID du technicien.
+          Sélectionnez un technicien dans la liste.
         </div>
 
-        <input
+        <select
           className="input"
-          placeholder="Technician ID"
           value={technicianId}
           onChange={(e) => setTechnicianId(e.target.value)}
-        />
+          disabled={usersLoading}
+        >
+          <option value="">-- Sélectionner un technicien --</option>
+          {technicians.map((tech) => (
+            <option key={tech.id} value={tech.id}>
+              {tech.lastName} {tech.firstName}
+            </option>
+          ))}
+        </select>
 
         <div style={{ display: "flex", gap: 10, justifyContent: "end", marginTop: 12 }}>
           <button className="btn" onClick={onClose}>Annuler</button>
           <button
             className="btn btn-primary"
-            disabled={loading}
+            disabled={loading || !technicianId}
             onClick={async () => {
               const id = Number(technicianId);
               if (!id) return;

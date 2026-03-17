@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useRepairOrdersList } from "../hooks/useRepairOrdersList";
 import type { RepairOrderRead, RepairStatus } from "../repairs.types";
@@ -7,6 +7,7 @@ import AssignTechnicianDialog from "../components/AssignTechnicianDialog";
 import UpdateStatusDialog from "../components/UpdateStatusDialog";
 import { repairsApi } from "../repairs.api";
 import { mapApiError } from "../repairs.validators";
+import { getStatusLabel } from "../utils/statusTranslations";
 
 const STATUS: Array<RepairStatus | ""> = [
   "",
@@ -107,18 +108,29 @@ export default function RepairOrdersListPage() {
     return Math.max(1, Math.ceil(data.total / data.limit));
   }, [data]);
 
-  const [toast, setToast] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [assignTarget, setAssignTarget] = useState<RepairOrderRead | null>(null);
   const [statusTarget, setStatusTarget] = useState<RepairOrderRead | null>(null);
+
+  // auto-hide success message after 5 seconds
+  useEffect(() => {
+    if (!successMessage) return;
+
+    const timer = setTimeout(() => {
+      setSuccessMessage(null);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [successMessage]);
 
   async function assign(technicianId: number) {
     if (!assignTarget) return;
     try {
       await repairsApi.assign(assignTarget.id, { technicianId });
-      setToast("Technicien affecté.");
+      setSuccessMessage("Technicien affecté.");
       refresh();
     } catch (e: any) {
-      setToast(mapApiError(e));
+      setSuccessMessage(mapApiError(e));
     }
   }
 
@@ -126,10 +138,10 @@ export default function RepairOrdersListPage() {
     if (!statusTarget) return;
     try {
       await repairsApi.staffUpdateStatus(statusTarget.id, { status: newStatus });
-      setToast("Statut mis à jour.");
+      setSuccessMessage("Statut mis à jour.");
       refresh();
     } catch (e: any) {
-      setToast(mapApiError(e));
+      setSuccessMessage(mapApiError(e));
     }
   }
 
@@ -179,7 +191,7 @@ export default function RepairOrdersListPage() {
         >
           {STATUS.map((s) => (
             <option key={s || "ALL"} value={s}>
-              {s ? s : "Tous statuts"}
+              {s ? getStatusLabel(s) : "Tous statuts"}
             </option>
           ))}
         </select>
@@ -205,12 +217,9 @@ export default function RepairOrdersListPage() {
         </button>
       </div>
 
-      {toast && (
-        <div className="card" style={{ padding: 12 }}>
-          <div className="small">{toast}</div>
-          <div style={{ marginTop: 8 }}>
-            <button className="btn" onClick={() => setToast(null)}>OK</button>
-          </div>
+      {successMessage && (
+        <div style={{ color: "var(--success)", fontSize: 13, marginBottom: 0 }}>
+          {successMessage}
         </div>
       )}
 
