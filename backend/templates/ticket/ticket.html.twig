@@ -2,11 +2,12 @@
 <html lang="fr">
 	<head>
 		<meta charset="UTF-8">
-		<title>Ticket de réparation {{ repair.reference }}</title>
+		<title>Ticket de réparation
+			{{ repair.reference }}</title>
 
 		<style>
 			@page {
-				margin: 28px 24px 24px 24px;
+				margin: 28px 24px 24px;
 			}
 
 			body {
@@ -46,7 +47,7 @@
 			}
 
 			.logo {
-				height: 56px;
+				height: 70px;
 				margin-bottom: 8px;
 			}
 
@@ -54,7 +55,7 @@
 				font-size: 22px;
 				font-weight: bold;
 				color: #111827;
-				margin: 0 0 4px 0;
+				margin: 0 0 4px;
 			}
 
 			.company-meta {
@@ -67,7 +68,7 @@
 				font-size: 20px;
 				font-weight: bold;
 				color: #111827;
-				margin: 0 0 8px 0;
+				margin: 0 0 8px;
 			}
 
 			.reference-box {
@@ -211,7 +212,6 @@
 
 							<div class="company-name">IT-PRO</div>
 							<p class="company-meta">Ticket SAV — Prise en charge réparation</p>
-							<p class="company-meta">Document généré automatiquement</p>
 						</td>
 
 						<td class="header-right">
@@ -220,93 +220,36 @@
 
 							<div class="meta">
 								Date de création :
-								{{ repair.createdAt|date('d/m/Y H:i') }}<br>
-								Généré le :
-								{{ generatedAt|date('d/m/Y H:i') }}
+								{{ repair.createdAt|date('d/m/Y H:i') }}
 							</div>
 						</td>
 					</tr>
 				</table>
 			</div>
 
-			<table class="two-cols">
-				<tr>
-					<td class="col">
-						<div class="section">
-							<div class="section-title">Informations client</div>
 
-							<table class="info-table">
-								<tr>
-									<td class="label">Nom complet</td>
-									<td class="value">
-										{{ repair.createdFor.firstName }}
-										{{ repair.createdFor.lastName }}
-									</td>
-								</tr>
-								<tr>
-									<td class="label">Téléphone</td>
-									<td class="value">{{ repair.createdFor.phone ?: '-' }}</td>
-								</tr>
-								<tr>
-									<td class="label">Email</td>
-									<td class="value">{{ repair.createdFor.email ?: '-' }}</td>
-								</tr>
-							</table>
-						</div>
-					</td>
+			<div class="section">
+				<div class="section-title">Informations client</div>
 
-					<td class="col">
-						<div class="section">
-							<div class="section-title">Informations dossier</div>
+				<table class="info-table">
+					<tr>
+						<td class="label">Nom complet</td>
+						<td class="value">
+							{{ repair.createdFor.firstName }}
+							{{ repair.createdFor.lastName }}
+						</td>
+					</tr>
+					<tr>
+						<td class="label">Téléphone</td>
+						<td class="value">{{ repair.createdFor.phone ?: '-' }}</td>
+					</tr>
+					<tr>
+						<td class="label">Email</td>
+						<td class="value">{{ repair.createdFor.email ?: '-' }}</td>
+					</tr>
+				</table>
+			</div>
 
-							<table class="info-table">
-								<tr>
-									<td class="label">Statut</td>
-									<td class="value">
-										<span class="status-badge">
-											{% if repair.status.value == 'CREATED' %}
-												Créé
-											{% elseif repair.status.value == 'ASSIGNED' %}
-												Assigné
-											{% elseif repair.status.value == 'IN_PROGRESS' %}
-												En cours
-											{% elseif repair.status.value == 'WAITING_PARTS' %}
-												Attente pièces
-											{% elseif repair.status.value == 'DONE' %}
-												Terminé
-											{% elseif repair.status.value == 'DELIVERED' %}
-												Livré
-											{% elseif repair.status.value == 'CANCELED' %}
-												Annulé
-											{% else %}
-												{{ repair.status.value }}
-											{% endif %}
-										</span>
-									</td>
-								</tr>
-								<tr>
-									<td class="label">Créé par</td>
-									<td class="value">
-										{{ repair.createdBy.firstName }}
-										{{ repair.createdBy.lastName }}
-									</td>
-								</tr>
-								<tr>
-									<td class="label">Technicien</td>
-									<td class="value">
-										{% if repair.assignedTo %}
-											{{ repair.assignedTo.firstName }}
-											{{ repair.assignedTo.lastName }}
-										{% else %}
-											-
-										{% endif %}
-									</td>
-								</tr>
-							</table>
-						</div>
-					</td>
-				</tr>
-			</table>
 
 			<div class="section">
 				<div class="section-title">Équipement et panne déclarée</div>
@@ -333,17 +276,20 @@
 						<th>Reste estimé</th>
 					</tr>
 					<tr>
-						<td>{{ repair.price|number_format(2, ',', ' ') }} €</td>
+						<td>{{ repair.price|number_format(2, ',', ' ') }}
+							€</td>
 						<td>
 							{% if repair.deposit is not null %}
-								{{ repair.deposit|number_format(2, ',', ' ') }} €
+								{{ repair.deposit|number_format(2, ',', ' ') }}
+								€
 							{% else %}
 								0,00 €
 							{% endif %}
 						</td>
 						<td>
 							{% set depositValue = repair.deposit is not null ? repair.deposit : 0 %}
-							{{ (repair.price - depositValue)|number_format(2, ',', ' ') }} €
+							{{ (repair.price - depositValue)|number_format(2, ',', ' ') }}
+							€
 						</td>
 					</tr>
 				</table>
@@ -362,7 +308,9 @@
 			</div>
 
 			<div class="footer">
-				© {{ "now"|date("Y") }} SAV-IT-PRO — IT-PRO<br>
+				©
+				{{ "now"|date("Y") }}
+				SAV-IT-PRO — IT-PRO<br>
 				Référence dossier :
 				<strong>{{ repair.reference }}</strong>
 			</div>

@@ -103,7 +103,7 @@ function RepairRow({
           }}
         >
           <button
-            className="btn"
+            className="btn hover-bg-primary"
             onClick={openTicket}
             disabled={!ticket}
             title="Ouvrir"
@@ -114,7 +114,7 @@ function RepairRow({
 
           {mode === "staff" && (
             <button
-              className="btn"
+              className="btn hover-bg-primary"
               onClick={() => onAssign(r)}
               title="Affecter"
               aria-label="Affecter"
@@ -124,7 +124,7 @@ function RepairRow({
           )}
 
           <button
-            className="btn"
+            className="btn hover-bg-primary"
             onClick={() => onUpdateStatus(r)}
             title="Statut"
             aria-label="Statut"
@@ -134,7 +134,7 @@ function RepairRow({
 
           {mode === "staff" && (
             <button
-              className="btn"
+              className="btn hover-bg-primary"
               onClick={send}
               disabled={!ticket || ticket.isSent}
               title="Envoyer au client"
