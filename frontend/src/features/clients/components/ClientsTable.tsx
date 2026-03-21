@@ -123,7 +123,7 @@ export default function ClientsTable({
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", }}>
                   {/* Edit */}
                   <Link
-                    className="btn"
+                    className="btn hover-bg-primary"
                     to={`/admin/clients/${c.id}/edit`}
                     title="Modifier"
                     aria-label="Modifier"
@@ -133,7 +133,7 @@ export default function ClientsTable({
 
                   {/* Anonymize */}
                   <button
-                    className="btn"
+                    className="btn hover-bg-danger"
                     onClick={() => onAnonymize(c)}
                     disabled={c.isAnonymized}
                     title={c.isAnonymized ? "Déjà anonymisé" : "Anonymiser"}

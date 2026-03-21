@@ -15,10 +15,28 @@
   color: #fff;
 }
 
+.hover-bg-primary {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.hover-bg-primary:hover {
+  background-color: var(--primary);
+  color: var(--text);
+}
+
 .btn-danger {
   background: var(--danger);
   border-color: transparent;
   color: #fff;
+}
+
+.hover-bg-danger {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.hover-bg-danger:hover {
+  background-color: var(--danger);
+  color: var(--text);
 }
 
 .btn-success {

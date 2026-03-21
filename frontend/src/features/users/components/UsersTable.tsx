@@ -94,13 +94,13 @@ export default function UsersTable({
               <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top", textAlign: "center", }}>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", }}>
                   {/* Edit */}
-                  <Link className="btn" to={`/admin/users/${u.id}/edit`} title="Modifier" aria-label="Modifier">
+                  <Link className="btn hover-bg-primary" to={`/admin/users/${u.id}/edit`} title="Modifier" aria-label="Modifier">
                     <Pencil size={18} />
                   </Link>
 
                   {/* Block / Unblock */}
                   <button
-                    className="btn"
+                    className="btn hover-bg-primary"
                     onClick={() => onToggleActive(u)}
                     title={u.isActive ? "Bloquer" : "Débloquer"}
                     aria-label={u.isActive ? "Bloquer" : "Débloquer"}
@@ -110,7 +110,7 @@ export default function UsersTable({
 
                   {/* Anonymize */}
                   <button
-                    className="btn"
+                    className="btn hover-bg-danger"
                     onClick={() => onAnonymize(u)}
                     disabled={u.isAnonymized}
                     title={u.isAnonymized ? "Déjà anonymisé" : "Anonymiser"}

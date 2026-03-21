@@ -72,7 +72,7 @@ export default function EquipmentModelTable({
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", }}>
                   {/* Rename */}
                   <button
-                    className="btn"
+                    className="btn hover-bg-primary"
                     onClick={() => onEdit(m)}
                     title="Renommer"
                     aria-label="Renommer"
@@ -82,7 +82,7 @@ export default function EquipmentModelTable({
 
                   {/* Delete */}
                   <button
-                    className="btn"
+                    className="btn hover-bg-danger"
                     onClick={() => onDelete(m)}
                     title="Supprimer"
                     aria-label="Supprimer"

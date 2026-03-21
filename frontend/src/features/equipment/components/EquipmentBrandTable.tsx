@@ -83,7 +83,7 @@ export default function EquipmentBrandTable({
                   }}
                 >
                   <Link
-                    className="btn"
+                    className="btn hover-bg-primary"
                     to={`/admin/equipment/types/${typeId}/brands/${b.id}/models`}
                     title="Modèles"
                     aria-label="Modèles"
@@ -92,7 +92,7 @@ export default function EquipmentBrandTable({
                   </Link>
 
                   <button
-                    className="btn"
+                    className="btn hover-bg-primary"
                     onClick={() => onEdit(b)}
                     title="Renommer"
                     aria-label="Renommer"
@@ -101,7 +101,7 @@ export default function EquipmentBrandTable({
                   </button>
 
                   <button
-                    className="btn"
+                    className="btn hover-bg-danger"
                     onClick={() => onDelete(b)}
                     title="Supprimer"
                     aria-label="Supprimer"

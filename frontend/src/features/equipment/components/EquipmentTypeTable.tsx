@@ -79,7 +79,7 @@ export default function EquipmentTypeTable({
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", }}>
                   {/* Brands */}
                   <Link
-                    className="btn"
+                    className="btn hover-bg-primary"
                     to={`/admin/equipment/types/${t.id}/brands`}
                     title="Marques"
                     aria-label="Marques"
@@ -89,7 +89,7 @@ export default function EquipmentTypeTable({
 
                   {/* Rename */}
                   <button
-                    className="btn"
+                    className="btn hover-bg-primary"
                     onClick={() => onEdit(t)}
                     title="Renommer"
                     aria-label="Renommer"
@@ -99,7 +99,7 @@ export default function EquipmentTypeTable({
 
                   {/* Delete */}
                   <button
-                    className="btn"
+                    className="btn hover-bg-danger"
                     onClick={() => onDelete(t)}
                     title="Supprimer"
                     aria-label="Supprimer"
