@@ -14,48 +14,45 @@ class RepairOrderVoter extends Voter
     public const LIST_ALL = 'REPAIR_LIST_ALL';
     public const ASSIGN = 'REPAIR_ASSIGN';
     public const STAFF_STATUS = 'REPAIR_STAFF_STATUS';
-    public const TECH_LIST = 'REPAIR_TECH_LIST';
-    public const TECH_STATUS = 'REPAIR_TECH_STATUS';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if (in_array($attribute, [self::CREATE, self::LIST_ALL, self::TECH_LIST], true)) {
+        if (in_array($attribute, [self::CREATE, self::LIST_ALL], true)) {
             return true;
         }
 
         return $subject instanceof RepairOrder
-            && in_array($attribute, [self::ASSIGN, self::STAFF_STATUS, self::TECH_STATUS], true);
+            && in_array($attribute, [self::ASSIGN, self::STAFF_STATUS], true);
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
-        if (!$user instanceof User) return false;
+        if (!$user instanceof User) {
+            return false;
+        }
 
         $role = $user->getRole();
 
-        // Staff (SA/ADMIN/RECEPTION)
-        $isStaff = in_array($role, [UserRole::SUPER_ADMIN, UserRole::ADMIN, UserRole::RECEPTION], true);
-        $isAdmin = in_array($role, [UserRole::SUPER_ADMIN, UserRole::ADMIN], true);
-        $isTech  = ($role === UserRole::TECHNICIAN);
+        $isStaff = in_array($role, [
+            UserRole::SUPER_ADMIN,
+            UserRole::ADMIN,
+            UserRole::RECEPTION,
+        ], true);
 
-        if ($attribute === self::CREATE || $attribute === self::LIST_ALL || $attribute === self::STAFF_STATUS) {
-            return $isStaff;
-        }
+        $isAdmin = in_array($role, [
+            UserRole::SUPER_ADMIN,
+            UserRole::ADMIN,
+        ], true);
 
-        if ($attribute === self::ASSIGN) {
-            return $isAdmin;
-        }
+        return match ($attribute) {
+            self::CREATE,
+            self::LIST_ALL,
+            self::STAFF_STATUS => $isStaff,
 
-        if ($attribute === self::TECH_LIST) {
-            return $isTech;
-        }
+            self::ASSIGN => $isAdmin,
 
-        // TECH_STATUS: technicien peut changer le statut seulement si l'ordre lui est assigné
-        if ($attribute === self::TECH_STATUS && $subject instanceof RepairOrder) {
-            return $isTech && $subject->getAssignedTo()?->getId() === $user->getId();
-        }
-
-        return false;
+            default => false,
+        };
     }
 }

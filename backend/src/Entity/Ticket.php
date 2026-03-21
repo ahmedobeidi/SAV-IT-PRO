@@ -3,10 +3,14 @@
 namespace App\Entity;
 
 use App\Repository\TicketRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
+#[ORM\Table(name: 'ticket')]
+#[ORM\UniqueConstraint(name: 'uniq_ticket_repair_version', columns: ['repair_order_id', 'version'])]
 class Ticket
 {
     #[Groups(['ticket:read'])]
@@ -14,6 +18,14 @@ class Ticket
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[ORM\ManyToOne(inversedBy: 'tickets')]
+    #[ORM\JoinColumn(nullable: false)]
+    private RepairOrder $repairOrder;
+
+    #[ORM\ManyToOne(inversedBy: 'tickets')]
+    #[ORM\JoinColumn(nullable: false)]
+    private User $generatedBy;
 
     #[Groups(['ticket:read'])]
     #[ORM\Column(length: 255)]
@@ -35,34 +47,51 @@ class Ticket
     #[ORM\Column]
     private int $version = 1;
 
-    #[ORM\ManyToOne(inversedBy: 'tickets')]
-    #[ORM\JoinColumn(nullable: false)]
-    private RepairOrder $repairOrder;
+    #[ORM\Column(type: 'json')]
+    private array $snapshot = [];
 
-    #[ORM\ManyToOne(inversedBy: 'tickets')]
-    #[ORM\JoinColumn(nullable: false)]
-    private User $generatedBy;
+    #[ORM\Column(length: 64)]
+    private string $snapshotHash;
 
     #[Groups(['ticket:read'])]
     #[ORM\Column]
     private \DateTimeImmutable $generatedAt;
 
-    #[Groups(['ticket:read'])]
-    #[ORM\Column(options: ['default' => false])]
-    private bool $isSent = false;
-
-    #[Groups(['ticket:read'])]
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $sentAt = null;
+    /** @var Collection<int, TicketDelivery> */
+    #[ORM\OneToMany(mappedBy: 'ticket', targetEntity: TicketDelivery::class, orphanRemoval: true)]
+    private Collection $deliveries;
 
     public function __construct()
     {
         $this->generatedAt = new \DateTimeImmutable();
+        $this->deliveries = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getRepairOrder(): RepairOrder
+    {
+        return $this->repairOrder;
+    }
+
+    public function setRepairOrder(RepairOrder $repairOrder): self
+    {
+        $this->repairOrder = $repairOrder;
+        return $this;
+    }
+
+    public function getGeneratedBy(): User
+    {
+        return $this->generatedBy;
+    }
+
+    public function setGeneratedBy(User $generatedBy): self
+    {
+        $this->generatedBy = $generatedBy;
+        return $this;
     }
 
     public function getStoragePath(): string
@@ -120,25 +149,25 @@ class Ticket
         return $this;
     }
 
-    public function getRepairOrder(): RepairOrder
+    public function getSnapshot(): array
     {
-        return $this->repairOrder;
+        return $this->snapshot;
     }
 
-    public function setRepairOrder(RepairOrder $repairOrder): self
+    public function setSnapshot(array $snapshot): self
     {
-        $this->repairOrder = $repairOrder;
+        $this->snapshot = $snapshot;
         return $this;
     }
 
-    public function getGeneratedBy(): User
+    public function getSnapshotHash(): string
     {
-        return $this->generatedBy;
+        return $this->snapshotHash;
     }
 
-    public function setGeneratedBy(User $generatedBy): self
+    public function setSnapshotHash(string $snapshotHash): self
     {
-        $this->generatedBy = $generatedBy;
+        $this->snapshotHash = $snapshotHash;
         return $this;
     }
 
@@ -153,25 +182,21 @@ class Ticket
         return $this;
     }
 
-    public function isSent(): bool
+    /**
+     * @return Collection<int, TicketDelivery>
+     */
+    public function getDeliveries(): Collection
     {
-        return $this->isSent;
+        return $this->deliveries;
     }
 
-    public function setIsSent(bool $isSent): self
+    public function addDelivery(TicketDelivery $delivery): self
     {
-        $this->isSent = $isSent;
-        return $this;
-    }
+        if (!$this->deliveries->contains($delivery)) {
+            $this->deliveries->add($delivery);
+            $delivery->setTicket($this);
+        }
 
-    public function getSentAt(): ?\DateTimeImmutable
-    {
-        return $this->sentAt;
-    }
-
-    public function setSentAt(?\DateTimeImmutable $sentAt): self
-    {
-        $this->sentAt = $sentAt;
         return $this;
     }
 }

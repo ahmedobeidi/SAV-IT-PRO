@@ -26,6 +26,30 @@ class TicketRepository extends ServiceEntityRepository
         return ((int) $max) + 1;
     }
 
+    public function findLatestForRepairOrder(RepairOrder $repairOrder): ?Ticket
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.repairOrder = :repair')
+            ->setParameter('repair', $repairOrder)
+            ->orderBy('t.version', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findLatestBySnapshotHash(RepairOrder $repairOrder, string $hash): ?Ticket
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.repairOrder = :repair')
+            ->andWhere('t.snapshotHash = :hash')
+            ->setParameter('repair', $repairOrder)
+            ->setParameter('hash', $hash)
+            ->orderBy('t.version', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     /**
      * @return Ticket[]
      */
@@ -34,29 +58,8 @@ class TicketRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('t')
             ->andWhere('t.repairOrder = :repair')
             ->setParameter('repair', $repairOrder)
-            ->orderBy('t.generatedAt', 'DESC')
+            ->orderBy('t.version', 'DESC')
             ->getQuery()
             ->getResult();
-    }
-
-    public function findByRepairOrder(RepairOrder $repairOrder): ?Ticket
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.repairOrder = :repair')
-            ->setParameter('repair', $repairOrder)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
-
-    public function existsForRepairOrder(RepairOrder $repairOrder): bool
-    {
-        $result = $this->createQueryBuilder('t')
-            ->select('COUNT(t.id)')
-            ->andWhere('t.repairOrder = :repair')
-            ->setParameter('repair', $repairOrder)
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return (int)$result > 0;
     }
 }

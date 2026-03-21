@@ -5,9 +5,9 @@ import type {
   CreateRepairOrderPayload,
   AssignTechnicianPayload,
   UpdateStatusPayload,
-  TicketResponse,
   RepairStatus,
   TicketRead,
+  GeneratedTicketResponse,
 } from "./repairs.types";
 
 export const repairsApi = {
@@ -49,27 +49,13 @@ export const repairsApi = {
     return res.data;
   },
 
-  async technicianList(params: {
-    page?: number;
-    limit?: number;
-    status?: RepairStatus;
-  }): Promise<Paginated<RepairOrderRead>> {
-    const res = await http.get("/api/technician/repair-orders", { params });
+  async generateCurrentTicket(id: number): Promise<GeneratedTicketResponse> {
+    const res = await http.post(`/api/repair-orders/${id}/tickets/generate`);
     return res.data;
   },
 
-  async technicianUpdateStatus(id: number, payload: UpdateStatusPayload): Promise<RepairOrderRead> {
-    const res = await http.patch(`/api/technician/repair-orders/${id}/status`, payload);
-    return res.data;
-  },
-
-  async generateTicket(id: number): Promise<TicketResponse> {
-    const res = await http.post(`/api/repair-orders/${id}/ticket`);
-    return res.data;
-  },
-
-  async sendTicket(id: number): Promise<{ message: string }> {
-    const res = await http.post(`/api/repair-orders/${id}/ticket/send`);
+  async sendCurrentTicket(id: number): Promise<{ message: string; ticketId: number; version: number }> {
+    const res = await http.post(`/api/repair-orders/${id}/tickets/send`);
     return res.data;
   },
 

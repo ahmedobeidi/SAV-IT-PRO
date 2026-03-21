@@ -3,8 +3,11 @@ import { repairsApi } from "../repairs.api";
 import { mapApiError } from "../repairs.validators";
 import type { TicketRead } from "../repairs.types";
 
-export function useTicketActions(repairId: number, onDone: () => void) {
-  const [msg, setMsg] = useState<string | null>(null);
+export function useTicketActions(
+  repairId: number,
+  onDone: () => void,
+  onMessage: (type: "success" | "error", text: string) => void
+) {
   const [ticket, setTicket] = useState<TicketRead | null>(null);
   const [loadingTicket, setLoadingTicket] = useState(false);
 
@@ -25,40 +28,38 @@ export function useTicketActions(repairId: number, onDone: () => void) {
   }, [repairId]);
 
   async function send() {
-    if (!ticket) return;
-
-    setMsg(null);
-
     try {
-      const res = await repairsApi.sendTicket(repairId);
-      setMsg(res.message || "Ticket envoyé.");
+      const res = await repairsApi.sendCurrentTicket(repairId);
+      onMessage("success", res.message || "Ticket envoyé.");
       await loadTicket();
       onDone();
     } catch (e: any) {
-      setMsg(mapApiError(e));
+      onMessage("error", mapApiError(e));
     }
   }
 
   async function openTicket() {
-    if (!ticket) return;
-
-    setMsg(null);
-
     try {
-      const blob = await repairsApi.viewTicketBlob(ticket.id);
+      // Always get/generate the current version first
+      const current = await repairsApi.generateCurrentTicket(repairId);
+      setTicket(current);
+
+      const blob = await repairsApi.viewTicketBlob(current.id);
       const url = window.URL.createObjectURL(blob);
       window.open(url, "_blank", "noopener,noreferrer");
       setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+
+      onDone();
     } catch (e: any) {
-      setMsg(mapApiError(e));
+      onMessage("error", mapApiError(e));
     }
   }
 
   return {
     ticket,
     loadingTicket,
-    msg,
     send,
     openTicket,
+    reload: loadTicket,
   };
 }

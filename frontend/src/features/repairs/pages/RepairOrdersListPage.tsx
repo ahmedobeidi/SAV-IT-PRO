@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useRepairOrdersList } from "../hooks/useRepairOrdersList";
 import type { RepairOrderRead, RepairStatus } from "../repairs.types";
@@ -108,40 +108,47 @@ export default function RepairOrdersListPage() {
     return Math.max(1, Math.ceil(data.total / data.limit));
   }, [data]);
 
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [flash, setFlash] = useState<{
+    id: number;
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  function showFlash(type: "success" | "error", text: string) {
+    const id = Date.now();
+    setFlash({ id, type, text });
+
+    setTimeout(() => {
+      setFlash((cur) => (cur?.id === id ? null : cur));
+    }, 5000);
+  }
+
   const [assignTarget, setAssignTarget] = useState<RepairOrderRead | null>(null);
   const [statusTarget, setStatusTarget] = useState<RepairOrderRead | null>(null);
 
-  // auto-hide success message after 5 seconds
-  useEffect(() => {
-    if (!successMessage) return;
-
-    const timer = setTimeout(() => {
-      setSuccessMessage(null);
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [successMessage]);
-
   async function assign(technicianId: number) {
     if (!assignTarget) return;
+
     try {
       await repairsApi.assign(assignTarget.id, { technicianId });
-      setSuccessMessage("Technicien affecté.");
+      setAssignTarget(null);
+      showFlash("success", "Technicien affecté.");
       refresh();
     } catch (e: any) {
-      setSuccessMessage(mapApiError(e));
+      showFlash("error", mapApiError(e));
     }
   }
 
   async function staffUpdateStatus(newStatus: RepairStatus) {
     if (!statusTarget) return;
+
     try {
       await repairsApi.staffUpdateStatus(statusTarget.id, { status: newStatus });
-      setSuccessMessage("Statut mis à jour.");
+      setStatusTarget(null);
+      showFlash("success", "Statut mis à jour.");
       refresh();
     } catch (e: any) {
-      setSuccessMessage(mapApiError(e));
+      showFlash("error", mapApiError(e));
     }
   }
 
@@ -184,7 +191,7 @@ export default function RepairOrdersListPage() {
           className="input"
           value={status}
           onChange={(e) => {
-            setStatus(e.target.value as any);
+            setStatus(e.target.value as RepairStatus | "");
             setPage(1);
           }}
           style={{ width: 220 }}
@@ -217,9 +224,14 @@ export default function RepairOrdersListPage() {
         </button>
       </div>
 
-      {successMessage && (
-        <div style={{ color: "var(--success)", fontSize: 13, marginBottom: 0 }}>
-          {successMessage}
+      {flash && (
+        <div
+          className="small"
+          style={{
+            color: flash.type === "success" ? "var(--success)" : "var(--danger)",
+          }}
+        >
+          {flash.text}
         </div>
       )}
 
@@ -230,10 +242,10 @@ export default function RepairOrdersListPage() {
         <>
           <RepairOrdersTable
             items={data.items}
-            mode="staff"
             onAssign={(r) => setAssignTarget(r)}
             onUpdateStatus={(r) => setStatusTarget(r)}
             onRefresh={refresh}
+            onMessage={showFlash}
           />
 
           <BottomPagination

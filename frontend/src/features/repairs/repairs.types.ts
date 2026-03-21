@@ -12,6 +12,7 @@ export type ClientLight = {
   firstName: string;
   lastName: string;
   phone: string;
+  email?: string | null;
 };
 
 export type UserLight = {
@@ -25,8 +26,8 @@ export type EquipmentModelLight = { id: number; name: string };
 export type IssueLight = { id: number; name: string };
 
 export type RepairOrderRead = {
-  id: number; // internal only
-  reference: string; // display this to users
+  id: number;
+  reference: string;
   status: RepairStatus;
   price: number;
   deposit?: number | null;
@@ -61,15 +62,6 @@ export type CreateRepairOrderPayload = {
 export type AssignTechnicianPayload = { technicianId: number };
 export type UpdateStatusPayload = { status: RepairStatus };
 
-export type TicketResponse = {
-  ticketId: number;
-  filename: string;
-  mimeType: string;
-  size: number;
-  isSent: boolean;
-  version: number;
-};
-
 export type TicketRead = {
   id: number;
   filename: string;
@@ -77,8 +69,10 @@ export type TicketRead = {
   size: number;
   version: number;
   generatedAt: string;
-  isSent: boolean;
-  sentAt?: string | null;
+  isCurrent: boolean;
+  alreadySentToCurrentClient: boolean;
   viewUrl: string;
   downloadUrl: string;
 };
+
+export type GeneratedTicketResponse = TicketRead;

@@ -1,5 +1,5 @@
 import RepairStatusBadge from "./RepairStatusBadge";
-import type { RepairOrderRead } from "../repairs.types";
+import type { RepairOrderRead, TicketRead } from "../repairs.types";
 import { Eye, Send, UserPlus, RefreshCw } from "lucide-react";
 import { useTicketActions } from "../hooks/useTicketActions";
 
@@ -15,23 +15,32 @@ const cellStyle: React.CSSProperties = {
   verticalAlign: "middle",
 };
 
+function pdfStatusLabel(ticket: TicketRead | null, hasEmail: boolean): string {
+  if (!hasEmail) return "Pas d’email";
+  if (!ticket) return "Non envoyé";
+  return ticket.alreadySentToCurrentClient ? "Envoyé" : "Non envoyé";
+}
+
 function RepairRow({
   r,
-  mode,
   onAssign,
   onUpdateStatus,
   onRefresh,
+  onMessage,
 }: {
   r: RepairOrderRead;
-  mode: "staff" | "tech";
   onAssign: (repair: RepairOrderRead) => void;
   onUpdateStatus: (repair: RepairOrderRead) => void;
   onRefresh: () => void;
+  onMessage: (type: "success" | "error", text: string) => void;
 }) {
-  const { ticket, loadingTicket, msg, openTicket, send } = useTicketActions(
-    r.id,
-    onRefresh
-  );
+  const { ticket, loadingTicket, openTicket, send } =
+    useTicketActions(r.id, onRefresh, onMessage);
+
+  const clientEmail = r.createdFor.email?.trim() ?? "";
+  const hasEmail = clientEmail.length > 0;
+  const alreadySent = !!ticket && ticket.alreadySentToCurrentClient;
+  const canSend = hasEmail && !alreadySent;
 
   return (
     <tr>
@@ -72,18 +81,10 @@ function RepairRow({
       <td style={cellStyle}>
         {loadingTicket ? (
           <span className="small">Chargement...</span>
-        ) : ticket ? (
-          <span className="small" style={{ fontWeight: 600 }}>
-            {ticket.isSent ? "Envoyé" : "Non envoyé"}
-          </span>
         ) : (
-          <span className="small">Aucun ticket</span>
-        )}
-
-        {msg && (
-          <div className="small" style={{ marginTop: 6 }}>
-            {msg}
-          </div>
+          <span className="small" style={{ fontWeight: 600 }}>
+            {pdfStatusLabel(ticket, hasEmail)}
+          </span>
         )}
       </td>
 
@@ -105,23 +106,20 @@ function RepairRow({
           <button
             className="btn hover-bg-primary"
             onClick={openTicket}
-            disabled={!ticket}
             title="Ouvrir"
             aria-label="Ouvrir"
           >
             <Eye size={18} />
           </button>
 
-          {mode === "staff" && (
-            <button
-              className="btn hover-bg-primary"
-              onClick={() => onAssign(r)}
-              title="Affecter"
-              aria-label="Affecter"
-            >
-              <UserPlus size={18} />
-            </button>
-          )}
+          <button
+            className="btn hover-bg-primary"
+            onClick={() => onAssign(r)}
+            title="Affecter"
+            aria-label="Affecter"
+          >
+            <UserPlus size={18} />
+          </button>
 
           <button
             className="btn hover-bg-primary"
@@ -132,17 +130,25 @@ function RepairRow({
             <RefreshCw size={18} />
           </button>
 
-          {mode === "staff" && (
-            <button
-              className="btn hover-bg-primary"
-              onClick={send}
-              disabled={!ticket || ticket.isSent}
-              title="Envoyer au client"
-              aria-label="Envoyer au client"
-            >
-              <Send size={18} />
-            </button>
-          )}
+          <button
+            className="btn hover-bg-primary"
+            onClick={send}
+            disabled={!canSend}
+            title={
+              !hasEmail
+                ? "Le client n’a pas d’email"
+                : alreadySent
+                ? "Déjà envoyé"
+                : "Envoyer au client"
+            }
+            aria-label="Envoyer au client"
+            style={{
+              opacity: canSend ? 1 : 0.5,
+              cursor: canSend ? "pointer" : "not-allowed",
+            }}
+          >
+            <Send size={18} />
+          </button>
         </div>
       </td>
     </tr>
@@ -151,16 +157,16 @@ function RepairRow({
 
 export default function RepairOrdersTable({
   items,
-  mode,
   onAssign,
   onUpdateStatus,
   onRefresh,
+  onMessage,
 }: {
   items: RepairOrderRead[];
-  mode: "staff" | "tech";
   onAssign: (repair: RepairOrderRead) => void;
   onUpdateStatus: (repair: RepairOrderRead) => void;
   onRefresh: () => void;
+  onMessage: (type: "success" | "error", text: string) => void;
 }) {
   return (
     <div className="card" style={{ padding: 12, overflowX: "auto" }}>
@@ -174,7 +180,7 @@ export default function RepairOrdersTable({
               "Panne",
               "Statut",
               "Technicien",
-              "Ticket",
+              "PDF",
               "Actions",
             ].map((h) => (
               <th
@@ -195,10 +201,10 @@ export default function RepairOrdersTable({
             <RepairRow
               key={r.id}
               r={r}
-              mode={mode}
               onAssign={onAssign}
               onUpdateStatus={onUpdateStatus}
               onRefresh={onRefresh}
+              onMessage={onMessage}
             />
           ))}
         </tbody>

@@ -45,6 +45,9 @@ security:
     - { path: ^/api/clients, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
     - { path: ^/api/equipment-, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
 
+    - { path: ^/api/repair-orders, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+    - { path: ^/api/tickets, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+
     # AUTHENTICATED
     - { path: ^/api/auth/logout, roles: IS_AUTHENTICATED_FULLY }
 

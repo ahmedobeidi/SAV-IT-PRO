@@ -2,13 +2,10 @@
 <html lang="fr">
 	<head>
 		<meta charset="UTF-8">
-		<title>Ticket de réparation
-			{{ repair.reference }}</title>
+		<title>Ticket de réparation {{ ticket.reference }}</title>
 
 		<style>
-			@page {
-				margin: 28px 24px 24px;
-			}
+			@page { margin: 28px 24px 24px; }
 
 			body {
 				font-family: DejaVu Sans, sans-serif;
@@ -19,58 +16,20 @@
 				line-height: 1.45;
 			}
 
-			.wrapper {
-				width: 100%;
-			}
-
+			.wrapper { width: 100%; }
 			.header {
 				width: 100%;
 				margin-bottom: 18px;
 				border-bottom: 2px solid #0d6efd;
 				padding-bottom: 14px;
 			}
-
-			.header-table {
-				width: 100%;
-				border-collapse: collapse;
-			}
-
-			.header-left {
-				width: 65%;
-				vertical-align: top;
-			}
-
-			.header-right {
-				width: 35%;
-				text-align: right;
-				vertical-align: top;
-			}
-
-			.logo {
-				height: 70px;
-				margin-bottom: 8px;
-			}
-
-			.company-name {
-				font-size: 22px;
-				font-weight: bold;
-				color: #111827;
-				margin: 0 0 4px;
-			}
-
-			.company-meta {
-				font-size: 11px;
-				color: #4b5563;
-				margin: 0;
-			}
-
-			.document-title {
-				font-size: 20px;
-				font-weight: bold;
-				color: #111827;
-				margin: 0 0 8px;
-			}
-
+			.header-table { width: 100%; border-collapse: collapse; }
+			.header-left { width: 65%; vertical-align: top; }
+			.header-right { width: 35%; text-align: right; vertical-align: top; }
+			.logo { height: 70px; margin-bottom: 8px; }
+			.company-name { font-size: 22px; font-weight: bold; color: #111827; margin: 0 0 4px; }
+			.company-meta { font-size: 11px; color: #4b5563; margin: 0; }
+			.document-title { font-size: 20px; font-weight: bold; color: #111827; margin: 0 0 8px; }
 			.reference-box {
 				display: inline-block;
 				background: #eff6ff;
@@ -81,17 +40,8 @@
 				padding: 6px 10px;
 				border-radius: 6px;
 			}
-
-			.meta {
-				margin-top: 10px;
-				font-size: 11px;
-				color: #6b7280;
-			}
-
-			.section {
-				margin-bottom: 16px;
-			}
-
+			.meta { margin-top: 10px; font-size: 11px; color: #6b7280; }
+			.section { margin-bottom: 16px; }
 			.section-title {
 				font-size: 13px;
 				font-weight: bold;
@@ -101,78 +51,39 @@
 				padding: 8px 10px;
 				margin-bottom: 8px;
 			}
-
-			.info-table {
-				width: 100%;
-				border-collapse: collapse;
-			}
-
+			.info-table { width: 100%; border-collapse: collapse; }
 			.info-table td {
 				vertical-align: top;
 				padding: 6px 8px;
 				border: 1px solid #e5e7eb;
 			}
-
 			.label {
 				width: 32%;
 				font-weight: bold;
 				background: #f9fafb;
 				color: #374151;
 			}
-
-			.value {
-				width: 68%;
-				color: #111827;
-			}
-
-			.two-cols {
-				width: 100%;
-				border-collapse: separate;
-				border-spacing: 10px 0;
-				margin: 0 -10px;
-			}
-
-			.col {
-				width: 50%;
-				vertical-align: top;
-			}
-
-			.status-badge {
-				display: inline-block;
-				padding: 4px 8px;
-				border-radius: 999px;
-				font-size: 11px;
-				font-weight: bold;
-				border: 1px solid #d1d5db;
-				background: #f9fafb;
-				color: #111827;
-			}
-
+			.value { width: 68%; color: #111827; }
 			.price-table {
 				width: 100%;
 				border-collapse: collapse;
 				margin-top: 4px;
 			}
-
-			.price-table th,
-			.price-table td {
+			.price-table th, .price-table td {
 				border: 1px solid #d1d5db;
 				padding: 10px;
 				text-align: left;
 			}
-
 			.price-table th {
 				background: #f3f4f6;
 				font-size: 12px;
 				color: #374151;
 			}
-
 			.price-table td {
 				font-size: 13px;
 				color: #111827;
 				font-weight: bold;
 			}
-
 			.description-box {
 				border: 1px solid #d1d5db;
 				background: #fcfcfd;
@@ -181,7 +92,6 @@
 				white-space: pre-wrap;
 				word-wrap: break-word;
 			}
-
 			.footer {
 				margin-top: 28px;
 				padding-top: 12px;
@@ -190,7 +100,6 @@
 				color: #6b7280;
 				text-align: center;
 			}
-
 			.small-note {
 				font-size: 10px;
 				color: #6b7280;
@@ -201,7 +110,6 @@
 
 	<body>
 		<div class="wrapper">
-
 			<div class="header">
 				<table class="header-table">
 					<tr>
@@ -216,59 +124,50 @@
 
 						<td class="header-right">
 							<div class="document-title">Ticket de réparation</div>
-							<div class="reference-box">{{ repair.reference }}</div>
+							<div class="reference-box">{{ ticket.reference }} — v{{ version }}</div>
 
 							<div class="meta">
-								Date de création :
-								{{ repair.createdAt|date('d/m/Y H:i') }}
+								Date du ticket : {{ generatedAt|date('d/m/Y H:i') }}
 							</div>
 						</td>
 					</tr>
 				</table>
 			</div>
 
-
 			<div class="section">
 				<div class="section-title">Informations client</div>
-
 				<table class="info-table">
 					<tr>
 						<td class="label">Nom complet</td>
-						<td class="value">
-							{{ repair.createdFor.firstName }}
-							{{ repair.createdFor.lastName }}
-						</td>
+						<td class="value">{{ ticket.client.firstName }} {{ ticket.client.lastName }}</td>
 					</tr>
 					<tr>
 						<td class="label">Téléphone</td>
-						<td class="value">{{ repair.createdFor.phone ?: '-' }}</td>
+						<td class="value">{{ ticket.client.phone ?: '-' }}</td>
 					</tr>
 					<tr>
 						<td class="label">Email</td>
-						<td class="value">{{ repair.createdFor.email ?: '-' }}</td>
+						<td class="value">{{ ticket.client.email ?: '-' }}</td>
 					</tr>
 				</table>
 			</div>
 
-
 			<div class="section">
 				<div class="section-title">Équipement et panne déclarée</div>
-
 				<table class="info-table">
 					<tr>
 						<td class="label">Équipement / modèle</td>
-						<td class="value">{{ repair.equipmentModel.name ?: '-' }}</td>
+						<td class="value">{{ ticket.equipmentModel.name ?: '-' }}</td>
 					</tr>
 					<tr>
 						<td class="label">Panne déclarée</td>
-						<td class="value">{{ repair.issue.name ?: '-' }}</td>
+						<td class="value">{{ ticket.issue.name ?: '-' }}</td>
 					</tr>
 				</table>
 			</div>
 
 			<div class="section">
 				<div class="section-title">Informations financières</div>
-
 				<table class="price-table">
 					<tr>
 						<th>Prix estimé</th>
@@ -276,30 +175,20 @@
 						<th>Reste estimé</th>
 					</tr>
 					<tr>
-						<td>{{ repair.price|number_format(2, ',', ' ') }}
-							€</td>
+						<td>{{ ticket.price|number_format(2, ',', ' ') }} €</td>
 						<td>
-							{% if repair.deposit is not null %}
-								{{ repair.deposit|number_format(2, ',', ' ') }}
-								€
-							{% else %}
-								0,00 €
-							{% endif %}
+							{% set depositValue = ticket.deposit is not null ? ticket.deposit : 0 %}
+							{{ depositValue|number_format(2, ',', ' ') }} €
 						</td>
-						<td>
-							{% set depositValue = repair.deposit is not null ? repair.deposit : 0 %}
-							{{ (repair.price - depositValue)|number_format(2, ',', ' ') }}
-							€
-						</td>
+						<td>{{ (ticket.price - depositValue)|number_format(2, ',', ' ') }} €</td>
 					</tr>
 				</table>
 			</div>
 
 			<div class="section">
 				<div class="section-title">Description / observations</div>
-
 				<div class="description-box">
-					{{ repair.description ?: 'Aucune description fournie.' }}
+					{{ ticket.description ?: 'Aucune description fournie.' }}
 				</div>
 
 				<div class="small-note">
@@ -308,13 +197,10 @@
 			</div>
 
 			<div class="footer">
-				©
-				{{ "now"|date("Y") }}
-				SAV-IT-PRO — IT-PRO<br>
-				Référence dossier :
-				<strong>{{ repair.reference }}</strong>
+				© {{ "now"|date("Y") }} SAV-IT-PRO — IT-PRO<br>
+				Référence dossier : <strong>{{ ticket.reference }}</strong><br>
+				Version PDF : <strong>{{ version }}</strong>
 			</div>
-
 		</div>
 	</body>
 </html>

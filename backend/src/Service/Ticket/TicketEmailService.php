@@ -4,6 +4,7 @@ namespace App\Service\Ticket;
 
 use App\Entity\Client;
 use App\Entity\Ticket;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
@@ -33,6 +34,10 @@ class TicketEmailService
             ->text("Bonjour,\n\nVeuillez trouver en pièce jointe votre ticket de réparation.\n")
             ->attachFromPath($absolutePath, $ticket->getFilename(), $ticket->getMimeType());
 
-        $this->mailer->send($email);
+        try {
+            $this->mailer->send($email);
+        } catch (TransportExceptionInterface $e) {
+            throw new \DomainException('Envoi email impossible : ' . $e->getMessage());
+        }
     }
 }

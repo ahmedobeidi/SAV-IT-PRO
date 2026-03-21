@@ -2,7 +2,6 @@
 
 namespace App\Service\Ticket;
 
-use App\Entity\RepairOrder;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Twig\Environment;
@@ -15,14 +14,15 @@ class TicketPdfService
     ) {}
 
     /** @return array{content:string, filename:string, mime:string} */
-    public function generatePdf(RepairOrder $repairOrder, int $version): array
+    public function generatePdfFromSnapshot(array $snapshot, int $version): array
     {
         $logoDataUri = $this->buildLogoDataUri();
 
         $html = $this->twig->render('ticket/ticket.html.twig', [
-            'repair' => $repairOrder,
-            'logoPath' => $logoDataUri,
+            'ticket' => $snapshot,
+            'version' => $version,
             'generatedAt' => new \DateTimeImmutable(),
+            'logoPath' => $logoDataUri,
         ]);
 
         $options = new Options();
@@ -36,7 +36,7 @@ class TicketPdfService
         $dompdf->render();
 
         $pdfContent = $dompdf->output();
-        $filename = sprintf('ticket-%s-v%d.pdf', $repairOrder->getReference(), $version);
+        $filename = sprintf('ticket-%s-v%d.pdf', $snapshot['reference'], $version);
 
         return [
             'content' => $pdfContent,

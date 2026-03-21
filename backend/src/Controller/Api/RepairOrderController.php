@@ -30,30 +30,40 @@ class RepairOrderController extends AbstractController
     public function create(Request $request): JsonResponse
     {
         $this->denyAccessUnlessGranted(RepairOrderVoter::CREATE);
+
         /** @var User $actor */
         $actor = $this->getUser();
 
         $data = json_decode($request->getContent(), true);
-        if (!is_array($data)) throw new BadRequestHttpException('JSON invalide.');
+        if (!is_array($data)) {
+            throw new BadRequestHttpException('JSON invalide.');
+        }
 
         $dto = new CreateRepairOrderRequest();
-        $dto->clientId = (int)($data['clientId'] ?? 0);
-        $dto->equipmentModelId = (int)($data['equipmentModelId'] ?? 0);
-        $dto->issueId = (int)($data['issueId'] ?? 0);
-        $dto->price = (float)($data['price'] ?? 0);
-        $dto->deposit = array_key_exists('deposit', $data) ? (float)$data['deposit'] : null;
+        $dto->clientId = (int) ($data['clientId'] ?? 0);
+        $dto->equipmentModelId = (int) ($data['equipmentModelId'] ?? 0);
+        $dto->issueId = (int) ($data['issueId'] ?? 0);
+        $dto->price = (float) ($data['price'] ?? 0);
+        $dto->deposit = array_key_exists('deposit', $data) ? (float) $data['deposit'] : null;
         $dto->description = $data['description'] ?? null;
 
         $errors = $this->validator->validate($dto);
-        if (count($errors) > 0) return $this->json(['message' => 'Validation échouée'], 422);
+        if (count($errors) > 0) {
+            return $this->json(['message' => 'Validation échouée'], 422);
+        }
 
         try {
-            $r = $this->service->create($actor, $dto);
+            $repairOrder = $this->service->create($actor, $dto);
         } catch (\DomainException $e) {
             return $this->json(['message' => $e->getMessage()], 409);
         }
 
-        return $this->json($r, 201, [], ['groups' => ['repair:read', 'client:read_light', 'user:read_light']]);
+        return $this->json(
+            $repairOrder,
+            201,
+            [],
+            ['groups' => ['repair:read', 'client:read_light', 'user:read_light']]
+        );
     }
 
     #[Route('', methods: ['GET'])]
@@ -61,8 +71,8 @@ class RepairOrderController extends AbstractController
     {
         $this->denyAccessUnlessGranted(RepairOrderVoter::LIST_ALL);
 
-        $page  = max(1, (int)$request->query->get('page', 1));
-        $limit = min(100, max(1, (int)$request->query->get('limit', 10)));
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = min(100, max(1, (int) $request->query->get('limit', 10)));
 
         $search = $request->query->get('search');
         $statusStr = $request->query->get('status');
@@ -82,17 +92,22 @@ class RepairOrderController extends AbstractController
     public function assign(RepairOrder $repairOrder, Request $request): JsonResponse
     {
         $this->denyAccessUnlessGranted(RepairOrderVoter::ASSIGN, $repairOrder);
+
         /** @var User $actor */
         $actor = $this->getUser();
 
         $data = json_decode($request->getContent(), true);
-        if (!is_array($data)) throw new BadRequestHttpException('JSON invalide.');
+        if (!is_array($data)) {
+            throw new BadRequestHttpException('JSON invalide.');
+        }
 
         $dto = new AssignTechnicianRequest();
-        $dto->technicianId = (int)($data['technicianId'] ?? 0);
+        $dto->technicianId = (int) ($data['technicianId'] ?? 0);
 
         $errors = $this->validator->validate($dto);
-        if (count($errors) > 0) return $this->json(['message' => 'Validation échouée'], 422);
+        if (count($errors) > 0) {
+            return $this->json(['message' => 'Validation échouée'], 422);
+        }
 
         try {
             $updated = $this->service->assignTechnician($actor, $repairOrder, $dto);
@@ -100,24 +115,34 @@ class RepairOrderController extends AbstractController
             return $this->json(['message' => $e->getMessage()], 409);
         }
 
-        return $this->json($updated, 200, [], ['groups' => ['repair:read', 'client:read_light', 'user:read_light']]);
+        return $this->json(
+            $updated,
+            200,
+            [],
+            ['groups' => ['repair:read', 'client:read_light', 'user:read_light']]
+        );
     }
 
     #[Route('/{id}/status', methods: ['PATCH'])]
     public function updateStatus(RepairOrder $repairOrder, Request $request): JsonResponse
     {
         $this->denyAccessUnlessGranted(RepairOrderVoter::STAFF_STATUS, $repairOrder);
+
         /** @var User $actor */
         $actor = $this->getUser();
 
         $data = json_decode($request->getContent(), true);
-        if (!is_array($data)) throw new BadRequestHttpException('JSON invalide.');
+        if (!is_array($data)) {
+            throw new BadRequestHttpException('JSON invalide.');
+        }
 
         $dto = new UpdateRepairOrderStatusRequest();
-        $dto->status = (string)($data['status'] ?? '');
+        $dto->status = (string) ($data['status'] ?? '');
 
         $errors = $this->validator->validate($dto);
-        if (count($errors) > 0) return $this->json(['message' => 'Validation échouée'], 422);
+        if (count($errors) > 0) {
+            return $this->json(['message' => 'Validation échouée'], 422);
+        }
 
         $status = RepairOrderStatus::from($dto->status);
 
@@ -127,6 +152,11 @@ class RepairOrderController extends AbstractController
             return $this->json(['message' => $e->getMessage()], 409);
         }
 
-        return $this->json($updated, 200, [], ['groups' => ['repair:read', 'client:read_light', 'user:read_light']]);
+        return $this->json(
+            $updated,
+            200,
+            [],
+            ['groups' => ['repair:read', 'client:read_light', 'user:read_light']]
+        );
     }
 }
