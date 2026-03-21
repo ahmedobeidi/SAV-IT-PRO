@@ -14,6 +14,7 @@ class RepairOrderVoter extends Voter
     public const LIST_ALL = 'REPAIR_LIST_ALL';
     public const ASSIGN = 'REPAIR_ASSIGN';
     public const STAFF_STATUS = 'REPAIR_STAFF_STATUS';
+    public const EDIT = 'REPAIR_EDIT';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
@@ -22,7 +23,7 @@ class RepairOrderVoter extends Voter
         }
 
         return $subject instanceof RepairOrder
-            && in_array($attribute, [self::ASSIGN, self::STAFF_STATUS], true);
+            && in_array($attribute, [self::EDIT, self::ASSIGN, self::STAFF_STATUS], true);
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
@@ -48,7 +49,8 @@ class RepairOrderVoter extends Voter
         return match ($attribute) {
             self::CREATE,
             self::LIST_ALL,
-            self::STAFF_STATUS => $isStaff,
+            self::STAFF_STATUS,
+            self::EDIT => $isStaff,
 
             self::ASSIGN => $isAdmin,
 

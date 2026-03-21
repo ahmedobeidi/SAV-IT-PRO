@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\DTO\RepairOrder\UpdateRepairOrderRequest;
 
 #[Route('/api/repair-orders')]
 class RepairOrderController extends AbstractController
@@ -61,6 +62,44 @@ class RepairOrderController extends AbstractController
         return $this->json(
             $repairOrder,
             201,
+            [],
+            ['groups' => ['repair:read', 'client:read_light', 'user:read_light']]
+        );
+    }
+
+    #[Route('/{id}', methods: ['PATCH'])]
+    public function update(RepairOrder $repairOrder, Request $request): JsonResponse
+    {
+        $this->denyAccessUnlessGranted(RepairOrderVoter::EDIT, $repairOrder);
+
+        /** @var User $actor */
+        $actor = $this->getUser();
+
+        $data = json_decode($request->getContent(), true);
+        if (!is_array($data)) {
+            throw new BadRequestHttpException('JSON invalide.');
+        }
+
+        $dto = new UpdateRepairOrderRequest();
+        $dto->issueId = (int) ($data['issueId'] ?? 0);
+        $dto->price = (float) ($data['price'] ?? 0);
+        $dto->deposit = array_key_exists('deposit', $data) ? (float) $data['deposit'] : null;
+        $dto->description = $data['description'] ?? null;
+
+        $errors = $this->validator->validate($dto);
+        if (count($errors) > 0) {
+            return $this->json(['message' => 'Validation échouée'], 422);
+        }
+
+        try {
+            $updated = $this->service->update($actor, $repairOrder, $dto);
+        } catch (\DomainException $e) {
+            return $this->json(['message' => $e->getMessage()], 409);
+        }
+
+        return $this->json(
+            $updated,
+            200,
             [],
             ['groups' => ['repair:read', 'client:read_light', 'user:read_light']]
         );

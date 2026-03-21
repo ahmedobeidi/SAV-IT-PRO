@@ -14,6 +14,7 @@ use App\Enum\RepairOrderStatus;
 use App\Enum\UserRole;
 use App\Repository\EquipmentModelRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\DTO\RepairOrder\UpdateRepairOrderRequest;
 
 class RepairOrderService
 {
@@ -56,6 +57,26 @@ class RepairOrderService
         $this->em->persist($r);
 
         $this->addLog($r, $actor, RepairOrderLogAction::CREATED);
+
+        $this->em->flush();
+
+        return $r;
+    }
+
+    public function update(User $actor, RepairOrder $r, UpdateRepairOrderRequest $dto): RepairOrder
+    {
+        $issue = $this->em->getRepository(Issue::class)->find($dto->issueId);
+        if (!$issue) {
+            throw new \DomainException('Panne introuvable.');
+        }
+
+        $r->setIssue($issue);
+        $r->setPrice($dto->price);
+        $r->setDeposit($dto->deposit);
+        $r->setDescription($dto->description);
+        $r->setUpdatedAt(new \DateTimeImmutable());
+
+        $this->addLog($r, $actor, RepairOrderLogAction::UPDATED);
 
         $this->em->flush();
 

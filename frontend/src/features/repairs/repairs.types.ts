@@ -75,4 +75,11 @@ export type TicketRead = {
   downloadUrl: string;
 };
 
+export type UpdateRepairOrderPayload = {
+  issueId: number;
+  price: number;
+  deposit?: number | null;
+  description?: string | null;
+};
+
 export type GeneratedTicketResponse = TicketRead;

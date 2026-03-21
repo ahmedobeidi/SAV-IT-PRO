@@ -1,13 +1,18 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useRepairOrdersList } from "../hooks/useRepairOrdersList";
-import type { RepairOrderRead, RepairStatus } from "../repairs.types";
+import type {
+  RepairOrderRead,
+  RepairStatus,
+  UpdateRepairOrderPayload,
+} from "../repairs.types";
 import RepairOrdersTable from "../components/RepairOrdersTable";
 import AssignTechnicianDialog from "../components/AssignTechnicianDialog";
 import UpdateStatusDialog from "../components/UpdateStatusDialog";
 import { repairsApi } from "../repairs.api";
 import { mapApiError } from "../repairs.validators";
 import { getStatusLabel } from "../utils/statusTranslations";
+import EditRepairOrderDialog from "../components/EditRepairOrderDialog";
 
 const STATUS: Array<RepairStatus | ""> = [
   "",
@@ -89,7 +94,7 @@ function BottomPagination({
           >
             {item}
           </button>
-        )
+        ),
       )}
     </div>
   );
@@ -101,7 +106,12 @@ export default function RepairOrdersListPage() {
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const { data, loading, error, refresh } = useRepairOrdersList(search, status, page, limit);
+  const { data, loading, error, refresh } = useRepairOrdersList(
+    search,
+    status,
+    page,
+    limit,
+  );
 
   const totalPages = useMemo(() => {
     if (!data) return 1;
@@ -123,8 +133,13 @@ export default function RepairOrdersListPage() {
     }, 5000);
   }
 
-  const [assignTarget, setAssignTarget] = useState<RepairOrderRead | null>(null);
-  const [statusTarget, setStatusTarget] = useState<RepairOrderRead | null>(null);
+  const [assignTarget, setAssignTarget] = useState<RepairOrderRead | null>(
+    null,
+  );
+  const [statusTarget, setStatusTarget] = useState<RepairOrderRead | null>(
+    null,
+  );
+  const [editTarget, setEditTarget] = useState<RepairOrderRead | null>(null);
 
   async function assign(technicianId: number) {
     if (!assignTarget) return;
@@ -143,7 +158,9 @@ export default function RepairOrdersListPage() {
     if (!statusTarget) return;
 
     try {
-      await repairsApi.staffUpdateStatus(statusTarget.id, { status: newStatus });
+      await repairsApi.staffUpdateStatus(statusTarget.id, {
+        status: newStatus,
+      });
       setStatusTarget(null);
       showFlash("success", "Statut mis à jour.");
       refresh();
@@ -152,9 +169,30 @@ export default function RepairOrdersListPage() {
     }
   }
 
+  async function updateRepair(payload: UpdateRepairOrderPayload) {
+    if (!editTarget) return;
+
+    try {
+      await repairsApi.update(editTarget.id, payload);
+      setEditTarget(null);
+      showFlash("success", "Réparation mise à jour.");
+      refresh();
+    } catch (e: any) {
+      showFlash("error", mapApiError(e));
+      throw e;
+    }
+  }
+
   return (
     <div style={{ display: "grid", gap: 12 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "end",
+          gap: 12,
+        }}
+      >
         <div>
           <h2 style={{ margin: 0 }}>Réparations</h2>
         </div>
@@ -165,7 +203,7 @@ export default function RepairOrdersListPage() {
           style={{
             display: "inline-block",
             lineHeight: "1",
-            textDecoration: "none"
+            textDecoration: "none",
           }}
         >
           Créer
@@ -174,7 +212,13 @@ export default function RepairOrdersListPage() {
 
       <div
         className="card"
-        style={{ padding: 12, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}
+        style={{
+          padding: 12,
+          display: "flex",
+          gap: 10,
+          flexWrap: "wrap",
+          alignItems: "center",
+        }}
       >
         <input
           className="input"
@@ -228,7 +272,8 @@ export default function RepairOrdersListPage() {
         <div
           className="small"
           style={{
-            color: flash.type === "success" ? "var(--success)" : "var(--danger)",
+            color:
+              flash.type === "success" ? "var(--success)" : "var(--danger)",
           }}
         >
           {flash.text}
@@ -236,12 +281,15 @@ export default function RepairOrdersListPage() {
       )}
 
       {loading && <div className="small">Chargement...</div>}
-      {error && <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>}
+      {error && (
+        <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>
+      )}
 
       {data && (
         <>
           <RepairOrdersTable
             items={data.items}
+            onEdit={(r) => setEditTarget(r)}
             onAssign={(r) => setAssignTarget(r)}
             onUpdateStatus={(r) => setStatusTarget(r)}
             onRefresh={refresh}
@@ -265,9 +313,24 @@ export default function RepairOrdersListPage() {
       <UpdateStatusDialog
         open={!!statusTarget}
         current={statusTarget?.status ?? "CREATED"}
-        allowed={["CREATED", "ASSIGNED", "IN_PROGRESS", "WAITING_PARTS", "DONE", "DELIVERED", "CANCELED"]}
+        allowed={[
+          "CREATED",
+          "ASSIGNED",
+          "IN_PROGRESS",
+          "WAITING_PARTS",
+          "DONE",
+          "DELIVERED",
+          "CANCELED",
+        ]}
         onClose={() => setStatusTarget(null)}
         onConfirm={staffUpdateStatus}
+      />
+
+      <EditRepairOrderDialog
+        open={!!editTarget}
+        repair={editTarget}
+        onClose={() => setEditTarget(null)}
+        onSubmit={updateRepair}
       />
     </div>
   );

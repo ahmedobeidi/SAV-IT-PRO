@@ -1,6 +1,6 @@
 import RepairStatusBadge from "./RepairStatusBadge";
 import type { RepairOrderRead, TicketRead } from "../repairs.types";
-import { Eye, Send, UserPlus, RefreshCw } from "lucide-react";
+import { Eye, Send, UserPlus, RefreshCw, Pencil } from "lucide-react";
 import { useTicketActions } from "../hooks/useTicketActions";
 
 const headCellStyle: React.CSSProperties = {
@@ -23,19 +23,24 @@ function pdfStatusLabel(ticket: TicketRead | null, hasEmail: boolean): string {
 
 function RepairRow({
   r,
+  onEdit,
   onAssign,
   onUpdateStatus,
   onRefresh,
   onMessage,
 }: {
   r: RepairOrderRead;
+  onEdit: (repair: RepairOrderRead) => void;
   onAssign: (repair: RepairOrderRead) => void;
   onUpdateStatus: (repair: RepairOrderRead) => void;
   onRefresh: () => void;
   onMessage: (type: "success" | "error", text: string) => void;
 }) {
-  const { ticket, loadingTicket, openTicket, send } =
-    useTicketActions(r.id, onRefresh, onMessage);
+  const { ticket, loadingTicket, openTicket, send } = useTicketActions(
+    r.id,
+    onRefresh,
+    onMessage,
+  );
 
   const clientEmail = r.createdFor.email?.trim() ?? "";
   const hasEmail = clientEmail.length > 0;
@@ -105,6 +110,15 @@ function RepairRow({
         >
           <button
             className="btn hover-bg-primary"
+            onClick={() => onEdit(r)}
+            title="Modifier"
+            aria-label="Modifier"
+          >
+            <Pencil size={18} />
+          </button>
+
+          <button
+            className="btn hover-bg-primary"
             onClick={openTicket}
             title="Ouvrir"
             aria-label="Ouvrir"
@@ -138,8 +152,8 @@ function RepairRow({
               !hasEmail
                 ? "Le client n’a pas d’email"
                 : alreadySent
-                ? "Déjà envoyé"
-                : "Envoyer au client"
+                  ? "Déjà envoyé"
+                  : "Envoyer au client"
             }
             aria-label="Envoyer au client"
             style={{
@@ -157,12 +171,14 @@ function RepairRow({
 
 export default function RepairOrdersTable({
   items,
+  onEdit,
   onAssign,
   onUpdateStatus,
   onRefresh,
   onMessage,
 }: {
   items: RepairOrderRead[];
+  onEdit: (repair: RepairOrderRead) => void;
   onAssign: (repair: RepairOrderRead) => void;
   onUpdateStatus: (repair: RepairOrderRead) => void;
   onRefresh: () => void;
@@ -201,6 +217,7 @@ export default function RepairOrdersTable({
             <RepairRow
               key={r.id}
               r={r}
+              onEdit={onEdit}
               onAssign={onAssign}
               onUpdateStatus={onUpdateStatus}
               onRefresh={onRefresh}

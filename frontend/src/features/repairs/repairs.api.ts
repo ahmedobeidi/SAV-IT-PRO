@@ -3,6 +3,7 @@ import type {
   Paginated,
   RepairOrderRead,
   CreateRepairOrderPayload,
+  UpdateRepairOrderPayload,
   AssignTechnicianPayload,
   UpdateStatusPayload,
   RepairStatus,
@@ -13,6 +14,11 @@ import type {
 export const repairsApi = {
   async create(payload: CreateRepairOrderPayload): Promise<RepairOrderRead> {
     const res = await http.post("/api/repair-orders", payload);
+    return res.data;
+  },
+
+  async update(id: number, payload: UpdateRepairOrderPayload): Promise<RepairOrderRead> {
+    const res = await http.patch(`/api/repair-orders/${id}`, payload);
     return res.data;
   },
 
