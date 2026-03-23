@@ -141,7 +141,9 @@ class RepairOrderController extends AbstractController
         }
 
         $dto = new AssignTechnicianRequest();
-        $dto->technicianId = (int) ($data['technicianId'] ?? 0);
+        $dto->technicianId = array_key_exists('technicianId', $data) && $data['technicianId'] !== null
+            ? (int) $data['technicianId']
+            : null;
 
         $errors = $this->validator->validate($dto);
         if (count($errors) > 0) {

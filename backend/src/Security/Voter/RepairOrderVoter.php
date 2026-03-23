@@ -15,15 +15,17 @@ class RepairOrderVoter extends Voter
     public const ASSIGN = 'REPAIR_ASSIGN';
     public const STAFF_STATUS = 'REPAIR_STAFF_STATUS';
     public const EDIT = 'REPAIR_EDIT';
+    public const TECH_LIST = 'REPAIR_TECH_LIST';
+    public const TECH_STATUS = 'REPAIR_TECH_STATUS';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if (in_array($attribute, [self::CREATE, self::LIST_ALL], true)) {
+        if (in_array($attribute, [self::CREATE, self::LIST_ALL, self::TECH_LIST], true)) {
             return true;
         }
 
         return $subject instanceof RepairOrder
-            && in_array($attribute, [self::EDIT, self::ASSIGN, self::STAFF_STATUS], true);
+            && in_array($attribute, [self::EDIT, self::ASSIGN, self::STAFF_STATUS, self::TECH_STATUS], true);
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
@@ -46,6 +48,8 @@ class RepairOrderVoter extends Voter
             UserRole::ADMIN,
         ], true);
 
+        $isTech = $role === UserRole::TECHNICIAN;
+
         return match ($attribute) {
             self::CREATE,
             self::LIST_ALL,
@@ -53,6 +57,9 @@ class RepairOrderVoter extends Voter
             self::EDIT => $isStaff,
 
             self::ASSIGN => $isAdmin,
+
+            self::TECH_LIST,
+            self::TECH_STATUS => $isTech,
 
             default => false,
         };

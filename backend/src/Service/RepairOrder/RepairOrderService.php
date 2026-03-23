@@ -85,6 +85,22 @@ class RepairOrderService
 
     public function assignTechnician(User $actor, RepairOrder $r, AssignTechnicianRequest $dto): RepairOrder
     {
+        if ($dto->technicianId === null) {
+            $r->setAssignedTo(null);
+
+            // optional: if it was assigned/in progress, decide what status should become
+            if ($r->getStatus() === RepairOrderStatus::ASSIGNED) {
+                $r->setStatus(RepairOrderStatus::CREATED);
+            }
+
+            $r->setUpdatedAt(new \DateTimeImmutable());
+
+            $this->addLog($r, $actor, RepairOrderLogAction::ASSIGNED);
+
+            $this->em->flush();
+            return $r;
+        }
+
         $tech = $this->em->getRepository(User::class)->find($dto->technicianId);
         if (!$tech || $tech->getRole() !== UserRole::TECHNICIAN) {
             throw new \DomainException('Technicien invalide.');
