@@ -45,7 +45,6 @@ export default function RepairOrderEditForm({
       await onSubmit(payload);
     } catch (e: any) {
       setFormError(mapApiError(e));
-      throw e;
     } finally {
       setLoading(false);
     }
@@ -53,8 +52,6 @@ export default function RepairOrderEditForm({
 
   return (
     <form onSubmit={submitUpdate} style={{ display: "grid", gap: 12 }}>
-      <div style={{ fontWeight: 700 }}>Modifier l'ordre de réparation</div>
-
       <div
         style={{
           background: "var(--bg-soft)",

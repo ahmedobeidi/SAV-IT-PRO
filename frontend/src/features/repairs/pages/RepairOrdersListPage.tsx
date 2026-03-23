@@ -172,13 +172,16 @@ export default function RepairOrdersListPage() {
   async function updateRepair(payload: UpdateRepairOrderPayload) {
     if (!editTarget) return;
 
+    const repair = editTarget;
+    setEditTarget(null);
+
     try {
-      await repairsApi.update(editTarget.id, payload);
-      setEditTarget(null);
+      await repairsApi.update(repair.id, payload);
       showFlash("success", "Réparation mise à jour.");
       refresh();
     } catch (e: any) {
       showFlash("error", mapApiError(e));
+      refresh();
       throw e;
     }
   }
