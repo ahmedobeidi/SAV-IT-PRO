@@ -16,31 +16,12 @@ class ClientRepository extends ServiceEntityRepository
         parent::__construct($registry, Client::class);
     }
 
-    /**
-     * @return array{items: Client[], total: int}
-     */
-    public function listPaginated(int $page, int $limit): array
-    {
-        $qb = $this->createQueryBuilder('c')
-            ->andWhere('c.isAnonymized = :anon')
-            ->setParameter('anon', false)
-            ->orderBy('c.createdAt', 'DESC');
-
-        $countQb = clone $qb;
-        $total = (int) $countQb->select('COUNT(c.id)')->getQuery()->getSingleScalarResult();
-
-        $items = $qb->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
-
-        return ['items' => $items, 'total' => $total];
-    }
-
     public function findOneByPhone(string $phone): ?Client
     {
-        // option: normaliser ici si tu veux (ex: enlever espaces)
-        return $this->findOneBy(['phone' => $phone, 'isAnonymized' => false]);
+        return $this->findOneBy([
+            'phone' => $phone,
+            'isAnonymized' => false,
+        ]);
     }
 
     /**
@@ -53,7 +34,6 @@ class ClientRepository extends ServiceEntityRepository
             ->setParameter('anon', false);
 
         if ($phone) {
-            // simple "contains" search
             $qb->andWhere('c.phone LIKE :p')
                 ->setParameter('p', '%' . $phone . '%');
         }

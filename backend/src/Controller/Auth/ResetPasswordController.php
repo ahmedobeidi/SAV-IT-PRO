@@ -3,16 +3,17 @@
 namespace App\Controller\Auth;
 
 use App\DTO\Auth\ResetPasswordRequest;
+use App\Service\AuthService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ResetPasswordController extends AbstractController
 {
@@ -25,7 +26,8 @@ class ResetPasswordController extends AbstractController
         Request $request,
         ResetPasswordHelperInterface $resetPasswordHelper,
         EntityManagerInterface $em,
-        UserPasswordHasherInterface $passwordHasher
+        UserPasswordHasherInterface $passwordHasher,
+        AuthService $authService
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
@@ -63,6 +65,8 @@ class ResetPasswordController extends AbstractController
         $user->setPassword($passwordHasher->hashPassword($user, $newPassword));
         $user->setPasswordSetupRequired(false);
         $user->setUpdatedAt(new \DateTimeImmutable());
+
+        $authService->revokeAllRefreshTokensForUser($user);
 
         $em->flush();
 

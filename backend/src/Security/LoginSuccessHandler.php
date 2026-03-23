@@ -43,7 +43,7 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 
         return new JsonResponse([
             'token' => $jwt,
-            'refresh_token' => $refresh->getToken(),
+            'refresh_token' => $refresh->getPlainToken(),
             'expires_in' => 3600,
             'role' => $roleLabel
         ]);

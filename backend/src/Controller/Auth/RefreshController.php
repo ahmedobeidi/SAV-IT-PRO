@@ -35,16 +35,13 @@ class RefreshController extends AbstractController
             return new JsonResponse(['message' => 'Utilisateur invalide'], 401);
         }
 
-        // Optional security: rotate refresh token (recommended)
-        // revoke old and create a new one
         $authService->revokeRefreshToken($refresh);
         $newRefresh = $authService->createRefreshToken($user, 7);
-
         $newJwt = $jwtManager->create($user);
 
         return new JsonResponse([
             'token' => $newJwt,
-            'refresh_token' => $newRefresh->getToken(),
+            'refresh_token' => $newRefresh->getPlainToken(),
             'expires_in' => 3600
         ]);
     }

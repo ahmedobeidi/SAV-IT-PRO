@@ -4,6 +4,7 @@ namespace App\Service\RepairOrder;
 
 use App\DTO\RepairOrder\AssignTechnicianRequest;
 use App\DTO\RepairOrder\CreateRepairOrderRequest;
+use App\DTO\RepairOrder\UpdateRepairOrderRequest;
 use App\Entity\Client;
 use App\Entity\Issue;
 use App\Entity\RepairOrder;
@@ -14,7 +15,6 @@ use App\Enum\RepairOrderStatus;
 use App\Enum\UserRole;
 use App\Repository\EquipmentModelRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use App\DTO\RepairOrder\UpdateRepairOrderRequest;
 
 class RepairOrderService
 {
@@ -41,6 +41,8 @@ class RepairOrderService
         if (!$issue) {
             throw new \DomainException('Panne introuvable.');
         }
+
+        $this->assertIssueMatchesEquipmentModel($model, $issue);
 
         $r = new RepairOrder();
         $r->setReference($this->referenceGenerator->next());
@@ -69,6 +71,8 @@ class RepairOrderService
         if (!$issue) {
             throw new \DomainException('Panne introuvable.');
         }
+
+        $this->assertIssueMatchesEquipmentModel($r->getEquipmentModel(), $issue);
 
         $r->setIssue($issue);
         $r->setPrice($dto->price);
@@ -139,7 +143,7 @@ class RepairOrderService
         return $r;
     }
 
-    private function addLog(RepairOrder $r, User $actor, \App\Enum\RepairOrderLogAction $action): void
+    private function addLog(RepairOrder $r, User $actor, RepairOrderLogAction $action): void
     {
         $log = new RepairOrderLog();
         $log->setRepairOrder($r);
@@ -147,5 +151,15 @@ class RepairOrderService
         $log->setAction($action);
         $log->setSnapshot($this->logFactory->snapshot($r));
         $this->em->persist($log);
+    }
+
+    private function assertIssueMatchesEquipmentModel($model, Issue $issue): void
+    {
+        $modelTypeId = $model->getEquipmentBrand()->getEquipmentType()->getId();
+        $issueTypeId = $issue->getEquipmentType()->getId();
+
+        if ($modelTypeId !== $issueTypeId) {
+            throw new \DomainException('La panne ne correspond pas au type du modèle sélectionné.');
+        }
     }
 }

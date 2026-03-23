@@ -50,7 +50,11 @@ security:
 
     # EQUIPMENT
     - { path: ^/api/equipment-types, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+    - { path: ^/api/equipment-types/.*/brands, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+    - { path: ^/api/equipment-types/.*/issues, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
     - { path: ^/api/equipment-brands, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+    - { path: ^/api/equipment-brands/.*/models, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+    - { path: ^/api/equipment-models, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
     - { path: ^/api/issues, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
 
     # REPAIRS

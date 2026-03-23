@@ -6,7 +6,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class UpdateRepairOrderRequest
 {
-    #[Assert\NotNull]
+    #[Assert\Positive]
     public int $issueId;
 
     #[Assert\PositiveOrZero]

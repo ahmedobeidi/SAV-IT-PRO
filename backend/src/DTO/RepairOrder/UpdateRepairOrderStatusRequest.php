@@ -9,7 +9,6 @@ class UpdateRepairOrderStatusRequest
     #[Assert\NotBlank]
     #[Assert\Choice(choices: [
         'CREATED',
-        'ASSIGNED',
         'IN_PROGRESS',
         'WAITING_PARTS',
         'DONE',

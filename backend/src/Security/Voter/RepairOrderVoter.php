@@ -58,8 +58,11 @@ class RepairOrderVoter extends Voter
 
             self::ASSIGN => $isAdmin,
 
-            self::TECH_LIST,
-            self::TECH_STATUS => $isTech,
+            self::TECH_LIST => $isTech,
+
+            self::TECH_STATUS => $isTech
+                && $subject instanceof RepairOrder
+                && $subject->getAssignedTo()?->getId() === $user->getId(),
 
             default => false,
         };

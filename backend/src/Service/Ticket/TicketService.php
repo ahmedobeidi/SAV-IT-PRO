@@ -66,9 +66,4 @@ class TicketService
 
         return $ticket;
     }
-
-    public function isCurrent(Ticket $ticket, RepairOrder $repairOrder): bool
-    {
-        return $ticket->getSnapshotHash() === $this->snapshotFactory->hash($repairOrder);
-    }
 }

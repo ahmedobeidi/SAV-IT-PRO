@@ -26,9 +26,9 @@ class UserService
         }
 
         $user = new User();
-        $user->setFirstName($dto->firstName);
-        $user->setLastName($dto->lastName);
-        $user->setEmail($dto->email);
+        $user->setFirstName(trim($dto->firstName));
+        $user->setLastName(trim($dto->lastName));
+        $user->setEmail(trim(mb_strtolower($dto->email)));
         $user->setRole(UserRole::from($dto->role));
 
         $temporaryPassword = ByteString::fromRandom(32)->toString();
@@ -52,15 +52,15 @@ class UserService
         }
 
         if ($dto->firstName !== null) {
-            $target->setFirstName($dto->firstName);
+            $target->setFirstName(trim($dto->firstName));
         }
 
         if ($dto->lastName !== null) {
-            $target->setLastName($dto->lastName);
+            $target->setLastName(trim($dto->lastName));
         }
 
         if ($dto->email !== null) {
-            $target->setEmail($dto->email);
+            $target->setEmail(trim(mb_strtolower($dto->email)));
         }
 
         if ($dto->role !== null) {
