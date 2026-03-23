@@ -15,8 +15,11 @@ const cellStyle: React.CSSProperties = {
   verticalAlign: "middle",
 };
 
+type Mode = "staff" | "tech";
+
 function RepairRow({
   r,
+  mode,
   onEdit,
   onAssign,
   onUpdateStatus,
@@ -24,16 +27,17 @@ function RepairRow({
   onMessage,
 }: {
   r: RepairOrderRead;
-  onEdit: (repair: RepairOrderRead) => void;
-  onAssign: (repair: RepairOrderRead) => void;
+  mode: Mode;
+  onEdit?: (repair: RepairOrderRead) => void;
+  onAssign?: (repair: RepairOrderRead) => void;
   onUpdateStatus: (repair: RepairOrderRead) => void;
   onRefresh: () => void;
-  onMessage: (type: "success" | "error", text: string) => void;
+  onMessage?: (type: "success" | "error", text: string) => void;
 }) {
   const { openTicket, loadingTicket } = useTicketActions(
     r.id,
     onRefresh,
-    onMessage,
+    onMessage ?? (() => {}),
   );
 
   return (
@@ -87,14 +91,16 @@ function RepairRow({
             justifyContent: "center",
           }}
         >
-          <button
-            className="btn hover-bg-primary"
-            onClick={() => onEdit(r)}
-            title="Modifier"
-            aria-label="Modifier"
-          >
-            <Pencil size={18} />
-          </button>
+          {mode === "staff" && onEdit && (
+            <button
+              className="btn hover-bg-primary"
+              onClick={() => onEdit(r)}
+              title="Modifier"
+              aria-label="Modifier"
+            >
+              <Pencil size={18} />
+            </button>
+          )}
 
           <button
             className="btn hover-bg-primary"
@@ -110,14 +116,16 @@ function RepairRow({
             <Eye size={18} />
           </button>
 
-          <button
-            className="btn hover-bg-primary"
-            onClick={() => onAssign(r)}
-            title="Affecter"
-            aria-label="Affecter"
-          >
-            <UserPlus size={18} />
-          </button>
+          {mode === "staff" && onAssign && (
+            <button
+              className="btn hover-bg-primary"
+              onClick={() => onAssign(r)}
+              title="Affecter"
+              aria-label="Affecter"
+            >
+              <UserPlus size={18} />
+            </button>
+          )}
 
           <button
             className="btn hover-bg-primary"
@@ -135,6 +143,7 @@ function RepairRow({
 
 export default function RepairOrdersTable({
   items,
+  mode = "staff",
   onEdit,
   onAssign,
   onUpdateStatus,
@@ -142,11 +151,12 @@ export default function RepairOrdersTable({
   onMessage,
 }: {
   items: RepairOrderRead[];
-  onEdit: (repair: RepairOrderRead) => void;
-  onAssign: (repair: RepairOrderRead) => void;
+  mode?: Mode;
+  onEdit?: (repair: RepairOrderRead) => void;
+  onAssign?: (repair: RepairOrderRead) => void;
   onUpdateStatus: (repair: RepairOrderRead) => void;
   onRefresh: () => void;
-  onMessage: (type: "success" | "error", text: string) => void;
+  onMessage?: (type: "success" | "error", text: string) => void;
 }) {
   return (
     <div className="card" style={{ padding: 12, overflowX: "auto" }}>
@@ -180,6 +190,7 @@ export default function RepairOrdersTable({
             <RepairRow
               key={r.id}
               r={r}
+              mode={mode}
               onEdit={onEdit}
               onAssign={onAssign}
               onUpdateStatus={onUpdateStatus}

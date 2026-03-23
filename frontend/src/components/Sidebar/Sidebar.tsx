@@ -7,7 +7,14 @@ import {
   UserCog,
   User,
 } from "lucide-react";
-import { authStore } from "../../features/auth/auth.store.ts";
+import { authStore } from "../../features/auth/auth.store";
+import {
+  canManageUsers,
+  canAccessClients,
+  canAccessEquipment,
+  canAccessRepairs,
+  canAccessTechnicianSpace,
+} from "../../features/auth/auth.roles";
 import "./Sidebar.css";
 import logo2 from "../../assets/logo2.svg";
 
@@ -15,8 +22,11 @@ export default function Sidebar() {
   const { role } = authStore.getTokens();
   const equipmentMatch = useMatch("/admin/equipment/*");
 
-  const canManageUsers =
-    role === "Super Administrateur" || role === "Administrateur";
+  const canSeeUsers = canManageUsers(role);
+  const canSeeClients = canAccessClients(role);
+  const canSeeEquipment = canAccessEquipment(role);
+  const canSeeRepairs = canAccessRepairs(role);
+  const canSeeTechnicianPage = canAccessTechnicianSpace(role);
 
   const isEquipmentActive = !!equipmentMatch;
 
@@ -55,9 +65,11 @@ export default function Sidebar() {
           <span>Profil</span>
         </NavLink>
 
-        <div className="sidebar__section">GESTION</div>
+        {(canSeeUsers || canSeeClients) && (
+          <div className="sidebar__section">GESTION</div>
+        )}
 
-        {canManageUsers && (
+        {canSeeUsers && (
           <NavLink
             to="/admin/users"
             className={({ isActive }) =>
@@ -69,49 +81,59 @@ export default function Sidebar() {
           </NavLink>
         )}
 
-        <NavLink
-          to="/admin/clients"
-          className={({ isActive }) =>
-            `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
-          }
-        >
-          <Users size={18} />
-          <span>Clients</span>
-        </NavLink>
+        {canSeeClients && (
+          <NavLink
+            to="/admin/clients"
+            className={({ isActive }) =>
+              `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
+            }
+          >
+            <Users size={18} />
+            <span>Clients</span>
+          </NavLink>
+        )}
 
-        <div className="sidebar__section">OPÉRATIONS</div>
+        {(canSeeEquipment || canSeeRepairs || canSeeTechnicianPage) && (
+          <div className="sidebar__section">OPÉRATIONS</div>
+        )}
 
-        <NavLink
-          to="/admin/equipment/types"
-          className={({ isActive }) =>
-            `sidebar__link ${
-              isActive || isEquipmentActive ? "sidebar__link--active" : ""
-            }`
-          }
-        >
-          <Wrench size={18} />
-          <span>Équipements</span>
-        </NavLink>
+        {canSeeEquipment && (
+          <NavLink
+            to="/admin/equipment/types"
+            className={({ isActive }) =>
+              `sidebar__link ${
+                isActive || isEquipmentActive ? "sidebar__link--active" : ""
+              }`
+            }
+          >
+            <Wrench size={18} />
+            <span>Équipements</span>
+          </NavLink>
+        )}
 
-        <NavLink
-          to="/admin/repair-orders"
-          className={({ isActive }) =>
-            `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
-          }
-        >
-          <ClipboardList size={18} />
-          <span>Réparations</span>
-        </NavLink>
+        {canSeeRepairs && (
+          <NavLink
+            to="/admin/repair-orders"
+            className={({ isActive }) =>
+              `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
+            }
+          >
+            <ClipboardList size={18} />
+            <span>Réparations</span>
+          </NavLink>
+        )}
 
-        <NavLink
-          to="/admin/technician/repair-orders"
-          className={({ isActive }) =>
-            `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
-          }
-        >
-          <UserCog size={18} />
-          <span>Technicien</span>
-        </NavLink>
+        {canSeeTechnicianPage && (
+          <NavLink
+            to="/admin/technician/repair-orders"
+            className={({ isActive }) =>
+              `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
+            }
+          >
+            <UserCog size={18} />
+            <span>Technicien</span>
+          </NavLink>
+        )}
       </nav>
     </aside>
   );

@@ -54,6 +54,26 @@ export const repairsApi = {
     return res.data;
   },
 
+  async technicianList(params: {
+    page?: number;
+    limit?: number;
+    status?: RepairStatus;
+  }): Promise<Paginated<RepairOrderRead>> {
+    const res = await http.get("/api/technician/repair-orders", { params });
+    return res.data;
+  },
+
+  async technicianUpdateStatus(
+    id: number,
+    payload: UpdateStatusPayload,
+  ): Promise<RepairOrderRead> {
+    const res = await http.patch(
+      `/api/technician/repair-orders/${id}/status`,
+      payload,
+    );
+    return res.data;
+  },
+
   async generateCurrentTicket(id: number): Promise<TicketRead> {
     const res = await http.post(`/api/repair-orders/${id}/tickets/generate`);
     return res.data;
