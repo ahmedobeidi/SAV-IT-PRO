@@ -72,6 +72,11 @@ export function canAccessRepairs(raw: string | null): boolean {
   );
 }
 
+export function canAssignTechnician(raw: string | null): boolean {
+  const role = normalizeRole(raw);
+  return role === "ROLE_SUPER_ADMIN" || role === "ROLE_ADMIN";
+}
+
 export function canAccessTechnicianSpace(raw: string | null): boolean {
   return normalizeRole(raw) === "ROLE_TECHNICIAN";
 }

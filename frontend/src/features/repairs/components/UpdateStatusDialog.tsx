@@ -1,9 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { RepairStatus } from "../repairs.types";
 import { getStatusLabel } from "../utils/statusTranslations";
 
 const ALL: RepairStatus[] = [
-  "CREATED","ASSIGNED","IN_PROGRESS","WAITING_PARTS","DONE","DELIVERED","CANCELED"
+  "CREATED",
+  "IN_PROGRESS",
+  "WAITING_PARTS",
+  "DONE",
+  "DELIVERED",
+  "CANCELED",
 ];
 
 export default function UpdateStatusDialog({
@@ -21,6 +26,13 @@ export default function UpdateStatusDialog({
 }) {
   const [status, setStatus] = useState<RepairStatus>(current);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setStatus(current);
+      setLoading(false);
+    }
+  }, [open, current]);
 
   if (!open) return null;
 
@@ -41,14 +53,24 @@ export default function UpdateStatusDialog({
       <div className="card" style={{ width: "100%", maxWidth: 520, padding: 16 }}>
         <div style={{ fontWeight: 700, marginBottom: 6 }}>Changer le statut</div>
 
-        <select className="input" value={status} onChange={(e) => setStatus(e.target.value as RepairStatus)}>
+        <select
+          className="input"
+          value={status}
+          onChange={(e) => setStatus(e.target.value as RepairStatus)}
+          disabled={loading}
+        >
           {options.map((s) => (
-            <option key={s} value={s}>{getStatusLabel(s)}</option>
+            <option key={s} value={s}>
+              {getStatusLabel(s)}
+            </option>
           ))}
         </select>
 
         <div style={{ display: "flex", gap: 10, justifyContent: "end", marginTop: 12 }}>
-          <button className="btn" onClick={onClose}>Annuler</button>
+          <button className="btn" onClick={onClose} disabled={loading}>
+            Annuler
+          </button>
+
           <button
             className="btn btn-primary"
             disabled={loading}

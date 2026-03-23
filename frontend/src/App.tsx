@@ -4,7 +4,7 @@ import AdminLayout from "./layouts/AdminLayout";
 import { AuthGuard } from "./features/auth/auth.guard";
 import { GuestGuard } from "./features/auth/guest.guard";
 import { RoleGuard } from "./features/auth/RoleGuard";
-import { authStore } from "./features/auth/auth.store";
+import { useAuth } from "./features/auth/useAuth";
 import {
   canManageUsers,
   canAccessClients,
@@ -40,7 +40,7 @@ import RepairOrderCreatePage from "./features/repairs/pages/RepairOrderCreatePag
 import TechnicianRepairOrdersPage from "./features/repairs/pages/TechnicianRepairOrdersPage";
 
 export default function App() {
-  const { role } = authStore.getTokens();
+  const { role } = useAuth();
 
   return (
     <>
@@ -172,8 +172,14 @@ export default function App() {
           />
         </Route>
 
-        <Route path="/" element={<Navigate to={getDefaultAdminPath(role)} replace />} />
-        <Route path="*" element={<Navigate to={getDefaultAdminPath(role)} replace />} />
+        <Route
+          path="/"
+          element={<Navigate to={getDefaultAdminPath(role)} replace />}
+        />
+        <Route
+          path="*"
+          element={<Navigate to={getDefaultAdminPath(role)} replace />}
+        />
       </Routes>
     </>
   );

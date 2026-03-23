@@ -3,20 +3,23 @@ import { LogOut } from "lucide-react";
 import { authStore } from "../../features/auth/auth.store";
 import { authService } from "../../features/auth/auth.service";
 import { getRoleLabel } from "../../features/auth/auth.roles";
+import { useAuth } from "../../features/auth/useAuth";
 import "./Topbar.css";
 
 export default function Topbar() {
   const navigate = useNavigate();
-  const { role, refreshToken } = authStore.getTokens();
+  const { role, refreshToken } = useAuth();
 
   async function handleLogout() {
     try {
       if (refreshToken) {
         await authService.logout(refreshToken);
       }
+    } catch {
+      // ignore API logout error
     } finally {
       authStore.clear();
-      navigate("/login");
+      navigate("/login", { replace: true });
     }
   }
 

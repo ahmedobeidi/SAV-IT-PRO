@@ -102,19 +102,21 @@ function RepairRow({
             </button>
           )}
 
-          <button
-            className="btn hover-bg-primary"
-            onClick={openTicket}
-            title="Voir le ticket"
-            aria-label="Voir le ticket"
-            disabled={loadingTicket}
-            style={{
-              opacity: loadingTicket ? 0.6 : 1,
-              cursor: loadingTicket ? "wait" : "pointer",
-            }}
-          >
-            <Eye size={18} />
-          </button>
+          {mode === "staff" && (
+            <button
+              className="btn hover-bg-primary"
+              onClick={openTicket}
+              title="Voir le ticket"
+              aria-label="Voir le ticket"
+              disabled={loadingTicket}
+              style={{
+                opacity: loadingTicket ? 0.6 : 1,
+                cursor: loadingTicket ? "wait" : "pointer",
+              }}
+            >
+              <Eye size={18} />
+            </button>
+          )}
 
           {mode === "staff" && onAssign && (
             <button

@@ -1,6 +1,5 @@
 export type RepairStatus =
   | "CREATED"
-  | "ASSIGNED"
   | "IN_PROGRESS"
   | "WAITING_PARTS"
   | "DONE"

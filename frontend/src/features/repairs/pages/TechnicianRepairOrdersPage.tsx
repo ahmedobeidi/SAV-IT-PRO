@@ -56,6 +56,7 @@ export default function TechnicianRepairOrdersPage() {
       await repairsApi.technicianUpdateStatus(statusTarget.id, {
         status: newStatus,
       });
+      setStatusTarget(null);
       setMessage({ type: "success", text: "Statut mis à jour." });
       refresh();
     } catch (e: any) {
@@ -149,7 +150,7 @@ export default function TechnicianRepairOrdersPage() {
 
       <UpdateStatusDialog
         open={!!statusTarget}
-        current={statusTarget?.status ?? "ASSIGNED"}
+        current={statusTarget?.status ?? "CREATED"}
         allowed={["CREATED", "IN_PROGRESS", "WAITING_PARTS", "DONE", "CANCELED"]}
         onClose={() => setStatusTarget(null)}
         onConfirm={techUpdateStatus}

@@ -13,6 +13,8 @@ import { repairsApi } from "../repairs.api";
 import { mapApiError } from "../repairs.validators";
 import { getStatusLabel } from "../utils/statusTranslations";
 import EditRepairOrderDialog from "../components/EditRepairOrderDialog";
+import { useAuth } from "../../auth/useAuth";
+import { canAssignTechnician } from "../../auth/auth.roles";
 
 const STATUS: Array<RepairStatus | ""> = [
   "",
@@ -100,6 +102,9 @@ function BottomPagination({
 }
 
 export default function RepairOrdersListPage() {
+  const { role } = useAuth();
+  const canAssign = canAssignTechnician(role);
+
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<RepairStatus | "">("");
   const [page, setPage] = useState(1);
@@ -295,7 +300,7 @@ export default function RepairOrdersListPage() {
           <RepairOrdersTable
             items={data.items}
             onEdit={(r) => setEditTarget(r)}
-            onAssign={(r) => setAssignTarget(r)}
+            onAssign={canAssign ? (r) => setAssignTarget(r) : undefined}
             onUpdateStatus={(r) => setStatusTarget(r)}
             onRefresh={refresh}
             onMessage={showFlash}
@@ -309,11 +314,13 @@ export default function RepairOrdersListPage() {
         </>
       )}
 
-      <AssignTechnicianDialog
-        open={!!assignTarget}
-        onClose={() => setAssignTarget(null)}
-        onConfirm={assign}
-      />
+      {canAssign && (
+        <AssignTechnicianDialog
+          open={!!assignTarget}
+          onClose={() => setAssignTarget(null)}
+          onConfirm={assign}
+        />
+      )}
 
       <UpdateStatusDialog
         open={!!statusTarget}

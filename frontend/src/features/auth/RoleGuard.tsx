@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { authStore } from "./auth.store";
+import { useAuth } from "./useAuth";
 import { getDefaultAdminPath } from "./auth.roles";
 
 type RoleGuardProps = {
@@ -8,9 +8,9 @@ type RoleGuardProps = {
 };
 
 export function RoleGuard({ allow, children }: RoleGuardProps) {
-  const { role } = authStore.getTokens();
+  const { isLoggedIn, role } = useAuth();
 
-  if (!authStore.isLoggedIn()) {
+  if (!isLoggedIn) {
     return <Navigate to="/login" replace />;
   }
 
