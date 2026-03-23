@@ -1,6 +1,6 @@
 import RepairStatusBadge from "./RepairStatusBadge";
-import type { RepairOrderRead, TicketRead } from "../repairs.types";
-import { Eye, Send, UserPlus, RefreshCw, Pencil } from "lucide-react";
+import type { RepairOrderRead } from "../repairs.types";
+import { Eye, UserPlus, RefreshCw, Pencil } from "lucide-react";
 import { useTicketActions } from "../hooks/useTicketActions";
 
 const headCellStyle: React.CSSProperties = {
@@ -14,12 +14,6 @@ const cellStyle: React.CSSProperties = {
   borderBottom: "1px solid var(--border)",
   verticalAlign: "middle",
 };
-
-function pdfStatusLabel(ticket: TicketRead | null, hasEmail: boolean): string {
-  if (!hasEmail) return "Pas d’email";
-  if (!ticket) return "Non envoyé";
-  return ticket.alreadySentToCurrentClient ? "Envoyé" : "Non envoyé";
-}
 
 function RepairRow({
   r,
@@ -36,16 +30,11 @@ function RepairRow({
   onRefresh: () => void;
   onMessage: (type: "success" | "error", text: string) => void;
 }) {
-  const { ticket, loadingTicket, openTicket, send } = useTicketActions(
+  const { openTicket, loadingTicket } = useTicketActions(
     r.id,
     onRefresh,
     onMessage,
   );
-
-  const clientEmail = r.createdFor.email?.trim() ?? "";
-  const hasEmail = clientEmail.length > 0;
-  const alreadySent = !!ticket && ticket.alreadySentToCurrentClient;
-  const canSend = hasEmail && !alreadySent;
 
   return (
     <tr>
@@ -83,16 +72,6 @@ function RepairRow({
         </span>
       </td>
 
-      <td style={cellStyle}>
-        {loadingTicket ? (
-          <span className="small">Chargement...</span>
-        ) : (
-          <span className="small" style={{ fontWeight: 600 }}>
-            {pdfStatusLabel(ticket, hasEmail)}
-          </span>
-        )}
-      </td>
-
       <td
         style={{
           ...cellStyle,
@@ -120,8 +99,13 @@ function RepairRow({
           <button
             className="btn hover-bg-primary"
             onClick={openTicket}
-            title="Ouvrir"
-            aria-label="Ouvrir"
+            title="Voir le ticket"
+            aria-label="Voir le ticket"
+            disabled={loadingTicket}
+            style={{
+              opacity: loadingTicket ? 0.6 : 1,
+              cursor: loadingTicket ? "wait" : "pointer",
+            }}
           >
             <Eye size={18} />
           </button>
@@ -142,26 +126,6 @@ function RepairRow({
             aria-label="Statut"
           >
             <RefreshCw size={18} />
-          </button>
-
-          <button
-            className="btn hover-bg-primary"
-            onClick={send}
-            disabled={!canSend}
-            title={
-              !hasEmail
-                ? "Le client n’a pas d’email"
-                : alreadySent
-                  ? "Déjà envoyé"
-                  : "Envoyer au client"
-            }
-            aria-label="Envoyer au client"
-            style={{
-              opacity: canSend ? 1 : 0.5,
-              cursor: canSend ? "pointer" : "not-allowed",
-            }}
-          >
-            <Send size={18} />
           </button>
         </div>
       </td>
@@ -196,7 +160,6 @@ export default function RepairOrdersTable({
               "Panne",
               "Statut",
               "Technicien",
-              "PDF",
               "Actions",
             ].map((h) => (
               <th

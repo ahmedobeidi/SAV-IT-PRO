@@ -67,12 +67,9 @@ export type TicketRead = {
   filename: string;
   mimeType: string;
   size: number;
-  version: number;
   generatedAt: string;
   isCurrent: boolean;
-  alreadySentToCurrentClient: boolean;
   viewUrl: string;
-  downloadUrl: string;
 };
 
 export type UpdateRepairOrderPayload = {

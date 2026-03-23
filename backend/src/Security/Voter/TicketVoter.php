@@ -13,18 +13,14 @@ class TicketVoter extends Voter
 {
     public const VIEW = 'TICKET_VIEW';
     public const GENERATE = 'TICKET_GENERATE';
-    public const SEND = 'TICKET_SEND';
-    public const DOWNLOAD = 'TICKET_DOWNLOAD';
-    public const LIST = 'TICKET_LIST';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if (in_array($attribute, [self::GENERATE, self::SEND, self::LIST], true)) {
+        if ($attribute === self::GENERATE) {
             return $subject instanceof RepairOrder;
         }
 
-        return $subject instanceof Ticket
-            && in_array($attribute, [self::VIEW, self::DOWNLOAD], true);
+        return $subject instanceof Ticket && $attribute === self::VIEW;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
@@ -43,12 +39,8 @@ class TicketVoter extends Voter
         ], true);
 
         return match ($attribute) {
-            self::LIST,
             self::GENERATE,
-            self::SEND,
-            self::VIEW,
-            self::DOWNLOAD => $isStaff,
-
+            self::VIEW => $isStaff,
             default => false,
         };
     }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { repairsApi } from "../repairs.api";
 import { mapApiError } from "../repairs.validators";
 import type { TicketRead } from "../repairs.types";
@@ -11,36 +11,10 @@ export function useTicketActions(
   const [ticket, setTicket] = useState<TicketRead | null>(null);
   const [loadingTicket, setLoadingTicket] = useState(false);
 
-  async function loadTicket() {
-    setLoadingTicket(true);
-    try {
-      const data = await repairsApi.listTickets(repairId);
-      setTicket(data.length > 0 ? data[0] : null);
-    } catch {
-      setTicket(null);
-    } finally {
-      setLoadingTicket(false);
-    }
-  }
-
-  useEffect(() => {
-    loadTicket();
-  }, [repairId]);
-
-  async function send() {
-    try {
-      const res = await repairsApi.sendCurrentTicket(repairId);
-      onMessage("success", res.message || "Ticket envoyé.");
-      await loadTicket();
-      onDone();
-    } catch (e: any) {
-      onMessage("error", mapApiError(e));
-    }
-  }
-
   async function openTicket() {
+    setLoadingTicket(true);
+
     try {
-      // Always get/generate the current version first
       const current = await repairsApi.generateCurrentTicket(repairId);
       setTicket(current);
 
@@ -52,14 +26,14 @@ export function useTicketActions(
       onDone();
     } catch (e: any) {
       onMessage("error", mapApiError(e));
+    } finally {
+      setLoadingTicket(false);
     }
   }
 
   return {
     ticket,
     loadingTicket,
-    send,
     openTicket,
-    reload: loadTicket,
   };
 }

@@ -124,7 +124,7 @@
 
 						<td class="header-right">
 							<div class="document-title">Ticket de réparation</div>
-							<div class="reference-box">{{ ticket.reference }} — v{{ version }}</div>
+							<div class="reference-box">{{ ticket.reference }}</div>
 
 							<div class="meta">
 								Date du ticket : {{ generatedAt|date('d/m/Y H:i') }}
@@ -198,8 +198,7 @@
 
 			<div class="footer">
 				© {{ "now"|date("Y") }} SAV-IT-PRO — IT-PRO<br>
-				Référence dossier : <strong>{{ ticket.reference }}</strong><br>
-				Version PDF : <strong>{{ version }}</strong>
+				Référence dossier : <strong>{{ ticket.reference }}</strong>
 			</div>
 		</div>
 	</body>

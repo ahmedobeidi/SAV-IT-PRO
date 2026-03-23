@@ -8,7 +8,6 @@ import type {
   UpdateStatusPayload,
   RepairStatus,
   TicketRead,
-  GeneratedTicketResponse,
 } from "./repairs.types";
 
 export const repairsApi = {
@@ -55,33 +54,13 @@ export const repairsApi = {
     return res.data;
   },
 
-  async generateCurrentTicket(id: number): Promise<GeneratedTicketResponse> {
+  async generateCurrentTicket(id: number): Promise<TicketRead> {
     const res = await http.post(`/api/repair-orders/${id}/tickets/generate`);
-    return res.data;
-  },
-
-  async sendCurrentTicket(id: number): Promise<{ message: string; ticketId: number; version: number }> {
-    const res = await http.post(`/api/repair-orders/${id}/tickets/send`);
-    return res.data;
-  },
-
-  async listTickets(id: number): Promise<TicketRead[]> {
-    const res = await http.get(`/api/repair-orders/${id}/tickets`, {
-      meta: { skipLoading: true },
-    } as any);
     return res.data;
   },
 
   async viewTicketBlob(ticketId: number): Promise<Blob> {
     const res = await http.get(`/api/tickets/${ticketId}/view`, {
-      responseType: "blob",
-      meta: { skipLoading: true },
-    } as any);
-    return res.data;
-  },
-
-  async downloadTicketBlob(ticketId: number): Promise<Blob> {
-    const res = await http.get(`/api/tickets/${ticketId}/download`, {
       responseType: "blob",
       meta: { skipLoading: true },
     } as any);

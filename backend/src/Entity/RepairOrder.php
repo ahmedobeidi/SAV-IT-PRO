@@ -73,9 +73,8 @@ class RepairOrder
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    /** @var Collection<int, Ticket> */
-    #[ORM\OneToMany(mappedBy: 'repairOrder', targetEntity: Ticket::class, orphanRemoval: true)]
-    private Collection $tickets;
+    #[ORM\OneToOne(mappedBy: 'repairOrder', targetEntity: Ticket::class, cascade: ['persist', 'remove'])]
+    private ?Ticket $ticket = null;
 
     /** @var Collection<int, RepairOrderLog> */
     #[ORM\OneToMany(mappedBy: 'repairOrder', targetEntity: RepairOrderLog::class, orphanRemoval: true)]
@@ -85,7 +84,6 @@ class RepairOrder
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->status = RepairOrderStatus::CREATED;
-        $this->tickets = new ArrayCollection();
         $this->logs = new ArrayCollection();
     }
 
@@ -226,18 +224,16 @@ class RepairOrder
         return $this;
     }
 
-    /**
-     * @return Collection<int, Ticket>
-     */
-    public function getTickets(): Collection
+    public function getTicket(): ?Ticket
     {
-        return $this->tickets;
+        return $this->ticket;
     }
 
-    public function addTicket(Ticket $ticket): self
+    public function setTicket(?Ticket $ticket): self
     {
-        if (!$this->tickets->contains($ticket)) {
-            $this->tickets->add($ticket);
+        $this->ticket = $ticket;
+
+        if ($ticket && $ticket->getRepairOrder() !== $this) {
             $ticket->setRepairOrder($this);
         }
 

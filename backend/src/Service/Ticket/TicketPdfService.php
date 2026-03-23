@@ -14,13 +14,12 @@ class TicketPdfService
     ) {}
 
     /** @return array{content:string, filename:string, mime:string} */
-    public function generatePdfFromSnapshot(array $snapshot, int $version): array
+    public function generatePdfFromSnapshot(array $snapshot): array
     {
         $logoDataUri = $this->buildLogoDataUri();
 
         $html = $this->twig->render('ticket/ticket.html.twig', [
             'ticket' => $snapshot,
-            'version' => $version,
             'generatedAt' => new \DateTimeImmutable(),
             'logoPath' => $logoDataUri,
         ]);
@@ -36,7 +35,7 @@ class TicketPdfService
         $dompdf->render();
 
         $pdfContent = $dompdf->output();
-        $filename = sprintf('ticket-%s-v%d.pdf', $snapshot['reference'], $version);
+        $filename = sprintf('ticket-%s.pdf', $snapshot['reference']);
 
         return [
             'content' => $pdfContent,
