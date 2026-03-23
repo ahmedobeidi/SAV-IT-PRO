@@ -87,15 +87,9 @@ class RepairOrderService
     {
         if ($dto->technicianId === null) {
             $r->setAssignedTo(null);
-
-            // optional: if it was assigned/in progress, decide what status should become
-            if ($r->getStatus() === RepairOrderStatus::ASSIGNED) {
-                $r->setStatus(RepairOrderStatus::CREATED);
-            }
-
             $r->setUpdatedAt(new \DateTimeImmutable());
 
-            $this->addLog($r, $actor, RepairOrderLogAction::ASSIGNED);
+            $this->addLog($r, $actor, RepairOrderLogAction::UNASSIGNED);
 
             $this->em->flush();
             return $r;
@@ -107,11 +101,6 @@ class RepairOrderService
         }
 
         $r->setAssignedTo($tech);
-
-        if (in_array($r->getStatus(), [RepairOrderStatus::CREATED, RepairOrderStatus::CANCELED], true)) {
-            $r->setStatus(RepairOrderStatus::ASSIGNED);
-        }
-
         $r->setUpdatedAt(new \DateTimeImmutable());
 
         $this->addLog($r, $actor, RepairOrderLogAction::ASSIGNED);

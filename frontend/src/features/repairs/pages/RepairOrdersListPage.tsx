@@ -17,7 +17,6 @@ import EditRepairOrderDialog from "../components/EditRepairOrderDialog";
 const STATUS: Array<RepairStatus | ""> = [
   "",
   "CREATED",
-  "ASSIGNED",
   "IN_PROGRESS",
   "WAITING_PARTS",
   "DONE",
@@ -321,7 +320,6 @@ export default function RepairOrdersListPage() {
         current={statusTarget?.status ?? "CREATED"}
         allowed={[
           "CREATED",
-          "ASSIGNED",
           "IN_PROGRESS",
           "WAITING_PARTS",
           "DONE",

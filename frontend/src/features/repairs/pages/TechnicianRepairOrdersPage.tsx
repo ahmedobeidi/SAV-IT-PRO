@@ -7,7 +7,7 @@ import { repairsApi } from "../repairs.api";
 import { mapApiError } from "../repairs.validators";
 import { getStatusLabel } from "../utils/statusTranslations";
 
-const STATUS: Array<RepairStatus | ""> = ["", "ASSIGNED","IN_PROGRESS","WAITING_PARTS","DONE","CANCELED"];
+const STATUS: Array<RepairStatus | ""> = ["", "CREATED", "IN_PROGRESS", "WAITING_PARTS", "DONE", "CANCELED"];
 
 export default function TechnicianRepairOrdersPage() {
   const [status, setStatus] = useState<RepairStatus | "">("");
@@ -89,7 +89,7 @@ export default function TechnicianRepairOrdersPage() {
         open={!!statusTarget}
         current={statusTarget?.status ?? "ASSIGNED"}
         // tech: you can restrict (example). If backend already blocks DELIVERED, we just hide it.
-        allowed={["ASSIGNED","IN_PROGRESS","WAITING_PARTS","DONE","CANCELED"]}
+        allowed={["CREATED","IN_PROGRESS","WAITING_PARTS","DONE","CANCELED"]}
         onClose={() => setStatusTarget(null)}
         onConfirm={techUpdateStatus}
       />
