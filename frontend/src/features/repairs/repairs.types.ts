@@ -59,7 +59,7 @@ export type CreateRepairOrderPayload = {
   description?: string | null;
 };
 
-export type AssignTechnicianPayload = { technicianId: number };
+export type AssignTechnicianPayload = { technicianId: number | null };
 export type UpdateStatusPayload = { status: RepairStatus };
 
 export type TicketRead = {

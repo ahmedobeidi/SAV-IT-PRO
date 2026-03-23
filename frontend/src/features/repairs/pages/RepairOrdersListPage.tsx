@@ -141,13 +141,16 @@ export default function RepairOrdersListPage() {
   );
   const [editTarget, setEditTarget] = useState<RepairOrderRead | null>(null);
 
-  async function assign(technicianId: number) {
+  async function assign(technicianId: number | null) {
     if (!assignTarget) return;
 
     try {
       await repairsApi.assign(assignTarget.id, { technicianId });
       setAssignTarget(null);
-      showFlash("success", "Technicien affecté.");
+      showFlash(
+        "success",
+        technicianId === null ? "Technicien retiré." : "Technicien affecté.",
+      );
       refresh();
     } catch (e: any) {
       showFlash("error", mapApiError(e));
