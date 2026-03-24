@@ -18,6 +18,7 @@ class ApiRateLimiterSubscriber implements EventSubscriberInterface
         private RateLimiterFactory $resetPasswordLimiter,
         private RateLimiterFactory $refreshTokenLimiter,
         private Security $security,
+        private string $appEnv,
     ) {}
 
     public static function getSubscribedEvents(): array
@@ -27,6 +28,10 @@ class ApiRateLimiterSubscriber implements EventSubscriberInterface
 
     public function onKernelRequest(RequestEvent $event): void
     {
+        if ($this->appEnv === 'test') {
+            return;
+        }
+
         if (!$event->isMainRequest()) {
             return;
         }

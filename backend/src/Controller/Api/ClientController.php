@@ -29,7 +29,9 @@ class ClientController extends AbstractController
         $this->denyAccessUnlessGranted(ClientVoter::CREATE);
 
         $data = json_decode($request->getContent(), true);
-        if (!is_array($data)) throw new BadRequestHttpException('JSON invalide.');
+        if (!is_array($data)) {
+            throw new BadRequestHttpException('JSON invalide.');
+        }
 
         $dto = new CreateClientRequest();
         $dto->firstName = $data['firstName'] ?? '';
@@ -62,11 +64,11 @@ class ClientController extends AbstractController
     {
         $this->denyAccessUnlessGranted(ClientVoter::VIEW_LIST);
 
-        $phone = $request->query->get('phone'); // ✅ add
+        $phone = $request->query->get('phone');
         $page  = max(1, (int) $request->query->get('page', 1));
         $limit = min(100, max(1, (int) $request->query->get('limit', 10)));
 
-        $result = $repo->searchByPhonePaginated($phone, $page, $limit); // ✅ change
+        $result = $repo->searchByPhonePaginated($phone, $page, $limit);
 
         return $this->json([
             'page' => $page,
@@ -74,14 +76,6 @@ class ClientController extends AbstractController
             'total' => $result['total'],
             'items' => $result['items'],
         ], 200, [], ['groups' => ['client:read']]);
-    }
-
-    #[Route('/{id}', name: 'api_clients_show', methods: ['GET'])]
-    public function show(Client $client): JsonResponse
-    {
-        $this->denyAccessUnlessGranted(ClientVoter::VIEW, $client);
-
-        return $this->json($client, 200, [], ['groups' => ['client:read']]);
     }
 
     #[Route('/search', name: 'api_clients_search_phone', methods: ['GET'])]
@@ -104,13 +98,23 @@ class ClientController extends AbstractController
         return $this->json($client, 200, [], ['groups' => ['client:read']]);
     }
 
-    #[Route('/{id}', name: 'api_clients_update', methods: ['PATCH'])]
+    #[Route('/{id}', name: 'api_clients_show', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function show(Client $client): JsonResponse
+    {
+        $this->denyAccessUnlessGranted(ClientVoter::VIEW, $client);
+
+        return $this->json($client, 200, [], ['groups' => ['client:read']]);
+    }
+
+    #[Route('/{id}', name: 'api_clients_update', methods: ['PATCH'], requirements: ['id' => '\d+'])]
     public function update(Client $client, Request $request): JsonResponse
     {
         $this->denyAccessUnlessGranted(ClientVoter::EDIT, $client);
 
         $data = json_decode($request->getContent(), true);
-        if (!is_array($data)) throw new BadRequestHttpException('JSON invalide.');
+        if (!is_array($data)) {
+            throw new BadRequestHttpException('JSON invalide.');
+        }
 
         $dto = new UpdateClientRequest();
         $dto->firstName = $data['firstName'] ?? null;
@@ -138,7 +142,7 @@ class ClientController extends AbstractController
         return $this->json($updated, 200, [], ['groups' => ['client:read']]);
     }
 
-    #[Route('/{id}/repairs', name: 'api_clients_repairs', methods: ['GET'])]
+    #[Route('/{id}/repairs', name: 'api_clients_repairs', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function repairs(Client $client): JsonResponse
     {
         $this->denyAccessUnlessGranted(ClientVoter::VIEW_REPAIRS, $client);
@@ -151,7 +155,7 @@ class ClientController extends AbstractController
         );
     }
 
-    #[Route('/{id}/anonymize', name: 'api_clients_anonymize', methods: ['PATCH'])]
+    #[Route('/{id}/anonymize', name: 'api_clients_anonymize', methods: ['PATCH'], requirements: ['id' => '\d+'])]
     public function anonymize(Client $client): JsonResponse
     {
         $this->denyAccessUnlessGranted(ClientVoter::ANONYMIZE, $client);
