@@ -16,7 +16,10 @@ export const repairsApi = {
     return res.data;
   },
 
-  async update(id: number, payload: UpdateRepairOrderPayload): Promise<RepairOrderRead> {
+  async update(
+    id: number,
+    payload: UpdateRepairOrderPayload,
+  ): Promise<RepairOrderRead> {
     const res = await http.patch(`/api/repair-orders/${id}`, payload);
     return res.data;
   },
@@ -44,12 +47,18 @@ export const repairsApi = {
     return res.data;
   },
 
-  async assign(id: number, payload: AssignTechnicianPayload): Promise<RepairOrderRead> {
+  async assign(
+    id: number,
+    payload: AssignTechnicianPayload,
+  ): Promise<RepairOrderRead> {
     const res = await http.patch(`/api/repair-orders/${id}/assign`, payload);
     return res.data;
   },
 
-  async staffUpdateStatus(id: number, payload: UpdateStatusPayload): Promise<RepairOrderRead> {
+  async staffUpdateStatus(
+    id: number,
+    payload: UpdateStatusPayload,
+  ): Promise<RepairOrderRead> {
     const res = await http.patch(`/api/repair-orders/${id}/status`, payload);
     return res.data;
   },

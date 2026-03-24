@@ -81,6 +81,7 @@ class RepairOrderController extends AbstractController
         }
 
         $dto = new UpdateRepairOrderRequest();
+        $dto->equipmentModelId = (int) ($data['equipmentModelId'] ?? 0);
         $dto->issueId = (int) ($data['issueId'] ?? 0);
         $dto->price = (float) ($data['price'] ?? 0);
         $dto->deposit = array_key_exists('deposit', $data) ? (float) $data['deposit'] : null;

@@ -21,8 +21,27 @@ export type UserLight = {
   role?: string;
 };
 
-export type EquipmentModelLight = { id: number; name: string };
-export type IssueLight = { id: number; name: string };
+export type EquipmentTypeLight = {
+  id: number;
+  name: string;
+};
+
+export type EquipmentBrandLight = {
+  id: number;
+  name: string;
+  equipmentType?: EquipmentTypeLight;
+};
+
+export type EquipmentModelLight = {
+  id: number;
+  name: string;
+  equipmentBrand?: EquipmentBrandLight;
+};
+
+export type IssueLight = {
+  id: number;
+  name: string;
+};
 
 export type RepairOrderRead = {
   id: number;
@@ -72,6 +91,7 @@ export type TicketRead = {
 };
 
 export type UpdateRepairOrderPayload = {
+  equipmentModelId: number;
   issueId: number;
   price: number;
   deposit?: number | null;

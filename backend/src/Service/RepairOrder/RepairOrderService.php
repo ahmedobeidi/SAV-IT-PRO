@@ -67,13 +67,19 @@ class RepairOrderService
 
     public function update(User $actor, RepairOrder $r, UpdateRepairOrderRequest $dto): RepairOrder
     {
+        $model = $this->equipmentModelRepo->find($dto->equipmentModelId);
+        if (!$model) {
+            throw new \DomainException('Modèle introuvable.');
+        }
+
         $issue = $this->em->getRepository(Issue::class)->find($dto->issueId);
         if (!$issue) {
             throw new \DomainException('Panne introuvable.');
         }
 
-        $this->assertIssueMatchesEquipmentModel($r->getEquipmentModel(), $issue);
+        $this->assertIssueMatchesEquipmentModel($model, $issue);
 
+        $r->setEquipmentModel($model);
         $r->setIssue($issue);
         $r->setPrice($dto->price);
         $r->setDeposit($dto->deposit);

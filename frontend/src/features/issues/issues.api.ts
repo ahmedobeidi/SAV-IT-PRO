@@ -20,6 +20,17 @@ export const issuesApi = {
     return res.data;
   },
 
+  async listByTypeSilent(
+    typeId: number,
+    params?: { search?: string; page?: number; limit?: number }
+  ): Promise<Paginated<IssueRead>> {
+    const res = await http.get(`/api/equipment-types/${typeId}/issues`, {
+      params,
+      meta: { skipLoading: true },
+    } as any);
+    return res.data;
+  },
+
   async create(
     typeId: number,
     data: { name: string }

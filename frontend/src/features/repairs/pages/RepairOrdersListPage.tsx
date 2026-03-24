@@ -49,6 +49,7 @@ export default function RepairOrdersListPage() {
     if (!data) return 1;
     return Math.max(1, Math.ceil(data.total / data.limit));
   }, [data]);
+
   const { flash, showFlash } = useFlashMessage();
 
   const [assignTarget, setAssignTarget] = useState<RepairOrderRead | null>(
@@ -71,7 +72,12 @@ export default function RepairOrdersListPage() {
       );
       refresh();
     } catch (e: any) {
-      showFlash("error", mapCrudApiError(e, { notFoundMessage: "Ordre de réparation introuvable." }));
+      showFlash(
+        "error",
+        mapCrudApiError(e, {
+          notFoundMessage: "Ordre de réparation introuvable.",
+        }),
+      );
     }
   }
 
@@ -86,7 +92,12 @@ export default function RepairOrdersListPage() {
       showFlash("success", "Statut mis à jour.");
       refresh();
     } catch (e: any) {
-      showFlash("error", mapCrudApiError(e, { notFoundMessage: "Ordre de réparation introuvable." }));
+      showFlash(
+        "error",
+        mapCrudApiError(e, {
+          notFoundMessage: "Ordre de réparation introuvable.",
+        }),
+      );
     }
   }
 
@@ -101,7 +112,12 @@ export default function RepairOrdersListPage() {
       showFlash("success", "Réparation mise à jour.");
       refresh();
     } catch (e: any) {
-      showFlash("error", mapCrudApiError(e, { notFoundMessage: "Ordre de réparation introuvable." }));
+      showFlash(
+        "error",
+        mapCrudApiError(e, {
+          notFoundMessage: "Ordre de réparation introuvable.",
+        }),
+      );
       refresh();
       throw e;
     }
@@ -114,10 +130,7 @@ export default function RepairOrdersListPage() {
           <h2 className="page-title">Réparations</h2>
         </div>
 
-        <Link
-          to={APP_PATHS.repairOrdersNew}
-          className="btn btn-primary"
-        >
+        <Link to={APP_PATHS.repairOrdersNew} className="btn btn-primary">
           Créer
         </Link>
       </div>
@@ -133,7 +146,6 @@ export default function RepairOrdersListPage() {
         }}
       >
         <input
-          className="input"
           placeholder="Rechercher par nom, téléphone ou référence SAV-2026-000123"
           value={search}
           onChange={(e) => {
@@ -144,7 +156,6 @@ export default function RepairOrdersListPage() {
         />
 
         <select
-          className="input"
           value={status}
           onChange={(e) => {
             setStatus(e.target.value as RepairStatus | "");
@@ -189,9 +200,7 @@ export default function RepairOrdersListPage() {
       )}
 
       {loading && <div className="small">Chargement...</div>}
-      {error && (
-        <div className="text-danger status-text">{error}</div>
-      )}
+      {error && <div className="text-danger status-text">{error}</div>}
 
       {data && (
         <>
