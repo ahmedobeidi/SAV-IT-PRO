@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { APP_PATHS } from "../../../app/paths";
 import { useRepairOrdersList } from "../hooks/useRepairOrdersList";
 import type {
   RepairOrderRead,
@@ -10,7 +11,9 @@ import RepairOrdersTable from "../components/RepairOrdersTable";
 import AssignTechnicianDialog from "../components/AssignTechnicianDialog";
 import UpdateStatusDialog from "../components/UpdateStatusDialog";
 import { repairsApi } from "../repairs.api";
-import { mapApiError } from "../repairs.validators";
+import BottomPagination from "../../../shared/pagination/BottomPagination";
+import { useFlashMessage } from "../../../shared/flash/useFlashMessage";
+import { mapCrudApiError } from "../../../shared/errors/mapCrudApiError";
 import { getStatusLabel } from "../utils/statusTranslations";
 import EditRepairOrderDialog from "../components/EditRepairOrderDialog";
 import { useAuth } from "../../auth/useAuth";
@@ -25,81 +28,6 @@ const STATUS: Array<RepairStatus | ""> = [
   "DELIVERED",
   "CANCELED",
 ];
-
-type BottomPaginationProps = {
-  page: number;
-  totalPages: number;
-  onChange: (page: number) => void;
-};
-
-function buildPageItems(page: number, totalPages: number): (number | "...")[] {
-  if (totalPages <= 7) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
-  }
-
-  const items: (number | "...")[] = [1];
-
-  const start = Math.max(2, page - 1);
-  const end = Math.min(totalPages - 1, page + 1);
-
-  if (start > 2) items.push("...");
-  for (let p = start; p <= end; p++) items.push(p);
-  if (end < totalPages - 1) items.push("...");
-  items.push(totalPages);
-
-  return items;
-}
-
-function BottomPagination({
-  page,
-  totalPages,
-  onChange,
-}: BottomPaginationProps) {
-  if (totalPages <= 1) return null;
-
-  const items = buildPageItems(page, totalPages);
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: 8,
-        flexWrap: "wrap",
-        paddingTop: 6,
-      }}
-    >
-      {items.map((item, i) =>
-        item === "..." ? (
-          <span key={`dots-${i}`} className="small">
-            …
-          </span>
-        ) : (
-          <button
-            key={item}
-            className="btn"
-            onClick={() => onChange(item)}
-            aria-current={item === page ? "page" : undefined}
-            style={{
-              minWidth: 38,
-              fontWeight: item === page ? 700 : 400,
-              border:
-                item === page
-                  ? "1px solid var(--primary)"
-                  : "1px solid var(--border)",
-              background: item === page ? "var(--primary)" : "transparent",
-              color: item === page ? "#fff" : "inherit",
-              cursor: "pointer",
-            }}
-          >
-            {item}
-          </button>
-        ),
-      )}
-    </div>
-  );
-}
 
 export default function RepairOrdersListPage() {
   const { role } = useAuth();
@@ -121,21 +49,7 @@ export default function RepairOrdersListPage() {
     if (!data) return 1;
     return Math.max(1, Math.ceil(data.total / data.limit));
   }, [data]);
-
-  const [flash, setFlash] = useState<{
-    id: number;
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
-
-  function showFlash(type: "success" | "error", text: string) {
-    const id = Date.now();
-    setFlash({ id, type, text });
-
-    setTimeout(() => {
-      setFlash((cur) => (cur?.id === id ? null : cur));
-    }, 5000);
-  }
+  const { flash, showFlash } = useFlashMessage();
 
   const [assignTarget, setAssignTarget] = useState<RepairOrderRead | null>(
     null,
@@ -157,7 +71,7 @@ export default function RepairOrdersListPage() {
       );
       refresh();
     } catch (e: any) {
-      showFlash("error", mapApiError(e));
+      showFlash("error", mapCrudApiError(e, { notFoundMessage: "Ordre de réparation introuvable." }));
     }
   }
 
@@ -172,7 +86,7 @@ export default function RepairOrdersListPage() {
       showFlash("success", "Statut mis à jour.");
       refresh();
     } catch (e: any) {
-      showFlash("error", mapApiError(e));
+      showFlash("error", mapCrudApiError(e, { notFoundMessage: "Ordre de réparation introuvable." }));
     }
   }
 
@@ -187,34 +101,22 @@ export default function RepairOrdersListPage() {
       showFlash("success", "Réparation mise à jour.");
       refresh();
     } catch (e: any) {
-      showFlash("error", mapApiError(e));
+      showFlash("error", mapCrudApiError(e, { notFoundMessage: "Ordre de réparation introuvable." }));
       refresh();
       throw e;
     }
   }
 
   return (
-    <div style={{ display: "grid", gap: 12 }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "end",
-          gap: 12,
-        }}
-      >
+    <div className="page-stack">
+      <div className="page-header">
         <div>
-          <h2 style={{ margin: 0 }}>Réparations</h2>
+          <h2 className="page-title">Réparations</h2>
         </div>
 
         <Link
-          to="/admin/repair-orders/new"
+          to={APP_PATHS.repairOrdersNew}
           className="btn btn-primary"
-          style={{
-            display: "inline-block",
-            lineHeight: "1",
-            textDecoration: "none",
-          }}
         >
           Créer
         </Link>
@@ -238,7 +140,7 @@ export default function RepairOrdersListPage() {
             setSearch(e.target.value);
             setPage(1);
           }}
-          style={{ width: 300 }}
+          className="input page-search-input-wide"
         />
 
         <select
@@ -248,7 +150,7 @@ export default function RepairOrdersListPage() {
             setStatus(e.target.value as RepairStatus | "");
             setPage(1);
           }}
-          style={{ width: 220 }}
+          className="input page-select-input"
         >
           {STATUS.map((s) => (
             <option key={s || "ALL"} value={s}>
@@ -257,7 +159,7 @@ export default function RepairOrdersListPage() {
           ))}
         </select>
 
-        <div className="small" style={{ marginLeft: "auto" }}>
+        <div className="small push-right">
           Page {page}/{totalPages}
         </div>
 
@@ -280,11 +182,7 @@ export default function RepairOrdersListPage() {
 
       {flash && (
         <div
-          className="small"
-          style={{
-            color:
-              flash.type === "success" ? "var(--success)" : "var(--danger)",
-          }}
+          className={`small ${flash.type === "success" ? "flash-success" : "flash-error"}`}
         >
           {flash.text}
         </div>
@@ -292,7 +190,7 @@ export default function RepairOrdersListPage() {
 
       {loading && <div className="small">Chargement...</div>}
       {error && (
-        <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>
+        <div className="text-danger status-text">{error}</div>
       )}
 
       {data && (

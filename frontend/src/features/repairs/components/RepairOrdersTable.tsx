@@ -41,9 +41,9 @@ function RepairRow({
   );
 
   return (
-    <tr>
+    <tr className="repair-orders-table__row">
       <td style={cellStyle}>
-        <div style={{ color: "var(--primary)" }}>{r.reference}</div>
+        <div className="link-primary">{r.reference}</div>
         <div className="small">
           {r.createdAt ? new Date(r.createdAt).toLocaleString("fr-FR") : ""}
         </div>
@@ -82,15 +82,7 @@ function RepairRow({
           textAlign: "center",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            gap: 10,
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        <div className="repair-orders-table__actions">
           {mode === "staff" && onEdit && (
             <button
               className="btn hover-bg-primary"
@@ -161,8 +153,8 @@ export default function RepairOrdersTable({
   onMessage?: (type: "success" | "error", text: string) => void;
 }) {
   return (
-    <div className="card" style={{ padding: 12, overflowX: "auto" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+    <div className="card table-card">
+      <table className="repair-orders-table">
         <thead>
           <tr>
             {[
@@ -204,7 +196,7 @@ export default function RepairOrdersTable({
       </table>
 
       {items.length === 0 && (
-        <div className="small" style={{ padding: 12 }}>
+        <div className="small empty-state">
           Aucune réparation.
         </div>
       )}

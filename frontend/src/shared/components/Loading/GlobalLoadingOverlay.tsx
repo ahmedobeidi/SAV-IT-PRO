@@ -13,16 +13,16 @@ export function GlobalLoadingOverlay() {
         position: "fixed",
         inset: 0,
         zIndex: 9999,
-        background: "rgba(0,0,0,0.35)",
+        background: "var(--overlay-soft)",
         backdropFilter: "blur(3px)",
         display: "grid",
         placeItems: "center",
         pointerEvents: "auto",
       }}
     >
-      <div className="card" style={{ padding: 16, display: "flex", gap: 10, alignItems: "center" }}>
+      <div className="card loading-card">
         <Loader2 className="spin" size={18} />
-        <div className="small" style={{ color: "var(--text)" }}>Chargement...</div>
+        <div className="small">Chargement...</div>
       </div>
     </div>
   );

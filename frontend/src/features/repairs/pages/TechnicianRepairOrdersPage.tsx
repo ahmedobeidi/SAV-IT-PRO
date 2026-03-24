@@ -65,22 +65,13 @@ export default function TechnicianRepairOrdersPage() {
   }
 
   return (
-    <div style={{ display: "grid", gap: 12 }}>
+    <div className="page-stack">
       <div>
-        <h2 style={{ margin: 0 }}>Mes réparations assignées</h2>
+        <h2 className="page-title">Mes réparations assignées</h2>
         <div className="small">Espace technicien</div>
       </div>
 
-      <div
-        className="card"
-        style={{
-          padding: 12,
-          display: "flex",
-          gap: 10,
-          flexWrap: "wrap",
-          alignItems: "center",
-        }}
-      >
+      <div className="card page-toolbar">
         <select
           className="input"
           value={status}
@@ -88,7 +79,7 @@ export default function TechnicianRepairOrdersPage() {
             setStatus(e.target.value as RepairStatus | "");
             setPage(1);
           }}
-          style={{ width: 240 }}
+          className="input page-select-input-sm"
         >
           {STATUS.map((s) => (
             <option key={s || "ALL"} value={s}>
@@ -97,7 +88,7 @@ export default function TechnicianRepairOrdersPage() {
           ))}
         </select>
 
-        <div className="small" style={{ marginLeft: "auto" }}>
+        <div className="small push-right">
           Page {page}/{totalPages}
         </div>
 
@@ -135,7 +126,7 @@ export default function TechnicianRepairOrdersPage() {
 
       {loading && <div className="small">Chargement...</div>}
       {error && (
-        <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>
+        <div className="text-danger status-text">{error}</div>
       )}
 
       {data && (

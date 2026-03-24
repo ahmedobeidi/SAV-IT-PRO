@@ -10,14 +10,8 @@ export default function ClientsTable({
   onAnonymize: (c: ClientRead) => void;
 }) {
   return (
-    <div className="card" style={{ padding: 12, overflowX: "auto" }}>
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          tableLayout: "fixed",
-        }}
-      >
+    <div className="card table-card">
+      <table className="data-table">
         {/* ✅ fixed widths + “same width feel” */}
         <colgroup>
           <col style={{ width: "26%" }} />
@@ -28,15 +22,11 @@ export default function ClientsTable({
         </colgroup>
 
         <thead>
-          <tr style={{ textAlign: "left" }}>
+          <tr className="data-table-head-row">
             {["Nom", "Téléphone", "Email", "Ville", "Actions"].map((h) => (
               <th
                 key={h}
-                style={{
-                  padding: "10px 8px",
-                  borderBottom: "1px solid var(--border)",
-                  textAlign: h === "Actions" ? "center" : "left",
-                }}
+                className={`data-table-head-cell ${h === "Actions" ? "data-table-head-cell--actions" : ""}`}
               >
                 <span className="small">{h}</span>
               </th>
@@ -49,18 +39,11 @@ export default function ClientsTable({
             <tr key={c.id}>
               {/* Nom */}
               <td
-                style={{
-                  padding: "10px 8px",
-                  borderBottom: "1px solid var(--border)",
-                  verticalAlign: "top",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
+                className="data-table-cell data-table-cell--truncate"
                 title={`${c.lastName} ${c.firstName}`}
               >
                 <Link
-                  to={`/admin/clients/${c.id}/edit`} style={{ color: "var(--primary)" }}>
+                  to={`/admin/clients/${c.id}/edit`} className="link-primary">
                   {c.lastName} {c.firstName}
                 </Link>
                 {c.isAnonymized && <span className="small"> — anonymisé</span>}
@@ -68,14 +51,7 @@ export default function ClientsTable({
 
               {/* Téléphone */}
               <td
-                style={{
-                  padding: "10px 8px",
-                  borderBottom: "1px solid var(--border)",
-                  verticalAlign: "top",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
+                className="data-table-cell data-table-cell--truncate"
                 title={c.phone}
               >
                 <span className="small">{c.phone}</span>
@@ -83,14 +59,7 @@ export default function ClientsTable({
 
               {/* Email */}
               <td
-                style={{
-                  padding: "10px 8px",
-                  borderBottom: "1px solid var(--border)",
-                  verticalAlign: "top",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
+                className="data-table-cell data-table-cell--truncate"
                 title={c.email ?? ""}
               >
                 <span className="small">{c.email ?? "-"}</span>
@@ -98,14 +67,7 @@ export default function ClientsTable({
 
               {/* Ville */}
               <td
-                style={{
-                  padding: "10px 8px",
-                  borderBottom: "1px solid var(--border)",
-                  verticalAlign: "top",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
+                className="data-table-cell data-table-cell--truncate"
                 title={c.city ?? ""}
               >
                 <span className="small">{c.city ?? "-"}</span>
@@ -113,14 +75,9 @@ export default function ClientsTable({
 
               {/* Actions */}
               <td
-                style={{
-                  padding: "10px 8px",
-                  borderBottom: "1px solid var(--border)",
-                  verticalAlign: "top",
-                  textAlign: "center",
-                }}
+                className="data-table-cell data-table-cell--actions"
               >
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", }}>
+                <div className="table-actions">
                   {/* Edit */}
                   <Link
                     className="btn hover-bg-primary"
@@ -143,7 +100,7 @@ export default function ClientsTable({
                   </button>
                 </div>
 
-                <div className="small" style={{ marginTop: 6 }} />
+                <div className="small mt-6" />
               </td>
             </tr>
           ))}
@@ -151,7 +108,7 @@ export default function ClientsTable({
       </table>
 
       {items.length === 0 && (
-        <div className="small" style={{ padding: 12 }}>
+        <div className="small empty-state">
           Aucun client.
         </div>
       )}

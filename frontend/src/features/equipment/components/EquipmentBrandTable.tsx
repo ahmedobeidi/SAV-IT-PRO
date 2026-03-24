@@ -14,29 +14,19 @@ export default function EquipmentBrandTable({
   onDelete: (b: EquipmentBrandRead) => void;
 }) {
   return (
-    <div className="card" style={{ padding: 12, overflowX: "auto" }}>
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          tableLayout: "fixed",
-        }}
-      >
+    <div className="card table-card">
+      <table className="data-table">
         <colgroup>
           <col style={{ width: "85%" }} />
           <col style={{ width: "15%" }} />
         </colgroup>
 
         <thead>
-          <tr style={{ textAlign: "left" }}>
+          <tr className="data-table-head-row">
             {["Nom", "Actions"].map((h) => (
               <th
                 key={h}
-                style={{
-                  padding: "10px 8px",
-                  borderBottom: "1px solid var(--border)",
-                  textAlign: h === "Actions" ? "center" : "left",
-                }}
+                className={`data-table-head-cell ${h === "Actions" ? "data-table-head-cell--actions" : ""}`}
               >
                 <span className="small">{h}</span>
               </th>
@@ -48,31 +38,19 @@ export default function EquipmentBrandTable({
           {items.map((b) => (
             <tr key={b.id}>
               <td
-                style={{
-                  padding: "10px 8px",
-                  borderBottom: "1px solid var(--border)",
-                  verticalAlign: "top",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
+                className="data-table-cell data-table-cell--truncate"
                 title={b.name}
               >
                 <Link
                   to={`/admin/equipment/types/${typeId}/brands/${b.id}/models`}
-                  style={{ color: "var(--primary)" }}
+                  className="link-primary"
                 >
                   {b.name}
                 </Link>
               </td>
 
               <td
-                style={{
-                  padding: "10px 8px",
-                  borderBottom: "1px solid var(--border)",
-                  verticalAlign: "top",
-                  textAlign: "center",
-                }}
+                className="data-table-cell data-table-cell--actions"
               >
                 <div
                   style={{
@@ -116,7 +94,7 @@ export default function EquipmentBrandTable({
       </table>
 
       {items.length === 0 && (
-        <div className="small" style={{ padding: 12 }}>
+        <div className="small empty-state">
           Aucune marque.
         </div>
       )}

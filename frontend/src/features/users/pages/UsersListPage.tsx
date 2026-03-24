@@ -1,109 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { APP_PATHS } from "../../../app/paths";
 import UsersTable from "../components/UsersTable";
 import { useUsersList } from "../hooks/useUsersList";
 import { usersApi } from "../users.api";
 import type { UserRead } from "../users.types";
 import { UserPlus } from "lucide-react";
-import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
-
-function mapApiError(e: any): string {
-  const s = e?.response?.status;
-  if (s === 401) return "Session expirée. Reconnecte-toi.";
-  if (s === 403) return "Accès interdit (droits insuffisants).";
-  if (s === 409) return e?.response?.data?.message ?? "Conflit.";
-  if (s === 422) return "Validation échouée.";
-  return "Erreur serveur.";
-}
+import ConfirmDialog from "../../../shared/components/ConfirmDialog/ConfirmDialog";
+import BottomPagination from "../../../shared/pagination/BottomPagination";
+import { useFlashMessage } from "../../../shared/flash/useFlashMessage";
+import { mapCrudApiError } from "../../../shared/errors/mapCrudApiError";
 
 type FlashState = {
   success?: string;
   error?: string;
 } | null;
-
-type BottomPaginationProps = {
-  page: number;
-  totalPages: number;
-  onChange: (page: number) => void;
-};
-
-function buildPageItems(page: number, totalPages: number): (number | "...")[] {
-  if (totalPages <= 7) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
-  }
-
-  const items: (number | "...")[] = [1];
-
-  const start = Math.max(2, page - 1);
-  const end = Math.min(totalPages - 1, page + 1);
-
-  if (start > 2) {
-    items.push("...");
-  }
-
-  for (let p = start; p <= end; p++) {
-    items.push(p);
-  }
-
-  if (end < totalPages - 1) {
-    items.push("...");
-  }
-
-  items.push(totalPages);
-
-  return items;
-}
-
-function BottomPagination({
-  page,
-  totalPages,
-  onChange,
-}: BottomPaginationProps) {
-  if (totalPages <= 1) return null;
-
-  const items = buildPageItems(page, totalPages);
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: 8,
-        flexWrap: "wrap",
-        paddingTop: 6,
-      }}
-    >
-      {items.map((item, i) =>
-        item === "..." ? (
-          <span key={`dots-${i}`} className="small">
-            …
-          </span>
-        ) : (
-          <button
-            key={item}
-            className="btn"
-            onClick={() => onChange(item)}
-            aria-current={item === page ? "page" : undefined}
-            style={{
-              minWidth: 38,
-              fontWeight: item === page ? 700 : 400,
-              border:
-                item === page
-                  ? "1px solid var(--primary)"
-                  : "1px solid var(--border)",
-              background: item === page ? "var(--primary)" : "transparent",
-              color: item === page ? "#fff" : "inherit",
-              cursor: "pointer",
-            }}
-          >
-            {item}
-          </button>
-        )
-      )}
-    </div>
-  );
-}
 
 export default function UsersListPage() {
   const navigate = useNavigate();
@@ -119,20 +30,7 @@ export default function UsersListPage() {
     if (!data) return 1;
     return Math.max(1, Math.ceil(data.total / data.limit));
   }, [data]);
-
-  const [flash, setFlash] = useState<{
-    id: number;
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
-
-  function showFlash(type: "success" | "error", text: string) {
-    const id = Date.now();
-    setFlash({ id, type, text });
-    setTimeout(() => {
-      setFlash((cur) => (cur?.id === id ? null : cur));
-    }, 5000);
-  }
+  const { flash, showFlash } = useFlashMessage();
 
   useEffect(() => {
     const state = location.state as FlashState;
@@ -166,7 +64,7 @@ export default function UsersListPage() {
       );
       refresh();
     } catch (e: any) {
-      showFlash("error", mapApiError(e));
+      showFlash("error", mapCrudApiError(e));
       refresh();
     }
   }
@@ -182,59 +80,33 @@ export default function UsersListPage() {
       showFlash("success", "Utilisateur anonymisé (RGPD).");
       refresh();
     } catch (e: any) {
-      showFlash("error", mapApiError(e));
+      showFlash("error", mapCrudApiError(e));
       refresh();
     }
   }
 
   return (
-    <div style={{ display: "grid", gap: 12 }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "end",
-          gap: 12,
-        }}
-      >
+    <div className="page-stack">
+      <div className="page-header">
         <div>
-          <h2 style={{ margin: 0 }}>Employés</h2>
+          <h2 className="page-title">Employés</h2>
         </div>
 
         <Link
-          to="/admin/users/new"
-          className="btn btn-primary"
+          to={APP_PATHS.usersNew}
+          className="btn btn-primary inline-actions"
           title="Créer un employé"
           aria-label="Créer un employé"
-          style={{ display: "flex", alignItems: "center", gap: 6 }}
         >
           <UserPlus size={18} />
           Employé
         </Link>
       </div>
 
-      <div
-        className="card"
-        style={{
-          padding: 12,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: 10,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            flexWrap: "wrap",
-          }}
-        >
+      <div className="card page-toolbar">
+        <div className="page-toolbar-group">
           <input
-            className="input"
-            style={{ width: 260, flexShrink: 0 }}
+            className="input page-search-input"
             placeholder="Rechercher par nom..."
             value={search}
             onChange={(e) => {
@@ -248,7 +120,7 @@ export default function UsersListPage() {
           </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div className="page-toolbar-actions">
           <button
             className="btn"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -269,13 +141,7 @@ export default function UsersListPage() {
 
       {flash && (
         <div
-          className="small"
-          style={{
-            color:
-              flash.type === "success"
-                ? "var(--success)"
-                : "var(--danger)",
-          }}
+          className={`small ${flash.type === "success" ? "flash-success" : "flash-error"}`}
         >
           {flash.text}
         </div>
@@ -283,7 +149,7 @@ export default function UsersListPage() {
 
       {loading && <div className="small">Chargement...</div>}
       {error && (
-        <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>
+        <div className="text-danger status-text">{error}</div>
       )}
 
       {data && (

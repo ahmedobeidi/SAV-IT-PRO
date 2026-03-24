@@ -3,95 +3,11 @@ import { equipmentApi } from "../equipment.api";
 import { useEquipmentTypes } from "../hooks/useEquipmentTypes";
 import EquipmentNameForm from "../components/EquipmentNameForm";
 import EquipmentTypeTable from "../components/EquipmentTypeTable";
-import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
+import ConfirmDialog from "../../../shared/components/ConfirmDialog/ConfirmDialog";
+import BottomPagination from "../../../shared/pagination/BottomPagination";
+import { useFlashMessage } from "../../../shared/flash/useFlashMessage";
 import type { EquipmentTypeRead } from "../equipment.types";
-
-function mapApiError(e: any): string {
-  const s = e?.response?.status;
-  if (s === 401) return "Session expirée. Reconnecte-toi.";
-  if (s === 403) return "Accès interdit (droits insuffisants).";
-  if (s === 409)
-    return (
-      e?.response?.data?.message ??
-      "Conflit: existe déjà ou suppression interdite."
-    );
-  if (s === 422) return "Validation échouée.";
-  return "Erreur serveur.";
-}
-
-type BottomPaginationProps = {
-  page: number;
-  totalPages: number;
-  onChange: (page: number) => void;
-};
-
-function buildPageItems(page: number, totalPages: number): (number | "...")[] {
-  if (totalPages <= 7) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
-  }
-
-  const items: (number | "...")[] = [1];
-  const start = Math.max(2, page - 1);
-  const end = Math.min(totalPages - 1, page + 1);
-
-  if (start > 2) items.push("...");
-  for (let p = start; p <= end; p++) items.push(p);
-  if (end < totalPages - 1) items.push("...");
-  items.push(totalPages);
-
-  return items;
-}
-
-function BottomPagination({
-  page,
-  totalPages,
-  onChange,
-}: BottomPaginationProps) {
-  if (totalPages <= 1) return null;
-
-  const items = buildPageItems(page, totalPages);
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: 8,
-        flexWrap: "wrap",
-        paddingTop: 6,
-      }}
-    >
-      {items.map((item, i) =>
-        item === "..." ? (
-          <span key={`dots-${i}`} className="small">
-            …
-          </span>
-        ) : (
-          <button
-            key={item}
-            className="btn"
-            onClick={() => onChange(item)}
-            aria-current={item === page ? "page" : undefined}
-            style={{
-              minWidth: 38,
-              fontWeight: item === page ? 700 : 400,
-              border:
-                item === page
-                  ? "1px solid var(--primary)"
-                  : "1px solid var(--border)",
-              background: item === page ? "var(--primary)" : "transparent",
-              color: item === page ? "#fff" : "inherit",
-              cursor: "pointer",
-            }}
-          >
-            {item}
-          </button>
-        ),
-      )}
-    </div>
-  );
-}
+import { mapCrudApiError } from "../../../shared/errors/mapCrudApiError";
 
 export default function EquipmentTypesPage() {
   const [search, setSearch] = useState("");
@@ -108,18 +24,7 @@ export default function EquipmentTypesPage() {
     if (!data) return 1;
     return Math.max(1, Math.ceil(data.total / data.limit));
   }, [data]);
-
-  const [flash, setFlash] = useState<{
-    id: number;
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
-
-  function showFlash(type: "success" | "error", text: string) {
-    const id = Date.now();
-    setFlash({ id, type, text });
-    setTimeout(() => setFlash((cur) => (cur?.id === id ? null : cur)), 5000);
-  }
+  const { flash, showFlash } = useFlashMessage();
 
   const [editing, setEditing] = useState<EquipmentTypeRead | null>(null);
   const [deleting, setDeleting] = useState<EquipmentTypeRead | null>(null);
@@ -132,7 +37,7 @@ export default function EquipmentTypesPage() {
       showFlash("success", "Type créé avec succès.");
       refresh();
     } catch (e: any) {
-      showFlash("error", mapApiError(e));
+      showFlash("error", mapCrudApiError(e, { conflictMessage: "Conflit: existe déjà ou suppression interdite." }));
     }
   }
 
@@ -147,7 +52,7 @@ export default function EquipmentTypesPage() {
       showFlash("success", "Type mis à jour.");
       refresh();
     } catch (e: any) {
-      showFlash("error", mapApiError(e));
+      showFlash("error", mapCrudApiError(e, { conflictMessage: "Conflit: existe déjà ou suppression interdite." }));
     }
   }
 
@@ -162,22 +67,15 @@ export default function EquipmentTypesPage() {
       showFlash("success", "Type supprimé.");
       refresh();
     } catch (e: any) {
-      showFlash("error", mapApiError(e));
+      showFlash("error", mapCrudApiError(e, { conflictMessage: "Conflit: existe déjà ou suppression interdite." }));
     }
   }
 
   return (
-    <div style={{ display: "grid", gap: 12 }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "end",
-          gap: 12,
-        }}
-      >
+    <div className="page-stack">
+      <div className="page-header">
         <div>
-          <h2 style={{ margin: 0 }}>Types</h2>
+          <h2 className="page-title">Types</h2>
         </div>
 
         <button className="btn btn-primary" onClick={() => setCreating(true)}>
@@ -185,28 +83,10 @@ export default function EquipmentTypesPage() {
         </button>
       </div>
 
-      <div
-        className="card"
-        style={{
-          padding: 12,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: 10,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            flexWrap: "wrap",
-          }}
-        >
+      <div className="card page-toolbar">
+        <div className="page-toolbar-group">
           <input
-            className="input"
-            style={{ width: 260, flexShrink: 0 }}
+            className="input page-search-input"
             placeholder="Rechercher par nom..."
             value={search}
             onChange={(e) => {
@@ -220,7 +100,7 @@ export default function EquipmentTypesPage() {
           </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div className="page-toolbar-actions">
           <button
             className="btn"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -241,11 +121,7 @@ export default function EquipmentTypesPage() {
 
       {flash && (
         <div
-          className="small"
-          style={{
-            color:
-              flash.type === "success" ? "var(--success)" : "var(--danger)",
-          }}
+          className={`small ${flash.type === "success" ? "flash-success" : "flash-error"}`}
         >
           {flash.text}
         </div>
@@ -253,7 +129,7 @@ export default function EquipmentTypesPage() {
 
       {loading && <div className="small">Chargement...</div>}
       {error && (
-        <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>
+        <div className="text-danger status-text">{error}</div>
       )}
 
       {data && (
@@ -273,24 +149,9 @@ export default function EquipmentTypesPage() {
       )}
 
       {editing && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 9999,
-            background: "rgba(0,0,0,0.35)",
-            backdropFilter: "blur(4px)",
-            WebkitBackdropFilter: "blur(4px)",
-            display: "grid",
-            placeItems: "center",
-            padding: 16,
-          }}
-        >
-          <div
-            className="card"
-            style={{ width: "100%", maxWidth: 520, padding: 16 }}
-          >
-            <div style={{ fontWeight: 700, marginBottom: 10 }}>
+        <div className="overlay-backdrop">
+          <div className="card overlay-card">
+            <div className="overlay-title">
               Renommer le type
             </div>
 
@@ -300,9 +161,7 @@ export default function EquipmentTypesPage() {
               submitLabel="Enregistrer"
               onSubmit={rename}
               actions={({ loading }) => (
-                <div
-                  style={{ display: "flex", justifyContent: "center", gap: 10 }}
-                >
+                <div className="modal-actions center-text">
                   <button
                     className="btn"
                     type="button"
@@ -327,24 +186,9 @@ export default function EquipmentTypesPage() {
       )}
 
       {creating && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 9999,
-            background: "rgba(0,0,0,0.35)",
-            backdropFilter: "blur(4px)",
-            WebkitBackdropFilter: "blur(4px)",
-            display: "grid",
-            placeItems: "center",
-            padding: 16,
-          }}
-        >
-          <div
-            className="card"
-            style={{ width: "100%", maxWidth: 520, padding: 16 }}
-          >
-            <div style={{ fontWeight: 700, marginBottom: 10 }}>
+        <div className="overlay-backdrop">
+          <div className="card overlay-card">
+            <div className="overlay-title">
               Créer un type
             </div>
 
@@ -353,9 +197,7 @@ export default function EquipmentTypesPage() {
               submitLabel="Créer"
               onSubmit={create}
               actions={({ loading }) => (
-                <div
-                  style={{ display: "flex", justifyContent: "center", gap: 10 }}
-                >
+                <div className="modal-actions center-text">
                   <button
                     className="btn"
                     type="button"

@@ -43,7 +43,7 @@ export default function UpdateStatusDialog({
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(0,0,0,0.55)",
+        background: "var(--overlay)",
         display: "grid",
         placeItems: "center",
         padding: 16,

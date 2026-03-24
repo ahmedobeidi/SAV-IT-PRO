@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
-import { authStore } from "../../features/auth/auth.store";
-import { authService } from "../../features/auth/auth.service";
-import { getRoleLabel } from "../../features/auth/auth.roles";
-import { useAuth } from "../../features/auth/useAuth";
+import { authStore } from "../../../features/auth/auth.store";
+import { authService } from "../../../features/auth/auth.service";
+import { getRoleLabel } from "../../../features/auth/auth.roles";
+import { useAuth } from "../../../features/auth/useAuth";
 import "./Topbar.css";
 
 export default function Topbar() {
@@ -25,7 +25,7 @@ export default function Topbar() {
 
   return (
     <header className="topbar">
-      <div style={{ fontWeight: 600, letterSpacing: "0.2px" }}>
+      <div className="topbar-title">
         {getRoleLabel(role)}
       </div>
 

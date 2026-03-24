@@ -12,7 +12,7 @@
 .btn-primary {
   background: var(--primary);
   border-color: transparent;
-  color: #fff;
+  color: #ffffff;
 }
 
 .hover-bg-primary {
@@ -27,7 +27,7 @@
 .btn-danger {
   background: var(--danger);
   border-color: transparent;
-  color: #fff;
+  color: #ffffff;
 }
 
 .hover-bg-danger {
@@ -42,13 +42,13 @@
 .btn-success {
   background: var(--success);
   border-color: transparent;
-  color: #fff;
+  color: #ffffff;
 }
 
 .btn-warning {
   background: var(--warning);
   border-color: transparent;
-  color: #fff;
+  color: #ffffff;
 }
 
 .input {
@@ -60,7 +60,7 @@
   border-radius: 10px;
   outline: none;
 }
-.input:focus { border-color: rgba(79,140,255,0.6); }
+.input:focus { border-color: var(--primary); }
 
 .card {
   background: var(--panel);

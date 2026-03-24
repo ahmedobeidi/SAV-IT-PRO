@@ -185,7 +185,7 @@ export default function UserForm({
       </div>
 
       {mode === "create" && (
-        <div className="small" style={{ color: "var(--muted, #666)" }}>
+        <div className="small" style={{ color: "var(--muted)" }}>
           Un email sera envoyé à l’employé pour définir son mot de passe.
         </div>
       )}

@@ -7,16 +7,17 @@ import {
   UserCog,
   User,
 } from "lucide-react";
-import { authStore } from "../../features/auth/auth.store";
+import { authStore } from "../../../features/auth/auth.store";
 import {
   canManageUsers,
   canAccessClients,
   canAccessEquipment,
   canAccessRepairs,
   canAccessTechnicianSpace,
-} from "../../features/auth/auth.roles";
+} from "../../../features/auth/auth.roles";
 import "./Sidebar.css";
-import logo2 from "../../assets/logo2.svg";
+import logo2 from "../../assets/Logo2.svg";
+import { APP_PATHS } from "../../../app/paths";
 
 export default function Sidebar() {
   const { role } = authStore.getTokens();
@@ -45,7 +46,7 @@ export default function Sidebar() {
         <div className="sidebar__section">GÉNÉRAL</div>
 
         <NavLink
-          to="/admin"
+          to={APP_PATHS.admin}
           end
           className={({ isActive }) =>
             `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
@@ -56,7 +57,7 @@ export default function Sidebar() {
         </NavLink>
 
         <NavLink
-          to="/admin/profile"
+          to={APP_PATHS.profile}
           className={({ isActive }) =>
             `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
           }
@@ -71,7 +72,7 @@ export default function Sidebar() {
 
         {canSeeUsers && (
           <NavLink
-            to="/admin/users"
+            to={APP_PATHS.users}
             className={({ isActive }) =>
               `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
             }
@@ -83,7 +84,7 @@ export default function Sidebar() {
 
         {canSeeClients && (
           <NavLink
-            to="/admin/clients"
+            to={APP_PATHS.clients}
             className={({ isActive }) =>
               `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
             }
@@ -99,7 +100,7 @@ export default function Sidebar() {
 
         {canSeeEquipment && (
           <NavLink
-            to="/admin/equipment/types"
+            to={APP_PATHS.equipmentTypes}
             className={({ isActive }) =>
               `sidebar__link ${
                 isActive || isEquipmentActive ? "sidebar__link--active" : ""
@@ -113,7 +114,7 @@ export default function Sidebar() {
 
         {canSeeRepairs && (
           <NavLink
-            to="/admin/repair-orders"
+            to={APP_PATHS.repairOrders}
             className={({ isActive }) =>
               `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
             }
@@ -125,7 +126,7 @@ export default function Sidebar() {
 
         {canSeeTechnicianPage && (
           <NavLink
-            to="/admin/technician/repair-orders"
+            to={APP_PATHS.technicianRepairOrders}
             className={({ isActive }) =>
               `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
             }
