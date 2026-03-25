@@ -187,9 +187,7 @@
 
 			<div class="section">
 				<div class="section-title">Description / observations</div>
-				<div class="description-box">
-					{{ ticket.description ?: 'Aucune description fournie.' }}
-				</div>
+				<div class="description-box">{{ (ticket.description ?: 'Aucune description fournie.')|trim }}</div>
 
 				<div class="small-note">
 					Le présent document constitue un justificatif de prise en charge. Les informations peuvent être mises à jour au cours du traitement du dossier.
