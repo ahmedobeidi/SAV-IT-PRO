@@ -61,8 +61,9 @@ export default function LoginPage() {
 
       <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
         <div>
-          <label className="small label">Email</label>
+          <label htmlFor="email" className="small label">Email</label>
           <input
+            id="email"
             className="input"
             value={email}
             onChange={(e) => {
@@ -74,9 +75,10 @@ export default function LoginPage() {
         </div>
 
         <div>
-          <label className="small label">Mot de passe</label>
+          <label htmlFor="password" className="small label">Mot de passe</label>
           <div className="password-wrapper">
             <input
+              id="password"
               className="input"
               type={showPassword ? "text" : "password"}
               value={password}
