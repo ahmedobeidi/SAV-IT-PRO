@@ -50,4 +50,14 @@ class ClientRepository extends ServiceEntityRepository
 
         return ['items' => $items, 'total' => $total];
     }
+
+    public function countActiveClients(): int
+    {
+        return (int) $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->andWhere('c.isAnonymized = :anon')
+            ->setParameter('anon', false)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

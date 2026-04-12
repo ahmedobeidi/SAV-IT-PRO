@@ -41,7 +41,7 @@ class RepairOrderRepository extends ServiceEntityRepository
                  OR c.phone LIKE :q
                  OR LOWER(r.reference) LIKE :q'
             )
-            ->setParameter('q', $q);
+                ->setParameter('q', $q);
         }
 
         $countQb = clone $qb;
@@ -78,5 +78,13 @@ class RepairOrderRepository extends ServiceEntityRepository
             ->getResult();
 
         return ['items' => $items, 'total' => $total];
+    }
+
+    public function countAllRepairOrders(): int
+    {
+        return (int) $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }
