@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Security\Voter\TicketVoter;
 use App\Service\Ticket\TicketService;
 use App\Service\Ticket\TicketStorageService;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,6 +24,15 @@ class TicketController extends AbstractController
     ) {}
 
     #[Route('/repair-orders/{id}/tickets/generate', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/repair-orders/{id}/tickets/generate',
+        summary: 'Générer le ticket courant',
+        description: 'Génère ou met à jour le ticket PDF courant pour un ordre de réparation.',
+        tags: ['Tickets'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, description: 'Identifiant de l’ordre de réparation', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Ticket généré avec succès')]
     public function generateCurrent(RepairOrder $repairOrder): JsonResponse
     {
         $this->denyAccessUnlessGranted(TicketVoter::GENERATE, $repairOrder);
@@ -44,6 +54,15 @@ class TicketController extends AbstractController
     }
 
     #[Route('/tickets/{id}/view', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/tickets/{id}/view',
+        summary: 'Afficher un ticket',
+        description: 'Retourne le fichier du ticket pour affichage en ligne.',
+        tags: ['Tickets'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, description: 'Identifiant du ticket', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Fichier du ticket retourné avec succès')]
     public function view(Ticket $ticket): BinaryFileResponse
     {
         $this->denyAccessUnlessGranted(TicketVoter::VIEW, $ticket);

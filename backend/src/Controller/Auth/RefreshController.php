@@ -5,6 +5,7 @@ namespace App\Controller\Auth;
 use App\Entity\User;
 use App\Service\AuthService;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,6 +14,25 @@ use Symfony\Component\Routing\Attribute\Route;
 class RefreshController extends AbstractController
 {
     #[Route('/api/auth/refresh', name: 'api_auth_refresh', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/auth/refresh',
+        summary: 'Rafraîchir le token JWT',
+        description: 'Génère un nouveau token JWT et un nouveau refresh token à partir d’un refresh token valide.',
+        tags: ['Authentification']
+    )]
+    #[OA\RequestBody(
+        required: true,
+        description: 'Refresh token',
+        content: new OA\JsonContent(
+            required: ['refresh_token'],
+            properties: [
+                new OA\Property(property: 'refresh_token', type: 'string', example: 'refresh_token_value'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Token rafraîchi avec succès')]
+    #[OA\Response(response: 400, description: 'refresh_token requis')]
+    #[OA\Response(response: 401, description: 'Refresh token invalide')]
     public function refresh(
         Request $request,
         AuthService $authService,

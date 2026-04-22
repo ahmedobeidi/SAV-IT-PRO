@@ -5,6 +5,7 @@ namespace App\Controller\Auth;
 use App\DTO\Auth\ResetPasswordRequest;
 use App\Service\AuthService;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,6 +23,26 @@ class ResetPasswordController extends AbstractController
     ) {}
 
     #[Route('/api/auth/reset-password', name: 'api_auth_reset_password', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/auth/reset-password',
+        summary: 'Réinitialiser le mot de passe',
+        description: 'Met à jour le mot de passe à partir d’un token de réinitialisation valide.',
+        tags: ['Authentification']
+    )]
+    #[OA\RequestBody(
+        required: true,
+        description: 'Token de réinitialisation et nouveau mot de passe',
+        content: new OA\JsonContent(
+            required: ['token', 'newPassword'],
+            properties: [
+                new OA\Property(property: 'token', type: 'string', example: 'reset_token_value'),
+                new OA\Property(property: 'newPassword', type: 'string', example: 'NouveauMotDePasse123'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Mot de passe mis à jour avec succès')]
+    #[OA\Response(response: 400, description: 'Token invalide ou expiré')]
+    #[OA\Response(response: 422, description: 'Validation échouée')]
     public function reset(
         Request $request,
         ResetPasswordHelperInterface $resetPasswordHelper,

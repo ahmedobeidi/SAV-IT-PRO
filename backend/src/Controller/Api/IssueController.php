@@ -9,6 +9,7 @@ use App\Entity\Issue;
 use App\Repository\IssueRepository;
 use App\Security\Voter\EquipmentVoter;
 use App\Service\Equipment\IssueService;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +25,18 @@ class IssueController extends AbstractController
     ) {}
 
     #[Route('/api/equipment-types/{id}/issues', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/equipment-types/{id}/issues',
+        summary: 'Lister les pannes d’un type',
+        description: 'Retourne une liste paginée des pannes associées à un type d’équipement.',
+        tags: ['Pannes'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, description: 'Identifiant du type d’équipement', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'search', in: 'query', required: false, description: 'Recherche par nom', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'page', in: 'query', required: false, description: 'Numéro de page', schema: new OA\Schema(type: 'integer', default: 1))]
+    #[OA\Parameter(name: 'limit', in: 'query', required: false, description: 'Nombre d’éléments par page', schema: new OA\Schema(type: 'integer', default: 10))]
+    #[OA\Response(response: 200, description: 'Liste des pannes récupérée avec succès')]
     public function listByType(Request $request, EquipmentType $type, IssueRepository $repo): JsonResponse
     {
         $this->denyAccessUnlessGranted(EquipmentVoter::MANAGE);
@@ -43,6 +56,27 @@ class IssueController extends AbstractController
     }
 
     #[Route('/api/equipment-types/{id}/issues', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/equipment-types/{id}/issues',
+        summary: 'Créer une panne',
+        description: 'Crée une nouvelle panne pour un type d’équipement.',
+        tags: ['Pannes'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, description: 'Identifiant du type d’équipement', schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        description: 'Nom de la panne',
+        content: new OA\JsonContent(
+            required: ['name'],
+            properties: [
+                new OA\Property(property: 'name', type: 'string', example: 'Écran cassé'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 201, description: 'Panne créée avec succès')]
+    #[OA\Response(response: 409, description: 'Conflit métier')]
+    #[OA\Response(response: 422, description: 'Validation échouée')]
     public function create(Request $request, EquipmentType $type): JsonResponse
     {
         $this->denyAccessUnlessGranted(EquipmentVoter::MANAGE);
@@ -68,6 +102,27 @@ class IssueController extends AbstractController
     }
 
     #[Route('/api/issues/{id}', methods: ['PATCH'])]
+    #[OA\Patch(
+        path: '/api/issues/{id}',
+        summary: 'Modifier une panne',
+        description: 'Met à jour une panne existante.',
+        tags: ['Pannes'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, description: 'Identifiant de la panne', schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        description: 'Nouveau nom de la panne',
+        content: new OA\JsonContent(
+            required: ['name'],
+            properties: [
+                new OA\Property(property: 'name', type: 'string', example: 'Batterie défectueuse'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Panne mise à jour avec succès')]
+    #[OA\Response(response: 409, description: 'Conflit métier')]
+    #[OA\Response(response: 422, description: 'Validation échouée')]
     public function update(Issue $issue, Request $request): JsonResponse
     {
         $this->denyAccessUnlessGranted(EquipmentVoter::MANAGE);
@@ -93,6 +148,16 @@ class IssueController extends AbstractController
     }
 
     #[Route('/api/issues/{id}', methods: ['DELETE'])]
+    #[OA\Delete(
+        path: '/api/issues/{id}',
+        summary: 'Supprimer une panne',
+        description: 'Supprime une panne.',
+        tags: ['Pannes'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, description: 'Identifiant de la panne', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 204, description: 'Panne supprimée avec succès')]
+    #[OA\Response(response: 409, description: 'Conflit métier')]
     public function delete(Issue $issue): JsonResponse
     {
         $this->denyAccessUnlessGranted(EquipmentVoter::MANAGE);

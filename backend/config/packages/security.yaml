@@ -37,6 +37,8 @@ security:
 
   access_control:
     # PUBLIC
+    - { path: ^/api/doc$, roles: PUBLIC_ACCESS }
+    - { path: ^/api/doc\.json$, roles: PUBLIC_ACCESS }
     - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
     - { path: ^/api/auth/forgot-password, roles: PUBLIC_ACCESS }
     - { path: ^/api/auth/reset-password, roles: PUBLIC_ACCESS }

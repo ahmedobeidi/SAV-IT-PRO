@@ -22,6 +22,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Mailer\MailerInterface;
 use SymfonyCasts\Bundle\ResetPassword\Exception\TooManyPasswordRequestsException;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
+use OpenApi\Attributes as OA;
 
 #[Route('/api')]
 class UserController extends AbstractController
@@ -34,6 +35,28 @@ class UserController extends AbstractController
     ) {}
 
     #[Route('/users', name: 'api_users_create', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/users',
+        summary: 'Créer un utilisateur',
+        description: 'Crée un nouvel utilisateur et envoie un email de configuration de mot de passe.',
+        tags: ['Utilisateurs'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        description: 'Données de création de l’utilisateur',
+        content: new OA\JsonContent(
+            required: ['firstName', 'lastName', 'email', 'role'],
+            properties: [
+                new OA\Property(property: 'firstName', type: 'string', example: 'Alice'),
+                new OA\Property(property: 'lastName', type: 'string', example: 'Martin'),
+                new OA\Property(property: 'email', type: 'string', format: 'email', example: 'alice.martin@email.com'),
+                new OA\Property(property: 'role', type: 'string', example: 'ADMIN'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 201, description: 'Utilisateur créé avec succès')]
+    #[OA\Response(response: 422, description: 'Validation échouée')]
     public function create(Request $request): JsonResponse
     {
         $this->denyAccessUnlessGranted(UserVoter::CREATE);
@@ -128,6 +151,17 @@ class UserController extends AbstractController
     }
 
     #[Route('/users', name: 'api_users_list', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/users',
+        summary: 'Lister les utilisateurs',
+        description: 'Retourne une liste paginée des utilisateurs.',
+        tags: ['Utilisateurs'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'search', in: 'query', required: false, description: 'Recherche', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'page', in: 'query', required: false, description: 'Numéro de page', schema: new OA\Schema(type: 'integer', default: 1))]
+    #[OA\Parameter(name: 'limit', in: 'query', required: false, description: 'Nombre d’éléments par page', schema: new OA\Schema(type: 'integer', default: 10))]
+    #[OA\Response(response: 200, description: 'Liste des utilisateurs récupérée avec succès')]
     public function list(Request $request, UserRepository $repo): JsonResponse
     {
         $this->denyAccessUnlessGranted(UserVoter::VIEW_LIST);
@@ -152,6 +186,15 @@ class UserController extends AbstractController
     }
 
     #[Route('/users/{id}', name: 'api_users_show', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/users/{id}',
+        summary: 'Afficher un utilisateur',
+        description: 'Retourne le détail d’un utilisateur.',
+        tags: ['Utilisateurs'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, description: 'Identifiant de l’utilisateur', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Utilisateur récupéré avec succès')]
     public function show(User $user): JsonResponse
     {
         $this->denyAccessUnlessGranted(UserVoter::VIEW, $user);
@@ -160,6 +203,30 @@ class UserController extends AbstractController
     }
 
     #[Route('/users/{id}', name: 'api_users_update', methods: ['PATCH'])]
+    #[OA\Patch(
+        path: '/api/users/{id}',
+        summary: 'Modifier un utilisateur',
+        description: 'Met à jour partiellement un utilisateur.',
+        tags: ['Utilisateurs'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, description: 'Identifiant de l’utilisateur', schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        description: 'Données à mettre à jour',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'firstName', type: 'string', nullable: true, example: 'Alice'),
+                new OA\Property(property: 'lastName', type: 'string', nullable: true, example: 'Martin'),
+                new OA\Property(property: 'email', type: 'string', format: 'email', nullable: true, example: 'alice@email.com'),
+                new OA\Property(property: 'role', type: 'string', nullable: true, example: 'TECHNICIAN'),
+                new OA\Property(property: 'isActive', type: 'boolean', nullable: true, example: true),
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Utilisateur mis à jour avec succès')]
+    #[OA\Response(response: 422, description: 'Validation échouée')]
+    #[OA\Response(response: 500, description: 'Erreur serveur')]
     public function update(User $user, Request $request): JsonResponse
     {
         try {
@@ -226,6 +293,26 @@ class UserController extends AbstractController
     }
 
     #[Route('/users/{id}/block', name: 'api_users_block', methods: ['PATCH'])]
+    #[OA\Patch(
+        path: '/api/users/{id}/block',
+        summary: 'Activer ou bloquer un utilisateur',
+        description: 'Active ou désactive un utilisateur.',
+        tags: ['Utilisateurs'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, description: 'Identifiant de l’utilisateur', schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        description: 'État d’activation',
+        content: new OA\JsonContent(
+            required: ['isActive'],
+            properties: [
+                new OA\Property(property: 'isActive', type: 'boolean', example: false),
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'État utilisateur mis à jour avec succès')]
+    #[OA\Response(response: 422, description: 'Validation échouée')]
     public function block(User $user, Request $request): JsonResponse
     {
         $this->denyAccessUnlessGranted(UserVoter::BLOCK, $user);
@@ -267,6 +354,16 @@ class UserController extends AbstractController
     }
 
     #[Route('/users/{id}/anonymize', name: 'api_users_anonymize', methods: ['PATCH'])]
+    #[OA\Patch(
+        path: '/api/users/{id}/anonymize',
+        summary: 'Anonymiser un utilisateur',
+        description: 'Anonymise les données personnelles d’un utilisateur.',
+        tags: ['Utilisateurs'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, description: 'Identifiant de l’utilisateur', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Utilisateur anonymisé avec succès')]
+    #[OA\Response(response: 422, description: 'Validation échouée')]
     public function anonymize(User $user): JsonResponse
     {
         $this->denyAccessUnlessGranted(UserVoter::ANONYMIZE, $user);
@@ -289,6 +386,28 @@ class UserController extends AbstractController
     }
 
     #[Route('/me/password', name: 'api_me_change_password', methods: ['PATCH'])]
+    #[OA\Patch(
+        path: '/api/me/password',
+        summary: 'Changer mon mot de passe',
+        description: 'Permet à l’utilisateur connecté de modifier son mot de passe.',
+        tags: ['Utilisateurs'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        description: 'Données de changement de mot de passe',
+        content: new OA\JsonContent(
+            required: ['currentPassword', 'newPassword', 'confirmPassword'],
+            properties: [
+                new OA\Property(property: 'currentPassword', type: 'string', example: 'AncienMotDePasse123'),
+                new OA\Property(property: 'newPassword', type: 'string', example: 'NouveauMotDePasse123'),
+                new OA\Property(property: 'confirmPassword', type: 'string', example: 'NouveauMotDePasse123'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Mot de passe mis à jour avec succès')]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    #[OA\Response(response: 422, description: 'Validation échouée')]
     public function changeMyPassword(Request $request): JsonResponse
     {
         /** @var User $user */

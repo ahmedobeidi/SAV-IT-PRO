@@ -18,6 +18,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\DTO\RepairOrder\UpdateRepairOrderRequest;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/repair-orders')]
 class RepairOrderController extends AbstractController
@@ -28,6 +29,31 @@ class RepairOrderController extends AbstractController
     ) {}
 
     #[Route('', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/repair-orders',
+        summary: 'Créer un ordre de réparation',
+        description: 'Crée un nouvel ordre de réparation.',
+        tags: ['Ordres de réparation'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        description: 'Données de création de l’ordre de réparation',
+        content: new OA\JsonContent(
+            required: ['clientId', 'equipmentModelId', 'issueId', 'price'],
+            properties: [
+                new OA\Property(property: 'clientId', type: 'integer', example: 1),
+                new OA\Property(property: 'equipmentModelId', type: 'integer', example: 10),
+                new OA\Property(property: 'issueId', type: 'integer', example: 3),
+                new OA\Property(property: 'price', type: 'number', format: 'float', example: 129.99),
+                new OA\Property(property: 'deposit', type: 'number', format: 'float', nullable: true, example: 30),
+                new OA\Property(property: 'description', type: 'string', nullable: true, example: 'Téléphone ne s’allume plus'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 201, description: 'Ordre de réparation créé avec succès')]
+    #[OA\Response(response: 409, description: 'Conflit métier')]
+    #[OA\Response(response: 422, description: 'Validation échouée')]
     public function create(Request $request): JsonResponse
     {
         $this->denyAccessUnlessGranted(RepairOrderVoter::CREATE);
@@ -68,6 +94,31 @@ class RepairOrderController extends AbstractController
     }
 
     #[Route('/{id}', methods: ['PATCH'])]
+    #[OA\Patch(
+        path: '/api/repair-orders/{id}',
+        summary: 'Modifier un ordre de réparation',
+        description: 'Met à jour un ordre de réparation existant.',
+        tags: ['Ordres de réparation'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, description: 'Identifiant de l’ordre de réparation', schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        description: 'Données de mise à jour',
+        content: new OA\JsonContent(
+            required: ['equipmentModelId', 'issueId', 'price'],
+            properties: [
+                new OA\Property(property: 'equipmentModelId', type: 'integer', example: 10),
+                new OA\Property(property: 'issueId', type: 'integer', example: 3),
+                new OA\Property(property: 'price', type: 'number', format: 'float', example: 149.99),
+                new OA\Property(property: 'deposit', type: 'number', format: 'float', nullable: true, example: 50),
+                new OA\Property(property: 'description', type: 'string', nullable: true, example: 'Nouvelle description'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Ordre de réparation mis à jour avec succès')]
+    #[OA\Response(response: 409, description: 'Conflit métier')]
+    #[OA\Response(response: 422, description: 'Validation échouée')]
     public function update(RepairOrder $repairOrder, Request $request): JsonResponse
     {
         $this->denyAccessUnlessGranted(RepairOrderVoter::EDIT, $repairOrder);
@@ -107,6 +158,18 @@ class RepairOrderController extends AbstractController
     }
 
     #[Route('', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/repair-orders',
+        summary: 'Lister les ordres de réparation',
+        description: 'Retourne une liste paginée des ordres de réparation, avec filtres optionnels.',
+        tags: ['Ordres de réparation'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'search', in: 'query', required: false, description: 'Recherche', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'status', in: 'query', required: false, description: 'Statut de l’ordre de réparation', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'page', in: 'query', required: false, description: 'Numéro de page', schema: new OA\Schema(type: 'integer', default: 1))]
+    #[OA\Parameter(name: 'limit', in: 'query', required: false, description: 'Nombre d’éléments par page', schema: new OA\Schema(type: 'integer', default: 10))]
+    #[OA\Response(response: 200, description: 'Liste des ordres de réparation récupérée avec succès')]
     public function list(Request $request, RepairOrderRepository $repo): JsonResponse
     {
         $this->denyAccessUnlessGranted(RepairOrderVoter::LIST_ALL);
@@ -129,6 +192,26 @@ class RepairOrderController extends AbstractController
     }
 
     #[Route('/{id}/assign', methods: ['PATCH'])]
+    #[OA\Patch(
+        path: '/api/repair-orders/{id}/assign',
+        summary: 'Assigner un technicien',
+        description: 'Assigne ou retire un technicien d’un ordre de réparation.',
+        tags: ['Ordres de réparation'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, description: 'Identifiant de l’ordre de réparation', schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        description: 'Identifiant du technicien à assigner',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'technicianId', type: 'integer', nullable: true, example: 5),
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Technicien assigné avec succès')]
+    #[OA\Response(response: 409, description: 'Conflit métier')]
+    #[OA\Response(response: 422, description: 'Validation échouée')]
     public function assign(RepairOrder $repairOrder, Request $request): JsonResponse
     {
         $this->denyAccessUnlessGranted(RepairOrderVoter::ASSIGN, $repairOrder);
@@ -166,6 +249,27 @@ class RepairOrderController extends AbstractController
     }
 
     #[Route('/{id}/status', methods: ['PATCH'])]
+    #[OA\Patch(
+        path: '/api/repair-orders/{id}/status',
+        summary: 'Modifier le statut par le staff',
+        description: 'Met à jour le statut d’un ordre de réparation par un membre du staff.',
+        tags: ['Ordres de réparation'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, description: 'Identifiant de l’ordre de réparation', schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        description: 'Nouveau statut',
+        content: new OA\JsonContent(
+            required: ['status'],
+            properties: [
+                new OA\Property(property: 'status', type: 'string', example: 'IN_PROGRESS'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Statut mis à jour avec succès')]
+    #[OA\Response(response: 409, description: 'Conflit métier')]
+    #[OA\Response(response: 422, description: 'Validation échouée')]
     public function updateStatus(RepairOrder $repairOrder, Request $request): JsonResponse
     {
         $this->denyAccessUnlessGranted(RepairOrderVoter::STAFF_STATUS, $repairOrder);
