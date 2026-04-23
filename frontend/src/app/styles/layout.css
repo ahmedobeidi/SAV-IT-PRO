@@ -7,7 +7,7 @@
   cursor: pointer;
 }
 
-.btn:hover { filter: brightness(1.08); }
+.btn:hover { filter: brightness(1.03); }
 
 .btn-primary {
   background: var(--primary);
@@ -21,7 +21,7 @@
 
 .hover-bg-primary:hover {
   background-color: var(--primary);
-  color: var(--text);
+  color: #ffffff;
 }
 
 .btn-danger {
@@ -36,7 +36,7 @@
 
 .hover-bg-danger:hover {
   background-color: var(--danger);
-  color: var(--text);
+  color: #ffffff;
 }
 
 .btn-success {
@@ -60,7 +60,11 @@
   border-radius: 10px;
   outline: none;
 }
-.input:focus { border-color: var(--primary); }
+
+.input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-muted);
+}
 
 .card {
   background: var(--panel);
@@ -108,3 +112,42 @@
 
 .spin { animation: spin 0.9s linear infinite; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1280px) {
+  .btn {
+    padding: 10px 14px;
+  }
+
+  .input {
+    padding: 10px 12px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1281px) and (max-width: 1599px) {
+  .btn {
+    padding: 11px 16px;
+  }
+
+  .input {
+    padding: 11px 13px;
+  }
+}
+
+/* Big screens */
+@media (min-width: 1600px) {
+  .btn {
+    padding: 12px 18px;
+    border-radius: 12px;
+  }
+
+  .input {
+    padding: 12px 14px;
+    border-radius: 12px;
+  }
+
+  .card {
+    border-radius: 14px;
+  }
+}

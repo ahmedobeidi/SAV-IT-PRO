@@ -1,21 +1,21 @@
 :root {
-  --bg: #f4f6f9;              /* soft light gray background */
-  --panel: #ffffff;          /* main surfaces */
-  --panel-2: #f1f3f7;        /* subtle contrast layer */
-  --text: #1f2328;           /* dark but not pure black */
-  --muted: #6b7280;          /* softer gray text */
-  --border: #d0d7de;         /* light neutral border */
+  --bg: #f5f7fa;
+  --panel: #ffffff;
+  --panel-2: #f3f5f8;
+  --text: #1f2328;
+  --muted: #6b7280;
+  --border: #d8dee4;
 
-  --primary: #3b8cff;        /* keep brand color */
-  --danger: #e5534b;         /* slightly toned down */
-  --success: #3fb950;        /* softer green */
-  --warning: #d29922;        /* warmer, less saturated */
+  --primary: #3b8cff;
+  --danger: #e5534b;
+  --success: #3fb950;
+  --warning: #d29922;
 
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);   /* lighter shadow */
-  --overlay: rgba(255, 255, 255, 0.65);        /* flipped to light */
-  --overlay-soft: rgba(255, 255, 255, 0.45);
+  --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  --overlay: rgba(255, 255, 255, 0.68);
+  --overlay-soft: rgba(248, 250, 252, 0.72);
 
-  --neutral-muted: rgba(107, 114, 128, 0.25);
+  --neutral-muted: rgba(107, 114, 128, 0.16);
   --primary-muted: rgba(59, 140, 255, 0.12);
   --primary-muted-strong: rgba(59, 140, 255, 0.22);
 
