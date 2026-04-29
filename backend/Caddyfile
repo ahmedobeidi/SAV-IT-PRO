@@ -3,6 +3,8 @@
 }
 
 :8080 {
-    root * /app/backend/public
+    root * /app/public
+    encode gzip
+    try_files {path} {path}/ /index.php?{query}
     php_server
 }
