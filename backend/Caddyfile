@@ -3,6 +3,6 @@
 }
 
 :8080 {
-    root * /app/public
+    root * /app/backend/public
     php_server
 }
