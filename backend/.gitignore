@@ -26,3 +26,8 @@ Thumbs.db
 ###< Logs / Cache ###
 *.log
 ###> Logs / Cache ###
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.result.cache
+/.phpunit.cache/
+###< phpunit/phpunit ###

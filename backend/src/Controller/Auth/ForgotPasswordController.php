@@ -4,6 +4,7 @@ namespace App\Controller\Auth;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +17,24 @@ use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 class ForgotPasswordController extends AbstractController
 {
     #[Route('/api/auth/forgot-password', name: 'api_auth_forgot_password', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/auth/forgot-password',
+        summary: 'Demander une réinitialisation de mot de passe',
+        description: 'Envoie un lien de réinitialisation si l’email existe.',
+        tags: ['Authentification']
+    )]
+    #[OA\RequestBody(
+        required: true,
+        description: 'Email du compte',
+        content: new OA\JsonContent(
+            required: ['email'],
+            properties: [
+                new OA\Property(property: 'email', type: 'string', format: 'email', example: 'user@email.com'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Demande traitée')]
+    #[OA\Response(response: 400, description: 'Email invalide ou manquant')]
     public function forgot(
         Request $request,
         EntityManagerInterface $em,

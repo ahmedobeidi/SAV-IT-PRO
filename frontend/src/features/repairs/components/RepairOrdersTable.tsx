@@ -1,6 +1,6 @@
 import RepairStatusBadge from "./RepairStatusBadge";
 import type { RepairOrderRead } from "../repairs.types";
-import { Eye, Send, UserPlus, RefreshCw } from "lucide-react";
+import { Eye, UserPlus, RefreshCw, Pencil } from "lucide-react";
 import { useTicketActions } from "../hooks/useTicketActions";
 
 const headCellStyle: React.CSSProperties = {
@@ -15,28 +15,35 @@ const cellStyle: React.CSSProperties = {
   verticalAlign: "middle",
 };
 
+type Mode = "staff" | "tech";
+
 function RepairRow({
   r,
   mode,
+  onEdit,
   onAssign,
   onUpdateStatus,
   onRefresh,
+  onMessage,
 }: {
   r: RepairOrderRead;
-  mode: "staff" | "tech";
-  onAssign: (repair: RepairOrderRead) => void;
+  mode: Mode;
+  onEdit?: (repair: RepairOrderRead) => void;
+  onAssign?: (repair: RepairOrderRead) => void;
   onUpdateStatus: (repair: RepairOrderRead) => void;
   onRefresh: () => void;
+  onMessage?: (type: "success" | "error", text: string) => void;
 }) {
-  const { ticket, loadingTicket, msg, openTicket, send } = useTicketActions(
+  const { openTicket, loadingTicket } = useTicketActions(
     r.id,
-    onRefresh
+    onRefresh,
+    onMessage ?? (() => {}),
   );
 
   return (
-    <tr>
+    <tr className="repair-orders-table__row">
       <td style={cellStyle}>
-        <div style={{ color: "var(--primary)" }}>{r.reference}</div>
+        <div className="link-primary">{r.reference}</div>
         <div className="small">
           {r.createdAt ? new Date(r.createdAt).toLocaleString("fr-FR") : ""}
         </div>
@@ -69,50 +76,41 @@ function RepairRow({
         </span>
       </td>
 
-      <td style={cellStyle}>
-        {loadingTicket ? (
-          <span className="small">Chargement...</span>
-        ) : ticket ? (
-          <span className="small" style={{ fontWeight: 600 }}>
-            {ticket.isSent ? "Envoyé" : "Non envoyé"}
-          </span>
-        ) : (
-          <span className="small">Aucun ticket</span>
-        )}
-
-        {msg && (
-          <div className="small" style={{ marginTop: 6 }}>
-            {msg}
-          </div>
-        )}
-      </td>
-
       <td
         style={{
           ...cellStyle,
           textAlign: "center",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            gap: 10,
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <button
-            className="btn hover-bg-primary"
-            onClick={openTicket}
-            disabled={!ticket}
-            title="Ouvrir"
-            aria-label="Ouvrir"
-          >
-            <Eye size={18} />
-          </button>
+        <div className="repair-orders-table__actions">
+          {mode === "staff" && onEdit && (
+            <button
+              className="btn hover-bg-primary"
+              onClick={() => onEdit(r)}
+              title="Modifier"
+              aria-label="Modifier"
+            >
+              <Pencil size={18} />
+            </button>
+          )}
 
           {mode === "staff" && (
+            <button
+              className="btn hover-bg-primary"
+              onClick={openTicket}
+              title="Voir le ticket"
+              aria-label="Voir le ticket"
+              disabled={loadingTicket}
+              style={{
+                opacity: loadingTicket ? 0.6 : 1,
+                cursor: loadingTicket ? "wait" : "pointer",
+              }}
+            >
+              <Eye size={18} />
+            </button>
+          )}
+
+          {mode === "staff" && onAssign && (
             <button
               className="btn hover-bg-primary"
               onClick={() => onAssign(r)}
@@ -131,18 +129,6 @@ function RepairRow({
           >
             <RefreshCw size={18} />
           </button>
-
-          {mode === "staff" && (
-            <button
-              className="btn hover-bg-primary"
-              onClick={send}
-              disabled={!ticket || ticket.isSent}
-              title="Envoyer au client"
-              aria-label="Envoyer au client"
-            >
-              <Send size={18} />
-            </button>
-          )}
         </div>
       </td>
     </tr>
@@ -151,20 +137,24 @@ function RepairRow({
 
 export default function RepairOrdersTable({
   items,
-  mode,
+  mode = "staff",
+  onEdit,
   onAssign,
   onUpdateStatus,
   onRefresh,
+  onMessage,
 }: {
   items: RepairOrderRead[];
-  mode: "staff" | "tech";
-  onAssign: (repair: RepairOrderRead) => void;
+  mode?: Mode;
+  onEdit?: (repair: RepairOrderRead) => void;
+  onAssign?: (repair: RepairOrderRead) => void;
   onUpdateStatus: (repair: RepairOrderRead) => void;
   onRefresh: () => void;
+  onMessage?: (type: "success" | "error", text: string) => void;
 }) {
   return (
-    <div className="card" style={{ padding: 12, overflowX: "auto" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+    <div className="card table-card">
+      <table className="repair-orders-table">
         <thead>
           <tr>
             {[
@@ -174,7 +164,6 @@ export default function RepairOrdersTable({
               "Panne",
               "Statut",
               "Technicien",
-              "Ticket",
               "Actions",
             ].map((h) => (
               <th
@@ -196,16 +185,18 @@ export default function RepairOrdersTable({
               key={r.id}
               r={r}
               mode={mode}
+              onEdit={onEdit}
               onAssign={onAssign}
               onUpdateStatus={onUpdateStatus}
               onRefresh={onRefresh}
+              onMessage={onMessage}
             />
           ))}
         </tbody>
       </table>
 
       {items.length === 0 && (
-        <div className="small" style={{ padding: 12 }}>
+        <div className="small empty-state">
           Aucune réparation.
         </div>
       )}

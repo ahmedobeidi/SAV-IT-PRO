@@ -3,12 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\RefreshToken;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<RefreshToken>
- */
 class RefreshTokenRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -16,28 +14,36 @@ class RefreshTokenRepository extends ServiceEntityRepository
         parent::__construct($registry, RefreshToken::class);
     }
 
-    //    /**
-    //     * @return RefreshToken[] Returns an array of RefreshToken objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('r.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findOneValidByPlainToken(string $plainToken): ?RefreshToken
+    {
+        $tokenHash = hash('sha256', $plainToken);
 
-    //    public function findOneBySomeField($value): ?RefreshToken
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        /** @var RefreshToken|null $refresh */
+        $refresh = $this->findOneBy(['tokenHash' => $tokenHash]);
+
+        if (!$refresh) {
+            return null;
+        }
+
+        if ($refresh->isRevoked() || $refresh->isExpired()) {
+            return null;
+        }
+
+        return $refresh;
+    }
+
+    public function revokeAllActiveForUser(User $user): void
+    {
+        $now = new \DateTimeImmutable();
+
+        $this->createQueryBuilder('r')
+            ->update()
+            ->set('r.revokedAt', ':now')
+            ->where('r.user = :user')
+            ->andWhere('r.revokedAt IS NULL')
+            ->setParameter('now', $now)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->execute();
+    }
 }

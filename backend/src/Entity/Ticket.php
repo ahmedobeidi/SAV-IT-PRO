@@ -7,6 +7,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
+#[ORM\Table(name: 'ticket')]
+#[ORM\UniqueConstraint(name: 'uniq_ticket_repair_order', columns: ['repair_order_id'])]
 class Ticket
 {
     #[Groups(['ticket:read'])]
@@ -14,6 +16,14 @@ class Ticket
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[ORM\OneToOne(inversedBy: 'ticket')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private RepairOrder $repairOrder;
+
+    #[ORM\ManyToOne(inversedBy: 'tickets')]
+    #[ORM\JoinColumn(nullable: false)]
+    private User $generatedBy;
 
     #[Groups(['ticket:read'])]
     #[ORM\Column(length: 255)]
@@ -31,29 +41,15 @@ class Ticket
     #[ORM\Column]
     private int $size;
 
-    #[Groups(['ticket:read'])]
-    #[ORM\Column]
-    private int $version = 1;
+    #[ORM\Column(type: 'json')]
+    private array $snapshot = [];
 
-    #[ORM\ManyToOne(inversedBy: 'tickets')]
-    #[ORM\JoinColumn(nullable: false)]
-    private RepairOrder $repairOrder;
-
-    #[ORM\ManyToOne(inversedBy: 'tickets')]
-    #[ORM\JoinColumn(nullable: false)]
-    private User $generatedBy;
+    #[ORM\Column(length: 64)]
+    private string $snapshotHash;
 
     #[Groups(['ticket:read'])]
     #[ORM\Column]
     private \DateTimeImmutable $generatedAt;
-
-    #[Groups(['ticket:read'])]
-    #[ORM\Column(options: ['default' => false])]
-    private bool $isSent = false;
-
-    #[Groups(['ticket:read'])]
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $sentAt = null;
 
     public function __construct()
     {
@@ -63,6 +59,33 @@ class Ticket
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getRepairOrder(): RepairOrder
+    {
+        return $this->repairOrder;
+    }
+
+    public function setRepairOrder(RepairOrder $repairOrder): self
+    {
+        $this->repairOrder = $repairOrder;
+
+        if ($repairOrder->getTicket() !== $this) {
+            $repairOrder->setTicket($this);
+        }
+
+        return $this;
+    }
+
+    public function getGeneratedBy(): User
+    {
+        return $this->generatedBy;
+    }
+
+    public function setGeneratedBy(User $generatedBy): self
+    {
+        $this->generatedBy = $generatedBy;
+        return $this;
     }
 
     public function getStoragePath(): string
@@ -109,36 +132,25 @@ class Ticket
         return $this;
     }
 
-    public function getVersion(): int
+    public function getSnapshot(): array
     {
-        return $this->version;
+        return $this->snapshot;
     }
 
-    public function setVersion(int $version): self
+    public function setSnapshot(array $snapshot): self
     {
-        $this->version = $version;
+        $this->snapshot = $snapshot;
         return $this;
     }
 
-    public function getRepairOrder(): RepairOrder
+    public function getSnapshotHash(): string
     {
-        return $this->repairOrder;
+        return $this->snapshotHash;
     }
 
-    public function setRepairOrder(RepairOrder $repairOrder): self
+    public function setSnapshotHash(string $snapshotHash): self
     {
-        $this->repairOrder = $repairOrder;
-        return $this;
-    }
-
-    public function getGeneratedBy(): User
-    {
-        return $this->generatedBy;
-    }
-
-    public function setGeneratedBy(User $generatedBy): self
-    {
-        $this->generatedBy = $generatedBy;
+        $this->snapshotHash = $snapshotHash;
         return $this;
     }
 
@@ -150,28 +162,6 @@ class Ticket
     public function setGeneratedAt(\DateTimeImmutable $generatedAt): self
     {
         $this->generatedAt = $generatedAt;
-        return $this;
-    }
-
-    public function isSent(): bool
-    {
-        return $this->isSent;
-    }
-
-    public function setIsSent(bool $isSent): self
-    {
-        $this->isSent = $isSent;
-        return $this;
-    }
-
-    public function getSentAt(): ?\DateTimeImmutable
-    {
-        return $this->sentAt;
-    }
-
-    public function setSentAt(?\DateTimeImmutable $sentAt): self
-    {
-        $this->sentAt = $sentAt;
         return $this;
     }
 }

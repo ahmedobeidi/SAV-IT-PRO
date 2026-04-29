@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { authService } from "../auth.service";
 import { authStore } from "../auth.store";
+import { getDefaultAdminPath } from "../auth.roles";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
@@ -20,13 +21,10 @@ export default function LoginPage() {
 
     if (message) {
       setSuccessMessage(message);
-
-      // clear router state so it does not persist on refresh/back
       navigate(location.pathname, { replace: true });
     }
   }, [location.state, location.pathname, navigate]);
 
-  // auto-hide after 5 seconds
   useEffect(() => {
     if (!successMessage) return;
 
@@ -44,8 +42,10 @@ export default function LoginPage() {
 
     try {
       const res = await authService.login(email, password);
+
       authStore.setTokens(res.token, res.refresh_token, res.role);
-      navigate("/admin");
+
+      navigate(getDefaultAdminPath(res.role), { replace: true });
     } catch (err: any) {
       setError(
         err?.response?.data?.message ?? "Email ou mot de passe invalide."
@@ -61,19 +61,24 @@ export default function LoginPage() {
 
       <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
         <div>
-          <label className="small label">Email</label>
+          <label htmlFor="email" className="small label">Email</label>
           <input
+            id="email"
             className="input"
             value={email}
-            onChange={(e) => { setEmail(e.target.value); setError(null); }}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError(null);
+            }}
             autoComplete="email"
           />
         </div>
 
         <div>
-          <label className="small label">Mot de passe</label>
+          <label htmlFor="password" className="small label">Mot de passe</label>
           <div className="password-wrapper">
             <input
+              id="password"
               className="input"
               type={showPassword ? "text" : "password"}
               value={password}
@@ -92,7 +97,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 className="eye-btn"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => setShowPassword((v) => !v)}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -101,7 +106,9 @@ export default function LoginPage() {
         </div>
 
         {successMessage && (
-          <div style={{ color: "var(--success)", fontSize: 13, marginBottom: 0 }}>
+          <div
+            style={{ color: "var(--success)", fontSize: 13, marginBottom: 0 }}
+          >
             {successMessage}
           </div>
         )}

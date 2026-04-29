@@ -1,4 +1,4 @@
-import { http } from "../../api/http";
+import { http } from "../../shared/api/http";
 import type {
   ClientRead,
   ClientsListResponse,

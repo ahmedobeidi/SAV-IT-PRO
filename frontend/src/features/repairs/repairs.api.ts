@@ -1,11 +1,11 @@
-import { http } from "../../api/http";
+import { http } from "../../shared/api/http";
 import type {
   Paginated,
   RepairOrderRead,
   CreateRepairOrderPayload,
+  UpdateRepairOrderPayload,
   AssignTechnicianPayload,
   UpdateStatusPayload,
-  TicketResponse,
   RepairStatus,
   TicketRead,
 } from "./repairs.types";
@@ -13,6 +13,14 @@ import type {
 export const repairsApi = {
   async create(payload: CreateRepairOrderPayload): Promise<RepairOrderRead> {
     const res = await http.post("/api/repair-orders", payload);
+    return res.data;
+  },
+
+  async update(
+    id: number,
+    payload: UpdateRepairOrderPayload,
+  ): Promise<RepairOrderRead> {
+    const res = await http.patch(`/api/repair-orders/${id}`, payload);
     return res.data;
   },
 
@@ -39,12 +47,18 @@ export const repairsApi = {
     return res.data;
   },
 
-  async assign(id: number, payload: AssignTechnicianPayload): Promise<RepairOrderRead> {
+  async assign(
+    id: number,
+    payload: AssignTechnicianPayload,
+  ): Promise<RepairOrderRead> {
     const res = await http.patch(`/api/repair-orders/${id}/assign`, payload);
     return res.data;
   },
 
-  async staffUpdateStatus(id: number, payload: UpdateStatusPayload): Promise<RepairOrderRead> {
+  async staffUpdateStatus(
+    id: number,
+    payload: UpdateStatusPayload,
+  ): Promise<RepairOrderRead> {
     const res = await http.patch(`/api/repair-orders/${id}/status`, payload);
     return res.data;
   },
@@ -58,38 +72,24 @@ export const repairsApi = {
     return res.data;
   },
 
-  async technicianUpdateStatus(id: number, payload: UpdateStatusPayload): Promise<RepairOrderRead> {
-    const res = await http.patch(`/api/technician/repair-orders/${id}/status`, payload);
+  async technicianUpdateStatus(
+    id: number,
+    payload: UpdateStatusPayload,
+  ): Promise<RepairOrderRead> {
+    const res = await http.patch(
+      `/api/technician/repair-orders/${id}/status`,
+      payload,
+    );
     return res.data;
   },
 
-  async generateTicket(id: number): Promise<TicketResponse> {
-    const res = await http.post(`/api/repair-orders/${id}/ticket`);
-    return res.data;
-  },
-
-  async sendTicket(id: number): Promise<{ message: string }> {
-    const res = await http.post(`/api/repair-orders/${id}/ticket/send`);
-    return res.data;
-  },
-
-  async listTickets(id: number): Promise<TicketRead[]> {
-    const res = await http.get(`/api/repair-orders/${id}/tickets`, {
-      meta: { skipLoading: true },
-    } as any);
+  async generateCurrentTicket(id: number): Promise<TicketRead> {
+    const res = await http.post(`/api/repair-orders/${id}/tickets/generate`);
     return res.data;
   },
 
   async viewTicketBlob(ticketId: number): Promise<Blob> {
     const res = await http.get(`/api/tickets/${ticketId}/view`, {
-      responseType: "blob",
-      meta: { skipLoading: true },
-    } as any);
-    return res.data;
-  },
-
-  async downloadTicketBlob(ticketId: number): Promise<Blob> {
-    const res = await http.get(`/api/tickets/${ticketId}/download`, {
       responseType: "blob",
       meta: { skipLoading: true },
     } as any);

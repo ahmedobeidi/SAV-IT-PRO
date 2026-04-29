@@ -33,4 +33,13 @@ class TicketStorageService
     {
         return $this->projectDir . '/' . ltrim($storagePath, '/');
     }
+
+    public function deleteIfExists(string $storagePath): void
+    {
+        $absolutePath = $this->absolutePath($storagePath);
+
+        if (is_file($absolutePath)) {
+            @unlink($absolutePath);
+        }
+    }
 }

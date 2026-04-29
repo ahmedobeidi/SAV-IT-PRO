@@ -1,4 +1,4 @@
-import { http } from "../../api/http";
+import { http } from "../../shared/api/http";
 
 export type IssueRead = { id: number; name: string };
 
@@ -17,6 +17,17 @@ export const issuesApi = {
     const res = await http.get(`/api/equipment-types/${typeId}/issues`, {
       params,
     });
+    return res.data;
+  },
+
+  async listByTypeSilent(
+    typeId: number,
+    params?: { search?: string; page?: number; limit?: number }
+  ): Promise<Paginated<IssueRead>> {
+    const res = await http.get(`/api/equipment-types/${typeId}/issues`, {
+      params,
+      meta: { skipLoading: true },
+    } as any);
     return res.data;
   },
 

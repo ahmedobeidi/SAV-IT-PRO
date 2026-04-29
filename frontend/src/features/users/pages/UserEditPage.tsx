@@ -21,42 +21,26 @@ export default function UserEditPage() {
       .catch(() => setError("Accès refusé ou utilisateur introuvable."));
   }, [userId]);
 
-  if (error) return <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>;
+  if (error) return <div className="text-danger status-text">{error}</div>;
   if (!user) return <div className="small">Chargement...</div>;
 
   return (
-    <div
-      style={{
-        minHeight: "70vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 12,
-      }}
-    >
-      <div style={{ width: "100%", maxWidth: 720 }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 12,
-          }}
-        >
+    <div className="form-shell">
+      <div className="form-shell-inner">
+        <div className="form-header">
           <Link
             to="/admin/users"
-            className="btn"
-            style={{ display: "flex", alignItems: "center", gap: 6 }}
+            className="btn form-back-link"
           >
             <ArrowLeft size={16} />
             Retour
           </Link>
 
-          <div style={{ textAlign: "center", flex: 1 }}>
-            <h2 style={{ margin: 0 }}>Modifier l’employé</h2>
+          <div className="form-header-title">
+            <h2 className="page-title">Modifier l’employé</h2>
           </div>
 
-          <div style={{ width: 80 }} />
+          <div className="form-header-spacer" />
         </div>
 
         <UserForm

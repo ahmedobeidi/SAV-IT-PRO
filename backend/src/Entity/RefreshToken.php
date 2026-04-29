@@ -17,14 +17,16 @@ class RefreshToken
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
-    #[ORM\Column(length: 128, unique: true)]
-    private string $token;
+    #[ORM\Column(length: 64, unique: true)]
+    private string $tokenHash;
 
     #[ORM\Column]
     private \DateTimeImmutable $expiresAt;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $revokedAt = null;
+
+    private ?string $plainToken = null;
 
     public function getId(): ?int
     {
@@ -35,19 +37,21 @@ class RefreshToken
     {
         return $this->user;
     }
+
     public function setUser(User $user): self
     {
         $this->user = $user;
         return $this;
     }
 
-    public function getToken(): string
+    public function getTokenHash(): string
     {
-        return $this->token;
+        return $this->tokenHash;
     }
-    public function setToken(string $token): self
+
+    public function setTokenHash(string $tokenHash): self
     {
-        $this->token = $token;
+        $this->tokenHash = $tokenHash;
         return $this;
     }
 
@@ -55,6 +59,7 @@ class RefreshToken
     {
         return $this->expiresAt;
     }
+
     public function setExpiresAt(\DateTimeImmutable $expiresAt): self
     {
         $this->expiresAt = $expiresAt;
@@ -65,6 +70,7 @@ class RefreshToken
     {
         return $this->revokedAt;
     }
+
     public function revoke(): self
     {
         $this->revokedAt = new \DateTimeImmutable();
@@ -79,5 +85,16 @@ class RefreshToken
     public function isRevoked(): bool
     {
         return $this->revokedAt !== null;
+    }
+
+    public function setPlainToken(?string $plainToken): self
+    {
+        $this->plainToken = $plainToken;
+        return $this;
+    }
+
+    public function getPlainToken(): ?string
+    {
+        return $this->plainToken;
     }
 }

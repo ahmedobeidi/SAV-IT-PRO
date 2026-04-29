@@ -1,18 +1,27 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { APP_PATHS } from "../../../app/paths";
 import { useRepairOrdersList } from "../hooks/useRepairOrdersList";
-import type { RepairOrderRead, RepairStatus } from "../repairs.types";
+import type {
+  RepairOrderRead,
+  RepairStatus,
+  UpdateRepairOrderPayload,
+} from "../repairs.types";
 import RepairOrdersTable from "../components/RepairOrdersTable";
 import AssignTechnicianDialog from "../components/AssignTechnicianDialog";
 import UpdateStatusDialog from "../components/UpdateStatusDialog";
 import { repairsApi } from "../repairs.api";
-import { mapApiError } from "../repairs.validators";
+import BottomPagination from "../../../shared/pagination/BottomPagination";
+import { useFlashMessage } from "../../../shared/flash/useFlashMessage";
+import { mapCrudApiError } from "../../../shared/errors/mapCrudApiError";
 import { getStatusLabel } from "../utils/statusTranslations";
+import EditRepairOrderDialog from "../components/EditRepairOrderDialog";
+import { useAuth } from "../../auth/useAuth";
+import { canAssignTechnician } from "../../auth/auth.roles";
 
 const STATUS: Array<RepairStatus | ""> = [
   "",
   "CREATED",
-  "ASSIGNED",
   "IN_PROGRESS",
   "WAITING_PARTS",
   "DONE",
@@ -20,174 +29,139 @@ const STATUS: Array<RepairStatus | ""> = [
   "CANCELED",
 ];
 
-type BottomPaginationProps = {
-  page: number;
-  totalPages: number;
-  onChange: (page: number) => void;
-};
-
-function buildPageItems(page: number, totalPages: number): (number | "...")[] {
-  if (totalPages <= 7) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
-  }
-
-  const items: (number | "...")[] = [1];
-
-  const start = Math.max(2, page - 1);
-  const end = Math.min(totalPages - 1, page + 1);
-
-  if (start > 2) items.push("...");
-  for (let p = start; p <= end; p++) items.push(p);
-  if (end < totalPages - 1) items.push("...");
-  items.push(totalPages);
-
-  return items;
-}
-
-function BottomPagination({
-  page,
-  totalPages,
-  onChange,
-}: BottomPaginationProps) {
-  if (totalPages <= 1) return null;
-
-  const items = buildPageItems(page, totalPages);
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: 8,
-        flexWrap: "wrap",
-        paddingTop: 6,
-      }}
-    >
-      {items.map((item, i) =>
-        item === "..." ? (
-          <span key={`dots-${i}`} className="small">
-            …
-          </span>
-        ) : (
-          <button
-            key={item}
-            className="btn"
-            onClick={() => onChange(item)}
-            aria-current={item === page ? "page" : undefined}
-            style={{
-              minWidth: 38,
-              fontWeight: item === page ? 700 : 400,
-              border:
-                item === page
-                  ? "1px solid var(--primary)"
-                  : "1px solid var(--border)",
-              background: item === page ? "var(--primary)" : "transparent",
-              color: item === page ? "#fff" : "inherit",
-              cursor: "pointer",
-            }}
-          >
-            {item}
-          </button>
-        )
-      )}
-    </div>
-  );
-}
-
 export default function RepairOrdersListPage() {
+  const { role } = useAuth();
+  const canAssign = canAssignTechnician(role);
+
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<RepairStatus | "">("");
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const { data, loading, error, refresh } = useRepairOrdersList(search, status, page, limit);
+  const { data, loading, error, refresh } = useRepairOrdersList(
+    search,
+    status,
+    page,
+    limit,
+  );
 
   const totalPages = useMemo(() => {
     if (!data) return 1;
     return Math.max(1, Math.ceil(data.total / data.limit));
   }, [data]);
 
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [assignTarget, setAssignTarget] = useState<RepairOrderRead | null>(null);
-  const [statusTarget, setStatusTarget] = useState<RepairOrderRead | null>(null);
+  const { flash, showFlash } = useFlashMessage();
 
-  // auto-hide success message after 5 seconds
-  useEffect(() => {
-    if (!successMessage) return;
+  const [assignTarget, setAssignTarget] = useState<RepairOrderRead | null>(
+    null,
+  );
+  const [statusTarget, setStatusTarget] = useState<RepairOrderRead | null>(
+    null,
+  );
+  const [editTarget, setEditTarget] = useState<RepairOrderRead | null>(null);
 
-    const timer = setTimeout(() => {
-      setSuccessMessage(null);
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [successMessage]);
-
-  async function assign(technicianId: number) {
+  async function assign(technicianId: number | null) {
     if (!assignTarget) return;
+
     try {
       await repairsApi.assign(assignTarget.id, { technicianId });
-      setSuccessMessage("Technicien affecté.");
+      setAssignTarget(null);
+      showFlash(
+        "success",
+        technicianId === null ? "Technicien retiré." : "Technicien affecté.",
+      );
       refresh();
     } catch (e: any) {
-      setSuccessMessage(mapApiError(e));
+      showFlash(
+        "error",
+        mapCrudApiError(e, {
+          notFoundMessage: "Ordre de réparation introuvable.",
+        }),
+      );
     }
   }
 
   async function staffUpdateStatus(newStatus: RepairStatus) {
     if (!statusTarget) return;
+
     try {
-      await repairsApi.staffUpdateStatus(statusTarget.id, { status: newStatus });
-      setSuccessMessage("Statut mis à jour.");
+      await repairsApi.staffUpdateStatus(statusTarget.id, {
+        status: newStatus,
+      });
+      setStatusTarget(null);
+      showFlash("success", "Statut mis à jour.");
       refresh();
     } catch (e: any) {
-      setSuccessMessage(mapApiError(e));
+      showFlash(
+        "error",
+        mapCrudApiError(e, {
+          notFoundMessage: "Ordre de réparation introuvable.",
+        }),
+      );
+    }
+  }
+
+  async function updateRepair(payload: UpdateRepairOrderPayload) {
+    if (!editTarget) return;
+
+    const repair = editTarget;
+    setEditTarget(null);
+
+    try {
+      await repairsApi.update(repair.id, payload);
+      showFlash("success", "Réparation mise à jour.");
+      refresh();
+    } catch (e: any) {
+      showFlash(
+        "error",
+        mapCrudApiError(e, {
+          notFoundMessage: "Ordre de réparation introuvable.",
+        }),
+      );
+      refresh();
+      throw e;
     }
   }
 
   return (
-    <div style={{ display: "grid", gap: 12 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 12 }}>
+    <div className="page-stack">
+      <div className="page-header">
         <div>
-          <h2 style={{ margin: 0 }}>Réparations</h2>
+          <h2 className="page-title">Réparations</h2>
         </div>
 
-        <Link
-          to="/admin/repair-orders/new"
-          className="btn btn-primary"
-          style={{
-            display: "inline-block",
-            lineHeight: "1",
-            textDecoration: "none"
-          }}
-        >
+        <Link to={APP_PATHS.repairOrdersNew} className="btn btn-primary">
           Créer
         </Link>
       </div>
 
       <div
         className="card"
-        style={{ padding: 12, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}
+        style={{
+          padding: 12,
+          display: "flex",
+          gap: 10,
+          flexWrap: "wrap",
+          alignItems: "center",
+        }}
       >
         <input
-          className="input"
           placeholder="Rechercher par nom, téléphone ou référence SAV-2026-000123"
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
             setPage(1);
           }}
-          style={{ width: 300 }}
+          className="input page-search-input-wide"
         />
 
         <select
-          className="input"
           value={status}
           onChange={(e) => {
-            setStatus(e.target.value as any);
+            setStatus(e.target.value as RepairStatus | "");
             setPage(1);
           }}
-          style={{ width: 220 }}
+          className="input page-select-input"
         >
           {STATUS.map((s) => (
             <option key={s || "ALL"} value={s}>
@@ -196,7 +170,7 @@ export default function RepairOrdersListPage() {
           ))}
         </select>
 
-        <div className="small" style={{ marginLeft: "auto" }}>
+        <div className="small push-right">
           Page {page}/{totalPages}
         </div>
 
@@ -217,23 +191,26 @@ export default function RepairOrdersListPage() {
         </button>
       </div>
 
-      {successMessage && (
-        <div style={{ color: "var(--success)", fontSize: 13, marginBottom: 0 }}>
-          {successMessage}
+      {flash && (
+        <div
+          className={`small ${flash.type === "success" ? "flash-success" : "flash-error"}`}
+        >
+          {flash.text}
         </div>
       )}
 
       {loading && <div className="small">Chargement...</div>}
-      {error && <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>}
+      {error && <div className="text-danger status-text">{error}</div>}
 
       {data && (
         <>
           <RepairOrdersTable
             items={data.items}
-            mode="staff"
-            onAssign={(r) => setAssignTarget(r)}
+            onEdit={(r) => setEditTarget(r)}
+            onAssign={canAssign ? (r) => setAssignTarget(r) : undefined}
             onUpdateStatus={(r) => setStatusTarget(r)}
             onRefresh={refresh}
+            onMessage={showFlash}
           />
 
           <BottomPagination
@@ -244,18 +221,34 @@ export default function RepairOrdersListPage() {
         </>
       )}
 
-      <AssignTechnicianDialog
-        open={!!assignTarget}
-        onClose={() => setAssignTarget(null)}
-        onConfirm={assign}
-      />
+      {canAssign && (
+        <AssignTechnicianDialog
+          open={!!assignTarget}
+          onClose={() => setAssignTarget(null)}
+          onConfirm={assign}
+        />
+      )}
 
       <UpdateStatusDialog
         open={!!statusTarget}
         current={statusTarget?.status ?? "CREATED"}
-        allowed={["CREATED", "ASSIGNED", "IN_PROGRESS", "WAITING_PARTS", "DONE", "DELIVERED", "CANCELED"]}
+        allowed={[
+          "CREATED",
+          "IN_PROGRESS",
+          "WAITING_PARTS",
+          "DONE",
+          "DELIVERED",
+          "CANCELED",
+        ]}
         onClose={() => setStatusTarget(null)}
         onConfirm={staffUpdateStatus}
+      />
+
+      <EditRepairOrderDialog
+        open={!!editTarget}
+        repair={editTarget}
+        onClose={() => setEditTarget(null)}
+        onSubmit={updateRepair}
       />
     </div>
   );

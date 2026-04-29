@@ -4,6 +4,7 @@ namespace App\Service\RepairOrder;
 
 use App\DTO\RepairOrder\AssignTechnicianRequest;
 use App\DTO\RepairOrder\CreateRepairOrderRequest;
+use App\DTO\RepairOrder\UpdateRepairOrderRequest;
 use App\Entity\Client;
 use App\Entity\Issue;
 use App\Entity\RepairOrder;
@@ -13,7 +14,6 @@ use App\Enum\RepairOrderLogAction;
 use App\Enum\RepairOrderStatus;
 use App\Enum\UserRole;
 use App\Repository\EquipmentModelRepository;
-use App\Service\Ticket\TicketService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class RepairOrderService
@@ -23,7 +23,6 @@ class RepairOrderService
         private EquipmentModelRepository $equipmentModelRepo,
         private RepairOrderLogFactory $logFactory,
         private RepairOrderReferenceGenerator $referenceGenerator,
-        private TicketService $ticketService,
     ) {}
 
     public function create(User $actor, CreateRepairOrderRequest $dto): RepairOrder
@@ -43,6 +42,8 @@ class RepairOrderService
             throw new \DomainException('Panne introuvable.');
         }
 
+        $this->assertIssueMatchesEquipmentModel($model, $issue);
+
         $r = new RepairOrder();
         $r->setReference($this->referenceGenerator->next());
         $r->setCreatedBy($actor);
@@ -61,30 +62,55 @@ class RepairOrderService
 
         $this->em->flush();
 
-        // Automatically generate ticket for the new repair order
-        try {
-            $this->ticketService->generateTicket($actor, $r);
-        } catch (\DomainException $e) {
-            // If ticket generation fails, log the error but don't fail the repair order creation
-            error_log('Ticket generation failed for repair order ' . $r->getId() . ': ' . $e->getMessage());
+        return $r;
+    }
+
+    public function update(User $actor, RepairOrder $r, UpdateRepairOrderRequest $dto): RepairOrder
+    {
+        $model = $this->equipmentModelRepo->find($dto->equipmentModelId);
+        if (!$model) {
+            throw new \DomainException('Modèle introuvable.');
         }
+
+        $issue = $this->em->getRepository(Issue::class)->find($dto->issueId);
+        if (!$issue) {
+            throw new \DomainException('Panne introuvable.');
+        }
+
+        $this->assertIssueMatchesEquipmentModel($model, $issue);
+
+        $r->setEquipmentModel($model);
+        $r->setIssue($issue);
+        $r->setPrice($dto->price);
+        $r->setDeposit($dto->deposit);
+        $r->setDescription($dto->description);
+        $r->setUpdatedAt(new \DateTimeImmutable());
+
+        $this->addLog($r, $actor, RepairOrderLogAction::UPDATED);
+
+        $this->em->flush();
 
         return $r;
     }
 
     public function assignTechnician(User $actor, RepairOrder $r, AssignTechnicianRequest $dto): RepairOrder
     {
+        if ($dto->technicianId === null) {
+            $r->setAssignedTo(null);
+            $r->setUpdatedAt(new \DateTimeImmutable());
+
+            $this->addLog($r, $actor, RepairOrderLogAction::UNASSIGNED);
+
+            $this->em->flush();
+            return $r;
+        }
+
         $tech = $this->em->getRepository(User::class)->find($dto->technicianId);
         if (!$tech || $tech->getRole() !== UserRole::TECHNICIAN) {
             throw new \DomainException('Technicien invalide.');
         }
 
         $r->setAssignedTo($tech);
-
-        if (in_array($r->getStatus(), [RepairOrderStatus::CREATED, RepairOrderStatus::CANCELED], true)) {
-            $r->setStatus(RepairOrderStatus::ASSIGNED);
-        }
-
         $r->setUpdatedAt(new \DateTimeImmutable());
 
         $this->addLog($r, $actor, RepairOrderLogAction::ASSIGNED);
@@ -123,7 +149,7 @@ class RepairOrderService
         return $r;
     }
 
-    private function addLog(RepairOrder $r, User $actor, \App\Enum\RepairOrderLogAction $action): void
+    private function addLog(RepairOrder $r, User $actor, RepairOrderLogAction $action): void
     {
         $log = new RepairOrderLog();
         $log->setRepairOrder($r);
@@ -131,5 +157,15 @@ class RepairOrderService
         $log->setAction($action);
         $log->setSnapshot($this->logFactory->snapshot($r));
         $this->em->persist($log);
+    }
+
+    private function assertIssueMatchesEquipmentModel($model, Issue $issue): void
+    {
+        $modelTypeId = $model->getEquipmentBrand()->getEquipmentType()->getId();
+        $issueTypeId = $issue->getEquipmentType()->getId();
+
+        if ($modelTypeId !== $issueTypeId) {
+            throw new \DomainException('La panne ne correspond pas au type du modèle sélectionné.');
+        }
     }
 }

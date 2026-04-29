@@ -1,6 +1,5 @@
 export type RepairStatus =
   | "CREATED"
-  | "ASSIGNED"
   | "IN_PROGRESS"
   | "WAITING_PARTS"
   | "DONE"
@@ -12,6 +11,7 @@ export type ClientLight = {
   firstName: string;
   lastName: string;
   phone: string;
+  email?: string | null;
 };
 
 export type UserLight = {
@@ -21,12 +21,31 @@ export type UserLight = {
   role?: string;
 };
 
-export type EquipmentModelLight = { id: number; name: string };
-export type IssueLight = { id: number; name: string };
+export type EquipmentTypeLight = {
+  id: number;
+  name: string;
+};
+
+export type EquipmentBrandLight = {
+  id: number;
+  name: string;
+  equipmentType?: EquipmentTypeLight;
+};
+
+export type EquipmentModelLight = {
+  id: number;
+  name: string;
+  equipmentBrand?: EquipmentBrandLight;
+};
+
+export type IssueLight = {
+  id: number;
+  name: string;
+};
 
 export type RepairOrderRead = {
-  id: number; // internal only
-  reference: string; // display this to users
+  id: number;
+  reference: string;
   status: RepairStatus;
   price: number;
   deposit?: number | null;
@@ -58,27 +77,25 @@ export type CreateRepairOrderPayload = {
   description?: string | null;
 };
 
-export type AssignTechnicianPayload = { technicianId: number };
+export type AssignTechnicianPayload = { technicianId: number | null };
 export type UpdateStatusPayload = { status: RepairStatus };
-
-export type TicketResponse = {
-  ticketId: number;
-  filename: string;
-  mimeType: string;
-  size: number;
-  isSent: boolean;
-  version: number;
-};
 
 export type TicketRead = {
   id: number;
   filename: string;
   mimeType: string;
   size: number;
-  version: number;
   generatedAt: string;
-  isSent: boolean;
-  sentAt?: string | null;
+  isCurrent: boolean;
   viewUrl: string;
-  downloadUrl: string;
 };
+
+export type UpdateRepairOrderPayload = {
+  equipmentModelId: number;
+  issueId: number;
+  price: number;
+  deposit?: number | null;
+  description?: string | null;
+};
+
+export type GeneratedTicketResponse = TicketRead;

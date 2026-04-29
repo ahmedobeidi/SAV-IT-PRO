@@ -11,14 +11,8 @@ export default function EquipmentModelTable({
   onDelete: (m: EquipmentModelRead) => void;
 }) {
   return (
-    <div className="card" style={{ padding: 12, overflowX: "auto" }}>
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          tableLayout: "fixed",
-        }}
-      >
+    <div className="card table-card">
+      <table className="data-table">
         {/* ✅ fixed widths like ClientsTable */}
         <colgroup>
           <col style={{ width: "85%" }} />
@@ -26,15 +20,11 @@ export default function EquipmentModelTable({
         </colgroup>
 
         <thead>
-          <tr style={{ textAlign: "left" }}>
+          <tr className="data-table-head-row">
             {["Nom", "Actions"].map((h) => (
               <th
                 key={h}
-                style={{
-                  padding: "10px 8px",
-                  borderBottom: "1px solid var(--border)",
-                  textAlign: h === "Actions" ? "center" : "left",
-                }}
+                className={`data-table-head-cell ${h === "Actions" ? "data-table-head-cell--actions" : ""}`}
               >
                 <span className="small">{h}</span>
               </th>
@@ -47,14 +37,7 @@ export default function EquipmentModelTable({
             <tr key={m.id}>
               {/* Nom */}
               <td
-                style={{
-                  padding: "10px 8px",
-                  borderBottom: "1px solid var(--border)",
-                  verticalAlign: "top",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
+                className="data-table-cell data-table-cell--truncate"
                 title={m.name}
               >
                 <span style={{ color: "var(--primary)", cursor: "pointer" }} onClick={() => onEdit(m)}>{m.name}</span>
@@ -62,14 +45,9 @@ export default function EquipmentModelTable({
 
               {/* Actions */}
               <td
-                style={{
-                  padding: "10px 8px",
-                  borderBottom: "1px solid var(--border)",
-                  verticalAlign: "top",
-                  textAlign: "center",
-                }}
+                className="data-table-cell data-table-cell--actions"
               >
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", }}>
+                <div className="table-actions">
                   {/* Rename */}
                   <button
                     className="btn hover-bg-primary"
@@ -97,7 +75,7 @@ export default function EquipmentModelTable({
       </table>
 
       {items.length === 0 && (
-        <div className="small" style={{ padding: 12 }}>
+        <div className="small empty-state">
           Aucun modèle.
         </div>
       )}

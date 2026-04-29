@@ -14,49 +14,13 @@ class TicketRepository extends ServiceEntityRepository
         parent::__construct($registry, Ticket::class);
     }
 
-    public function nextVersionForRepairOrder(RepairOrder $repairOrder): int
-    {
-        $max = $this->createQueryBuilder('t')
-            ->select('MAX(t.version)')
-            ->andWhere('t.repairOrder = :repair')
-            ->setParameter('repair', $repairOrder)
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return ((int) $max) + 1;
-    }
-
-    /**
-     * @return Ticket[]
-     */
-    public function findByRepairOrderNewestFirst(RepairOrder $repairOrder): array
+    public function findOneByRepairOrder(RepairOrder $repairOrder): ?Ticket
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.repairOrder = :repair')
             ->setParameter('repair', $repairOrder)
-            ->orderBy('t.generatedAt', 'DESC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    public function findByRepairOrder(RepairOrder $repairOrder): ?Ticket
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.repairOrder = :repair')
-            ->setParameter('repair', $repairOrder)
+            ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
-    }
-
-    public function existsForRepairOrder(RepairOrder $repairOrder): bool
-    {
-        $result = $this->createQueryBuilder('t')
-            ->select('COUNT(t.id)')
-            ->andWhere('t.repairOrder = :repair')
-            ->setParameter('repair', $repairOrder)
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return (int)$result > 0;
     }
 }

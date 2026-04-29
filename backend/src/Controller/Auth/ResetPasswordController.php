@@ -3,16 +3,18 @@
 namespace App\Controller\Auth;
 
 use App\DTO\Auth\ResetPasswordRequest;
+use App\Service\AuthService;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ResetPasswordController extends AbstractController
 {
@@ -21,11 +23,32 @@ class ResetPasswordController extends AbstractController
     ) {}
 
     #[Route('/api/auth/reset-password', name: 'api_auth_reset_password', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/auth/reset-password',
+        summary: 'Réinitialiser le mot de passe',
+        description: 'Met à jour le mot de passe à partir d’un token de réinitialisation valide.',
+        tags: ['Authentification']
+    )]
+    #[OA\RequestBody(
+        required: true,
+        description: 'Token de réinitialisation et nouveau mot de passe',
+        content: new OA\JsonContent(
+            required: ['token', 'newPassword'],
+            properties: [
+                new OA\Property(property: 'token', type: 'string', example: 'reset_token_value'),
+                new OA\Property(property: 'newPassword', type: 'string', example: 'NouveauMotDePasse123'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Mot de passe mis à jour avec succès')]
+    #[OA\Response(response: 400, description: 'Token invalide ou expiré')]
+    #[OA\Response(response: 422, description: 'Validation échouée')]
     public function reset(
         Request $request,
         ResetPasswordHelperInterface $resetPasswordHelper,
         EntityManagerInterface $em,
-        UserPasswordHasherInterface $passwordHasher
+        UserPasswordHasherInterface $passwordHasher,
+        AuthService $authService
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
@@ -63,6 +86,8 @@ class ResetPasswordController extends AbstractController
         $user->setPassword($passwordHasher->hashPassword($user, $newPassword));
         $user->setPasswordSetupRequired(false);
         $user->setUpdatedAt(new \DateTimeImmutable());
+
+        $authService->revokeAllRefreshTokensForUser($user);
 
         $em->flush();
 

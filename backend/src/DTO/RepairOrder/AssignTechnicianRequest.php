@@ -2,10 +2,7 @@
 
 namespace App\DTO\RepairOrder;
 
-use Symfony\Component\Validator\Constraints as Assert;
-
 class AssignTechnicianRequest
 {
-    #[Assert\NotNull]
-    public int $technicianId;
+    public ?int $technicianId = null;
 }

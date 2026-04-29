@@ -9,6 +9,7 @@ use App\Enum\RepairOrderStatus;
 use App\Repository\RepairOrderRepository;
 use App\Security\Voter\RepairOrderVoter;
 use App\Service\RepairOrder\RepairOrderService;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,6 +26,17 @@ class TechnicianRepairOrderController extends AbstractController
     ) {}
 
     #[Route('', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/technician/repair-orders',
+        summary: 'Lister les ordres de réparation assignés au technicien',
+        description: 'Retourne les ordres de réparation assignés au technicien connecté.',
+        tags: ['Technicien'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'status', in: 'query', required: false, description: 'Filtre par statut', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'page', in: 'query', required: false, description: 'Numéro de page', schema: new OA\Schema(type: 'integer', default: 1))]
+    #[OA\Parameter(name: 'limit', in: 'query', required: false, description: 'Nombre d’éléments par page', schema: new OA\Schema(type: 'integer', default: 20))]
+    #[OA\Response(response: 200, description: 'Liste récupérée avec succès')]
     public function listAssigned(Request $request, RepairOrderRepository $repo): JsonResponse
     {
         $this->denyAccessUnlessGranted(RepairOrderVoter::TECH_LIST);
@@ -48,6 +60,27 @@ class TechnicianRepairOrderController extends AbstractController
     }
 
     #[Route('/{id}/status', methods: ['PATCH'])]
+    #[OA\Patch(
+        path: '/api/technician/repair-orders/{id}/status',
+        summary: 'Modifier le statut par le technicien',
+        description: 'Permet au technicien assigné de modifier le statut d’un ordre de réparation.',
+        tags: ['Technicien'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, description: 'Identifiant de l’ordre de réparation', schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        description: 'Nouveau statut',
+        content: new OA\JsonContent(
+            required: ['status'],
+            properties: [
+                new OA\Property(property: 'status', type: 'string', example: 'DONE'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Statut mis à jour avec succès')]
+    #[OA\Response(response: 409, description: 'Conflit métier')]
+    #[OA\Response(response: 422, description: 'Validation échouée')]
     public function updateStatus(RepairOrder $repairOrder, Request $request): JsonResponse
     {
         $this->denyAccessUnlessGranted(RepairOrderVoter::TECH_STATUS, $repairOrder);

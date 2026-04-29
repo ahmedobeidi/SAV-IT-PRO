@@ -4,8 +4,10 @@ security:
       algorithm: auto
 
   role_hierarchy:
-    ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_TECHNICIAN, ROLE_RECEPTION, ROLE_USER]
-    ROLE_ADMIN: [ROLE_TECHNICIAN, ROLE_RECEPTION, ROLE_USER]
+    ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_USER]
+    ROLE_ADMIN: [ROLE_USER]
+    ROLE_TECHNICIAN: [ROLE_USER]
+    ROLE_RECEPTION: [ROLE_USER]
 
   providers:
     app_user_provider:
@@ -35,15 +37,33 @@ security:
 
   access_control:
     # PUBLIC
+    - { path: ^/api/doc$, roles: PUBLIC_ACCESS }
+    - { path: ^/api/doc\.json$, roles: PUBLIC_ACCESS }
     - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
     - { path: ^/api/auth/forgot-password, roles: PUBLIC_ACCESS }
     - { path: ^/api/auth/reset-password, roles: PUBLIC_ACCESS }
     - { path: ^/api/auth/refresh, roles: PUBLIC_ACCESS }
 
-    # BUSINESS ROUTES
+    # USERS
     - { path: ^/api/users, roles: [ROLE_ADMIN, ROLE_SUPER_ADMIN] }
+
+    # CLIENTS
     - { path: ^/api/clients, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
-    - { path: ^/api/equipment-, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+
+    # EQUIPMENT
+    - { path: ^/api/equipment-types, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+    - { path: ^/api/equipment-types/.*/brands, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+    - { path: ^/api/equipment-types/.*/issues, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+    - { path: ^/api/equipment-brands, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+    - { path: ^/api/equipment-brands/.*/models, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+    - { path: ^/api/equipment-models, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+    - { path: ^/api/issues, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+
+    # REPAIRS
+    - { path: ^/api/repair-orders/.*/tickets, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+    - { path: ^/api/repair-orders, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
+    - { path: ^/api/technician/repair-orders, roles: [ROLE_TECHNICIAN] }
+    - { path: ^/api/tickets, roles: [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_RECEPTION] }
 
     # AUTHENTICATED
     - { path: ^/api/auth/logout, roles: IS_AUTHENTICATED_FULLY }

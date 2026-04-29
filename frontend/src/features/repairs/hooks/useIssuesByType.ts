@@ -9,11 +9,13 @@ export function useIssuesByType(typeId: number | "") {
   const fetch = useCallback(async () => {
     if (!typeId) {
       setItems([]);
+      setError(null);
       return;
     }
+
     setLoading(true);
     try {
-      const data = await issuesApi.listByType(typeId);
+      const data = await issuesApi.listByTypeSilent(typeId);
       setItems(data.items);
       setError(null);
     } catch {

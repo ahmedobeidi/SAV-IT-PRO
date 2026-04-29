@@ -1,9 +1,12 @@
 import { Navigate } from "react-router-dom";
-import { authStore } from "./auth.store";
+import { useAuth } from "./useAuth";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-  if (!authStore.isLoggedIn()) {
+  const { isLoggedIn } = useAuth();
+
+  if (!isLoggedIn) {
     return <Navigate to="/login" replace />;
   }
+
   return <>{children}</>;
 }

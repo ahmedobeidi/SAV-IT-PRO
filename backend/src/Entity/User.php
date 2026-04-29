@@ -2,17 +2,14 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
 use App\Enum\UserRole;
+use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use App\Entity\RepairOrder;
-use App\Entity\Ticket;
-use App\Entity\RepairOrderLog;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Serializer\Attribute\Groups;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -121,7 +118,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setEmail(string $email): self
     {
-        $this->email = $email;
+        $this->email = trim(mb_strtolower($email));
         return $this;
     }
 
@@ -274,11 +271,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     public function getUserIdentifier(): string
-    {
-        return $this->email;
-    }
-
-    public function getUsername(): string
     {
         return $this->email;
     }

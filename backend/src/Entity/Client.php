@@ -29,7 +29,7 @@ class Client
     #[ORM\Column(length: 30)]
     private string $phone;
 
-    #[Groups(['client:read'])]
+    #[Groups(['client:read_light', 'client:read'])]
     #[ORM\Column(length: 180, nullable: true)]
     private ?string $email = null;
 

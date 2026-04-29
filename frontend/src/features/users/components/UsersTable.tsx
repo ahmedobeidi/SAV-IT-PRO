@@ -13,14 +13,8 @@ export default function UsersTable({
   onAnonymize: (u: UserRead) => void;
 }) {
   return (
-    <div className="card" style={{ padding: 12, overflowX: "auto" }}>
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          tableLayout: "fixed",
-        }}
-      >
+    <div className="card table-card">
+      <table className="data-table">
         {/* ✅ fixed widths + “same width feel” */}
         <colgroup>
           <col style={{ width: "24%" }} />
@@ -31,15 +25,11 @@ export default function UsersTable({
         </colgroup>
 
         <thead>
-          <tr style={{ textAlign: "left" }}>
+          <tr className="data-table-head-row">
             {["Nom", "Email", "Rôle", "Statut", "Actions"].map((h) => (
               <th
                 key={h}
-                style={{
-                  padding: "10px 8px",
-                  borderBottom: "1px solid var(--border)",
-                  textAlign: h === "Actions" ? "center" : "left",
-                }}
+                className={`data-table-head-cell ${h === "Actions" ? "data-table-head-cell--actions" : ""}`}
               >
                 <span className="small">{h}</span>
               </th>
@@ -51,48 +41,34 @@ export default function UsersTable({
           {items.map((u) => (
             <tr key={u.id}>
               <td
-                style={{
-                  padding: "10px 8px",
-                  borderBottom: "1px solid var(--border)",
-                  verticalAlign: "top",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
+                className="data-table-cell data-table-cell--truncate"
                 title={`${u.lastName} ${u.firstName}`}
               >
                 <Link
-                  to={`/admin/users/${u.id}/edit`} style={{ color: "var(--primary)" }}>
+                  to={`/admin/users/${u.id}/edit`} className="link-primary">
                   {u.lastName} {u.firstName}
                 </Link>
                 {u.isAnonymized && <span className="small"> — anonymisé</span>}
               </td>
 
               <td
-                style={{
-                  padding: "10px 8px",
-                  borderBottom: "1px solid var(--border)",
-                  verticalAlign: "top",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
+                className="data-table-cell data-table-cell--truncate"
               >
                 <span className="small">{u.email}</span>
               </td>
 
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top" }}>
+              <td className="data-table-cell">
                 <RoleBadge role={u.role} />
               </td>
 
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top" }}>
-                <span style={{ color: u.isActive ? "var(--success)" : "var(--danger)", fontSize: 13 }}>
+              <td className="data-table-cell">
+                <span className={`status-text ${u.isActive ? "status-text-success" : "status-text-danger"}`}>
                   {u.isActive ? "Actif" : "Bloqué"}
                 </span>
               </td>
 
-              <td style={{ padding: "10px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top", textAlign: "center", }}>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", }}>
+              <td className="data-table-cell data-table-cell--actions">
+                <div className="table-actions">
                   {/* Edit */}
                   <Link className="btn hover-bg-primary" to={`/admin/users/${u.id}/edit`} title="Modifier" aria-label="Modifier">
                     <Pencil size={18} />
@@ -129,7 +105,7 @@ export default function UsersTable({
       </table>
 
       {items.length === 0 && (
-        <div className="small" style={{ padding: 12 }}>
+        <div className="small empty-state">
           Aucun employé.
         </div>
       )}

@@ -1,0 +1,110 @@
+.btn {
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn:hover { filter: brightness(1.08); }
+
+.btn-primary {
+  background: var(--primary);
+  border-color: transparent;
+  color: #ffffff;
+}
+
+.hover-bg-primary {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.hover-bg-primary:hover {
+  background-color: var(--primary);
+  color: var(--text);
+}
+
+.btn-danger {
+  background: var(--danger);
+  border-color: transparent;
+  color: #ffffff;
+}
+
+.hover-bg-danger {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.hover-bg-danger:hover {
+  background-color: var(--danger);
+  color: var(--text);
+}
+
+.btn-success {
+  background: var(--success);
+  border-color: transparent;
+  color: #ffffff;
+}
+
+.btn-warning {
+  background: var(--warning);
+  border-color: transparent;
+  color: #ffffff;
+}
+
+.input {
+  width: 100%;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 10px;
+  outline: none;
+}
+.input:focus { border-color: var(--primary); }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.small {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper .input {
+  padding-right: 40px;
+}
+
+.eye-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eye-btn:hover {
+  color: var(--text);
+}
+
+.spin { animation: spin 0.9s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

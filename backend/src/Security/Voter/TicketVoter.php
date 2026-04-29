@@ -2,6 +2,7 @@
 
 namespace App\Security\Voter;
 
+use App\Entity\RepairOrder;
 use App\Entity\Ticket;
 use App\Entity\User;
 use App\Enum\UserRole;
@@ -12,18 +13,14 @@ class TicketVoter extends Voter
 {
     public const VIEW = 'TICKET_VIEW';
     public const GENERATE = 'TICKET_GENERATE';
-    public const SEND = 'TICKET_SEND';
-    public const DOWNLOAD = 'TICKET_DOWNLOAD';
-    public const LIST = 'TICKET_LIST';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if ($attribute === self::LIST) {
-            return true;
+        if ($attribute === self::GENERATE) {
+            return $subject instanceof RepairOrder;
         }
 
-        return $subject instanceof Ticket
-            && in_array($attribute, [self::VIEW, self::GENERATE, self::SEND, self::DOWNLOAD], true);
+        return $subject instanceof Ticket && $attribute === self::VIEW;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
@@ -35,24 +32,15 @@ class TicketVoter extends Voter
 
         $role = $user->getRole();
 
-        $isStaff = in_array($role, [UserRole::SUPER_ADMIN, UserRole::ADMIN, UserRole::RECEPTION], true);
-        $isAdmin = in_array($role, [UserRole::SUPER_ADMIN, UserRole::ADMIN], true);
-        $isTech = $role === UserRole::TECHNICIAN;
-
-        if ($attribute === self::LIST) {
-            return $isStaff || $isTech;
-        }
-
-        /** @var Ticket $ticket */
-        $ticket = $subject;
+        $isStaff = in_array($role, [
+            UserRole::SUPER_ADMIN,
+            UserRole::ADMIN,
+            UserRole::RECEPTION,
+        ], true);
 
         return match ($attribute) {
-            self::VIEW, self::DOWNLOAD =>
-                $isStaff || ($isTech && $ticket->getRepairOrder()->getAssignedTo()?->getId() === $user->getId()),
-
-            self::GENERATE, self::SEND =>
-                $isAdmin || $role === UserRole::RECEPTION,
-
+            self::GENERATE,
+            self::VIEW => $isStaff,
             default => false,
         };
     }

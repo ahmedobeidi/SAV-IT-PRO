@@ -21,7 +21,7 @@ class EquipmentModel
     #[ORM\Column(length: 150)]
     private string $name;
 
-    #[Groups(['equipment_model:read'])]
+    #[Groups(['equipment_model:read', 'repair:read'])]
     #[ORM\ManyToOne(inversedBy: 'models')]
     #[ORM\JoinColumn(nullable: false)]
     private EquipmentBrand $equipmentBrand;

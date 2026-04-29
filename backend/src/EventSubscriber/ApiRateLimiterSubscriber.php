@@ -2,19 +2,23 @@
 
 namespace App\EventSubscriber;
 
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Symfony\Bundle\SecurityBundle\Security;
 
 class ApiRateLimiterSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private RateLimiterFactory $apiLimiter,
         private RateLimiterFactory $loginLimiter,
+        private RateLimiterFactory $forgotPasswordLimiter,
+        private RateLimiterFactory $resetPasswordLimiter,
+        private RateLimiterFactory $refreshTokenLimiter,
         private Security $security,
+        private string $appEnv,
     ) {}
 
     public static function getSubscribedEvents(): array
@@ -24,6 +28,10 @@ class ApiRateLimiterSubscriber implements EventSubscriberInterface
 
     public function onKernelRequest(RequestEvent $event): void
     {
+        if ($this->appEnv === 'test') {
+            return;
+        }
+
         if (!$event->isMainRequest()) {
             return;
         }
@@ -31,33 +39,32 @@ class ApiRateLimiterSubscriber implements EventSubscriberInterface
         $request = $event->getRequest();
         $path = $request->getPathInfo();
 
-        // Only /api/*
         if (!str_starts_with($path, '/api')) {
             return;
         }
 
-        // PUBLIC endpoints (don’t throttle with "api" limiter)
-        // but login gets its own stricter limiter.
         if ($path === '/api/auth/login') {
             $this->consumeOrBlock($event, $this->loginLimiter, $this->keyByIp($request));
             return;
         }
 
-        // Other PUBLIC routes: skip or throttle lightly (your choice)
-        if (
-            str_starts_with($path, '/api/auth/forgot-password') ||
-            str_starts_with($path, '/api/auth/reset-password') ||
-            str_starts_with($path, '/api/auth/refresh')
-        ) {
-            // Option A: skip completely (simple)
+        if ($path === '/api/auth/forgot-password') {
+            $this->consumeOrBlock($event, $this->forgotPasswordLimiter, $this->keyByIp($request));
             return;
-
-            // Option B (better): throttle by IP with a separate limiter if you want
         }
 
-        // Authenticated API: rate limit per USER (best), fallback to IP
+        if ($path === '/api/auth/reset-password') {
+            $this->consumeOrBlock($event, $this->resetPasswordLimiter, $this->keyByIp($request));
+            return;
+        }
+
+        if ($path === '/api/auth/refresh') {
+            $this->consumeOrBlock($event, $this->refreshTokenLimiter, $this->keyByIp($request));
+            return;
+        }
+
         $user = $this->security->getUser();
-        $key = $user ? ('user_'.$user->getUserIdentifier()) : $this->keyByIp($request);
+        $key = $user ? ('user_' . $user->getUserIdentifier()) : $this->keyByIp($request);
 
         $this->consumeOrBlock($event, $this->apiLimiter, $key);
     }

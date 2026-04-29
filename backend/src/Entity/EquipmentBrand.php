@@ -11,17 +11,17 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: EquipmentBrandRepository::class)]
 class EquipmentBrand
 {
-    #[Groups(['equipment_brand:read'])]
+    #[Groups(['equipment_brand:read', 'repair:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[Groups(['equipment_brand:read'])]
+    #[Groups(['equipment_brand:read', 'repair:read'])]
     #[ORM\Column(length: 120)]
     private string $name;
 
-    #[Groups(['equipment_brand:read'])]
+    #[Groups(['equipment_brand:read', 'repair:read'])]
     #[ORM\ManyToOne(inversedBy: 'brands')]
     #[ORM\JoinColumn(nullable: false)]
     private EquipmentType $equipmentType;

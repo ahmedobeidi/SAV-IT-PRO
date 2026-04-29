@@ -6,13 +6,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class CreateRepairOrderRequest
 {
-    #[Assert\NotNull]
+    #[Assert\Positive]
     public int $clientId;
 
-    #[Assert\NotNull]
+    #[Assert\Positive]
     public int $equipmentModelId;
 
-    #[Assert\NotNull]
+    #[Assert\Positive]
     public int $issueId;
 
     #[Assert\PositiveOrZero]

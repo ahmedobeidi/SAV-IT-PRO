@@ -11,7 +11,6 @@ class TicketSnapshotFactory
         return [
             'reference' => $repairOrder->getReference(),
             'status' => $repairOrder->getStatus()->value,
-            'statusLabel' => $repairOrder->getStatus()->label(),
             'client' => [
                 'id' => $repairOrder->getCreatedFor()->getId(),
                 'firstName' => $repairOrder->getCreatedFor()->getFirstName(),
@@ -45,14 +44,19 @@ class TicketSnapshotFactory
         ];
     }
 
-    public function hash(RepairOrder $repairOrder): string
+    public function hashFromSnapshot(array $snapshot): string
     {
         return hash(
             'sha256',
             json_encode(
-                $this->create($repairOrder),
+                $snapshot,
                 JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION
             )
         );
+    }
+
+    public function hash(RepairOrder $repairOrder): string
+    {
+        return $this->hashFromSnapshot($this->create($repairOrder));
     }
 }
