@@ -14,16 +14,16 @@ class EquipmentFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $types = [
-            'Phone', 'Laptop', 'Tablet', 'Desktop PC', 'Gaming Console',
-            'Smartwatch', 'Printer', 'Monitor', 'Router', 'NAS',
-            'Camera', 'Projector', 'POS Terminal', 'Barcode Scanner', 'TV',
-            'Home Theater', 'Drone', 'Server', 'Mini PC', 'E-Reader',
-            'VR Headset', 'Scanner', 'Audio Mixer', 'Microphone', 'Speaker',
-            'Headphones', 'Smart Home Hub', 'Doorbell Camera', 'Alarm Panel', 'Access Control Unit',
-            'Cash Register', 'Label Printer', 'Kiosk', 'Thin Client', 'Docking Station',
-            'External SSD', 'Network Switch', 'Firewall Appliance', 'WiFi Access Point', 'UPS',
-            'MacBook', 'iMac', 'Workstation', 'Medical Tablet', 'Education Chromebook',
-            'Industrial Terminal', 'Touchscreen Panel', 'Attendance Terminal', 'Intercom', 'VoIP Phone'
+            'Téléphone', 'Ordinateur portable', 'Tablette', 'PC fixe', 'Console de jeux',
+            'Montre connectée', 'Imprimante', 'Moniteur', 'Routeur', 'NAS',
+            'Appareil photo', 'Projecteur', 'Terminal de paiement', 'Lecteur de codes-barres', 'Téléviseur',
+            'Home cinéma', 'Drone', 'Serveur', 'Mini PC', 'Liseuse',
+            'Casque VR', 'Scanner', 'Table de mixage audio', 'Microphone', 'Enceinte',
+            'Casque audio', 'Hub domotique', 'Sonnette connectée avec caméra', 'Centrale d’alarme', 'Unité de contrôle d’accès',
+            'Caisse enregistreuse', 'Imprimante d’étiquettes', 'Borne interactive', 'Client léger', 'Station d’accueil',
+            'SSD externe', 'Commutateur réseau', 'Pare-feu matériel', 'Point d’accès Wi-Fi', 'Onduleur',
+            'MacBook', 'iMac', 'Station de travail', 'Tablette médicale', 'Chromebook éducatif',
+            'Terminal industriel', 'Panneau tactile', 'Terminal de pointage', 'Interphone', 'Téléphone VoIP'
         ];
 
         $brands = [
@@ -53,19 +53,19 @@ class EquipmentFixtures extends Fixture
         ];
 
         $issues = [
-            'Broken Screen', 'Battery Failure', 'Charging Port Damage', 'No Power',
-            'Water Damage', 'Keyboard Issue', 'Trackpad Not Working', 'Overheating',
-            'Fan Noise', 'WiFi Connectivity Issue', 'Bluetooth Failure', 'Speaker Distortion',
-            'Microphone Failure', 'Camera Not Working', 'System Not Booting', 'Blue Screen',
-            'Slow Performance', 'Storage Failure', 'RAM Error', 'Motherboard Fault',
-            'Power Button Broken', 'Touchscreen Unresponsive', 'Printer Jam', 'Poor Print Quality',
-            'Scanner Not Detected', 'Paper Feed Issue', 'Cartridge Error', 'Display Flicker',
-            'Dead Pixels', 'HDMI Port Fault', 'USB Port Fault', 'Ethernet Port Failure',
-            'Firmware Corruption', 'OS Reinstallation Needed', 'BIOS Issue', 'Login Problem',
-            'Audio Jack Failure', 'Hinge Damage', 'Backlight Problem', 'Face ID Failure',
-            'Fingerprint Reader Fault', 'GPS Not Working', 'SIM Detection Issue', 'Network Drop',
-            'Router Reboot Loop', 'NAS Disk Error', 'Overcurrent Fault', 'Touch Panel Crack',
-            'Button Stuck', 'Unknown Intermittent Failure'
+            'Écran cassé', 'Panne de batterie', 'Port de charge endommagé', 'Ne s’allume plus',
+            'Dégât des eaux', 'Problème de clavier', 'Pavé tactile non fonctionnel', 'Surchauffe',
+            'Bruit de ventilateur', 'Problème de connexion Wi-Fi', 'Bluetooth défaillant', 'Son déformé',
+            'Microphone défectueux', 'Caméra non fonctionnelle', 'Ne démarre pas', 'Écran bleu',
+            'Lenteur du système', 'Panne de stockage', 'Erreur mémoire RAM', 'Carte mère défectueuse',
+            'Bouton power cassé', 'Écran tactile non réactif', 'Bourrage papier', 'Mauvaise qualité d’impression',
+            'Scanner non détecté', 'Problème d’alimentation papier', 'Erreur de cartouche', 'Écran qui scintille',
+            'Pixels morts', 'Port HDMI défectueux', 'Port USB défectueux', 'Port Ethernet défaillant',
+            'Firmware corrompu', 'Réinstallation du système nécessaire', 'Problème BIOS', 'Problème de connexion',
+            'Prise jack défectueuse', 'Charnière cassée', 'Problème de rétroéclairage', 'Face ID défaillant',
+            'Lecteur d’empreinte défectueux', 'GPS non fonctionnel', 'Carte SIM non détectée', 'Coupures réseau',
+            'Redémarrage en boucle du routeur', 'Erreur disque NAS', 'Surcharge électrique', 'Écran tactile fissuré',
+            'Bouton bloqué', 'Panne intermittente inconnue'
         ];
 
         $typeEntities = [];

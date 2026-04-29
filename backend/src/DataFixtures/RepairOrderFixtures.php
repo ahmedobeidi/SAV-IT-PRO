@@ -41,7 +41,7 @@ class RepairOrderFixtures extends Fixture implements DependentFixtureInterface
             ->setAssignedTo($tech)
             ->setPrice(120)
             ->setDeposit(20)
-            ->setDescription('Screen replacement needed')
+            ->setDescription('Remplacement de l’écran nécessaire')
             ->setStatus(RepairOrderStatus::IN_PROGRESS)
             ->setUpdatedAt(new \DateTimeImmutable());
 

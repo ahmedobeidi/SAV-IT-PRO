@@ -35,7 +35,7 @@ class EquipmentControllerTest extends ApiTestCase
         $this->jsonRequest(
             'POST',
             '/api/equipment-types',
-            ['name' => 'Phone'],
+            ['name' => 'Téléphone'],
             $this->authHeader('admin@example.com')
         );
 
