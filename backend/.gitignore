@@ -10,7 +10,11 @@
 ###< symfony/framework-bundle ###
 
 ###> lexik/jwt-authentication-bundle ###
-/config/jwt/*.pem
+/config/jwt
+/config/jwt/private.pem
+/config/jwt/public.pem
+/config/jwt/private_key_base64.txt
+/config/jwt/public_key_base64.txt
 ###< lexik/jwt-authentication-bundle ###
 
 ###< IDE ###
