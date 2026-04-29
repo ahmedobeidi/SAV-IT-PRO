@@ -73,13 +73,12 @@ export default function TechnicianRepairOrdersPage() {
 
       <div className="card page-toolbar">
         <select
-          className="input"
+          className="input page-select-input-sm"
           value={status}
           onChange={(e) => {
             setStatus(e.target.value as RepairStatus | "");
             setPage(1);
           }}
-          className="input page-select-input-sm"
         >
           {STATUS.map((s) => (
             <option key={s || "ALL"} value={s}>
