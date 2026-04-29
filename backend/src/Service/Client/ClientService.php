@@ -51,11 +51,9 @@ class ClientService
 
     public function anonymize(Client $client): Client
     {
-        $suffix = Uuid::v4()->toRfc4122();
-
         $client->setFirstName('Anonyme');
         $client->setLastName('Anonyme');
-        $client->setPhone('ANON-'.$suffix); // garde unique, mais plus exploitable comme vrai numéro
+        $client->setPhone('ANON-'.$client->getId()); // garde unique, mais plus exploitable comme vrai numéro
         $client->setEmail(null);
         $client->setAddress(null);
         $client->setPostalCode(null);
